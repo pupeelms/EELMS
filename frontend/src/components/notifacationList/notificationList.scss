@@ -1,0 +1,207 @@
+.notification-list {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 4px;
+  height: 70vh;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  
+
+  .notification-list__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px;
+    margin-bottom: 15px;
+
+    .notification-list__actions {
+      display: flex;
+      align-items: center;
+      gap: 15px; // Space between action buttons
+
+      button {
+        background-color: #f5f5f5; // Light background color
+        border: 1px solid #ccc; // Subtle border
+        font-size: 0.9rem;
+        color: #515050; // Text color
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        font-weight: bold;
+        padding: 8px 12px; // Button padding
+        border-radius: 4px; // Rounded corners
+        
+
+        &:hover {
+          background-color: #e0e0e0;
+          color: #333; // Darker hover color
+        }
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3); // Focus effect
+        }
+
+        &:disabled {
+          background-color: #f9f9f9;
+          color: #aaa;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .notification-list__search-sort {
+      display: flex;
+      align-items: center;
+      gap: 15px; /* Space between search input and sort select */
+      justify-content: space-between;
+      width: 40%; /* Adjust the width to make sure it's aligned and centered inside the container */
+
+      input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        width: 100%; /* Let the search input take up the available space */
+        color: #555;
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* Focus effect */
+        }
+      }
+
+      select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        background-color: #fff;
+        color: #555;
+        cursor: pointer;
+        width: auto;
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); // Focus effect
+        }
+      }
+    }
+  }
+
+  .notification-list__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .notification-list__group {
+    .notification-list__date {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .notification-list__item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: #f3f1f1e6;
+      text-decoration: none;
+      color: #c30d0d;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      margin-bottom: 10px;
+      border-radius: 4px; // Rounded corners for items
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &:hover {
+        background-color: #dbdcde;
+      }
+
+      &.unread {
+        border-left: 5px solid #007bff;
+        background-color: #eaf4ff;
+      }
+
+      .notification-list__message {
+        font-size: 0.9rem;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        color: #333;
+        text-decoration: none;
+
+        .notification-list__indicator {
+          margin-left: 0.5rem;
+          color: #d9534f;
+          font-weight: bold;
+        }
+      }
+
+      .notification-list__time {
+        font-size: 0.8rem;
+        color: #999;
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+      }
+
+      .notification-list__delete-button {
+        border-style: none;
+        background: transparent;
+        padding: 0;
+        display: flex;
+        align-items: center;
+
+        .deleteButton {
+          color: maroon;
+          cursor: pointer;
+
+          &:hover {
+            color: black;
+          }
+        }
+      }
+
+      .MuiCheckbox-root {
+        margin-right: 10px;
+        color: maroon;
+      }
+
+      .MuiCheckbox-root.Mui-checked {
+        color: maroon;
+      }
+    }
+  }
+
+  &__select-all {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #333;
+
+    .MuiCheckbox-root {
+      margin-right: 8px;
+      color: maroon;
+    }
+
+    .MuiCheckbox-root.Mui-checked {
+      color: maroon;
+    }
+
+    label {
+      cursor: pointer;
+    }
+  }
+}

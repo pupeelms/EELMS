@@ -1,0 +1,72 @@
+.reportsTableContainer {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+
+  .reportTitlee {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #59000f;
+  }
+
+  .searchExportContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .searchBar {
+      flex-grow: 1; // Makes the search bar take up remaining space
+      margin-right: 20px; // Adds spacing between search bar and export button
+      
+    }
+
+    
+    .export-report-button {
+      color: black;
+      background-color: #d9d9d9;
+      padding: 15px;
+      margin-top: 8px;
+
+
+      &:hover{
+        background-color: #a8a7a7;
+      }
+    }
+  }
+
+  .MuiDataGrid-root {
+    width: 100%;
+    height: 600px;
+  }
+
+  .circularProgress {
+    margin-top: 50px;
+  }
+
+  .errorMessage {
+    color: red;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  .statusSelect {
+    width: 100%;
+    .MuiSelect-root {
+      font-size: 14px;
+      padding: 4px;
+    }
+  }
+
+  .MuiDataGrid-cell {
+    align-items: center;
+  }
+
+  .report-pending{
+    color: orange;
+  }
+
+  .report-del-button{
+    background-color: white;
+  }
+}

@@ -1,0 +1,30 @@
+.archive{
+    display: flex;
+
+    .archiveContainer{
+        flex: 6;
+        flex-grow: 1; /* The content takes up remaining space */
+        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+
+            .archiveListContainer{
+                box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px;
+                margin-top: 20px;
+                
+       
+                   .archiveListTitle{
+                      font-weight: bold;
+                      color: #59000f;
+                      margin-bottom: 15px;
+                   }
+                }
+       
+        }
+    }
+}

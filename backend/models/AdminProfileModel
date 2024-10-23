@@ -1,0 +1,48 @@
+const mongoose = require('mongoose');
+
+const AdminProfileSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  role: {
+    type: String,
+    required: true,
+  },
+  profileImage: {
+    type: String, // URL or path to profile image
+  },
+  contactInfo: {
+    email: {
+      type: String,
+      required: true,
+      unique: true, // Ensure email is unique
+    },
+    password: {
+      type: String,
+    },
+    phone: {
+      type: String, // Optional phone number
+    }
+  },
+  lastLoggedIn: {
+    type: Date, // Track the last login time
+    default: Date.now,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Pre-save hook to automatically update the `updatedAt` field on save
+AdminProfileSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+module.exports = mongoose.model('AdminProfile', AdminProfileSchema);

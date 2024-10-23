@@ -1,0 +1,95 @@
+.userDetails {
+    padding: 30px;
+    background-color: #59000fe3;
+    justify-content: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+    margin: 90px auto;
+
+    .bg-only {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1; /* Background behind the content */
+      }
+  
+    .userDetailsTitle {
+      font-weight: bold;
+      color: white;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  
+    .userDetailsForm {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+  
+      .userDetailsItem {
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+  
+        label {
+          font-weight: normal;
+          margin-bottom: 5px;
+          color: white;
+        }
+  
+        input, select {
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+        }
+      }
+  
+      .borrowedDuration {
+        display: flex;
+        gap: 10px;
+  
+        select {
+          flex: 1;
+        }
+      }
+  
+      .userDetailSubmitButton {
+        padding: 10px;
+        background-color: #F5D029;
+        color: black;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+        font-size: 16px;
+  
+        &:hover {
+          background-color: #d5b31c;
+        }
+      }
+  
+      .userDetailsBackButton {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 14px;
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+  
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  

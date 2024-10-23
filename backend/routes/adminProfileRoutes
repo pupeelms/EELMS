@@ -1,0 +1,38 @@
+const express = require('express');
+const router = express.Router();
+const adminProfileController = require('../controllers/adminProfileController'); // Import the controller
+const multer = require('multer');
+
+
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Set the destination for file uploads
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Save files with a unique name
+  }
+});
+
+// Initialize multer with the storage configuration
+const upload = multer({ storage: storage });
+
+// Route to update an admin profile with optional image upload
+router.put('/profiles/:adminId', upload.single('profileImage'), adminProfileController.updateAdminProfile);
+
+// Fetch all admin profiles
+router.get('/profiles', adminProfileController.getAdminProfiles);
+
+// Select an admin profile after login
+router.post('/select-profile', adminProfileController.selectAdminProfile);
+
+// // Get a single admin profile by ID
+// router.get('/profiles/:profileId', adminProfileController.getSingleAdminProfile);
+
+// // Update an admin profile
+// router.put('/profiles/:profileId', adminProfileController.updateAdminProfile);
+
+// Fetch the logged-in admin's profile
+router.get('/profiles/me', adminProfileController.getLoggedInAdminProfile);
+
+module.exports = router;

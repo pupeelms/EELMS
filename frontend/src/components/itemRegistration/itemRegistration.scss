@@ -1,0 +1,97 @@
+.itemRegistration {
+  -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+  background-color: #59000f;
+  width: auto;
+  border-radius: 10px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  
+  .newItemTitle {
+    font-weight: bold;
+    color: gray;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  .imagePreview {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    /* Center the container horizontally */
+    margin-left: auto;
+    margin-right: auto;
+    
+  }
+  
+  .imagePreview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+  }
+  
+}
+  
+  .newItemForm {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+  }
+  
+  .newItemField {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .newItemField label {
+    font-weight: normal;
+    margin-bottom: 2px;
+    color: white;
+  }
+  
+  .newItemField input,  
+  .newItemField textarea {
+    width: 330px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .newItemField select{
+    width: 349px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .submitButton {
+    background-color: #F5D029;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin-top: 10px; 
+    cursor: pointer;
+    border-radius: 4px;
+    width: 349px;
+    margin-bottom: 10px;
+
+    &:hover {
+      background-color:  #d5b31c;
+    }
+  }
+  
+  .message {
+    margin-top: 10px;
+    color: red;
+  }
+

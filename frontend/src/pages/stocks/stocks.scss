@@ -1,0 +1,14 @@
+.stockList{
+    display: flex;
+
+    .stockListContainer{
+        flex: 6;
+        flex-grow: 1; /* The content takes up remaining space */
+        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+
+        .stockContent {
+         overflow-y: auto;
+         height: calc(100vh - 60px); // Full height minus navbar height
+        }
+    }
+}

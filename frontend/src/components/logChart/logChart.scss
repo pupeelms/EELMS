@@ -1,0 +1,48 @@
+.log-chart-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; // Center vertically
+  align-items: center; // Center horizontally
+  width: auto; // Ensure it takes full width
+  height: auto; // Ensure it takes full height
+  padding: 10px;
+  box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  border-radius: 10px;
+}
+
+.log-chart-title {
+  font-size: 18px;
+  color: #59000f;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.recharts-wrapper {
+  width: 100% !important; /* Ensure chart takes full width */
+}
+
+.recharts-tooltip-wrapper {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.recharts-legend-wrapper {
+  margin-top: 10px;
+}
+
+.recharts-cartesian-axis-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.recharts-yAxis .recharts-cartesian-axis-tick {
+  font-size: 12px;
+  color: #888;
+}
+
+.recharts-xAxis .recharts-cartesian-axis-tick {
+  font-size: 12px;
+  color: #888;
+}

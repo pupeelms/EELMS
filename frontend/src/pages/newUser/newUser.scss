@@ -1,0 +1,23 @@
+.newUser{
+    display: flex;
+
+    .newuser-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1; /* Background behind the content */
+      }
+
+    .newUserContainer{
+        flex: 6;
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+         }
+
+    }
+} 

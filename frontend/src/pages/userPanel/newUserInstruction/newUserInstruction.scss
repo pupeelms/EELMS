@@ -1,0 +1,124 @@
+.new-user-instructions-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  background: #eec50fd9;; /* More visible yellow background */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 90px auto;
+  padding: 20px; /* Add padding for better content spacing */
+  border-radius: 10px;
+
+  /* Ensures it resizes nicely on mobile devices */
+  @media (max-width: 768px) {
+    max-width: 95%; /* Reduce the width for smaller devices */
+    margin: 50px auto;
+  }
+
+  /* Background image styling */
+  .bg-only {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+
+  h2 {
+    font-size: 32px;
+    margin-top: 30px;
+    color: #59000F;
+
+    @media (max-width: 768px) {
+      font-size: 28px;
+    }
+  }
+
+  p, ol {
+    font-size: 18px;
+    color: #000000;
+    max-width: 500px;
+    margin: 20px auto;
+  }
+
+  ol {
+    text-align: left;
+    padding-left: 1.5rem;
+  }
+
+  /* Link to the registration form */
+  .registration-link {
+    font-size: 18px;
+    font-weight: bold;
+    color: #59000F;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 20px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* QR Code styling */
+  .qr-code {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #000000;
+    }
+  }
+
+  /* Button container styling */
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .register-button, .done-button {
+    background-color: #59000F;
+    color: white;
+    padding: 15px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #a32a2a;
+    }
+
+    @media (max-width: 768px) {
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+  }
+
+  /* Back link styling */
+  .back-link {
+    font-size: 16px;
+    color: #000000;
+    text-decoration: none;
+    margin-top: 20px;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

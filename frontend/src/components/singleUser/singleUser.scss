@@ -1,0 +1,260 @@
+.singleUser {
+  flex: 6;
+}
+
+.singleUserContainer {
+  display: flex;
+  flex-direction: column;
+
+  .deleteConfirmation {
+    top: 31%;
+
+    .yes, .no {
+      color: black;
+      border: #333 solid 0.1px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+  }
+}
+
+.userShow {
+  flex: 1;
+  padding: 20px;
+  box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  border-radius: 10px;
+  margin: 10px 20px;
+  display: flex;
+  flex-direction: column;
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* Ensure the content wraps properly on smaller screens */
+  }
+
+  .userIcon {
+    font-size: 80px;
+    color: black;
+  }
+
+  .userDetailsTop {
+    display: flex;
+    flex-direction: column;
+
+    p {
+      margin: 0;
+      font-size: 24px;
+      color: black;
+      font-weight: bold;
+    }
+
+    h4 {
+      font-size: 14px;
+      color: rgb(0, 0, 0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .userIcon {
+      font-size: 60px; /* Reduce icon size on smaller screens */
+    }
+
+    .userDetailsTop p {
+      font-size: 18px; /* Adjust font size for mobile screens */
+    }
+
+    .userDetailsTop h4 {
+      font-size: 12px; /* Adjust font size for mobile screens */
+    }
+  }
+}
+
+.userHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Enable wrapping of buttons and title */
+
+  .userTitle {
+    font-weight: bold;
+    font-size: 24px;
+    color: #59000f;
+  }
+
+  .buttonGroup {
+    display: flex;
+    flex-wrap: wrap;
+
+    .userEditButton,
+    .userDeleteButton {
+      width: 80px;
+      border: none;
+      padding: 3px;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .userEditButton {
+      background-color: gray;
+
+      &:hover {
+        background-color: darkgray;
+      }
+    }
+
+    .userDeleteButton {
+      background-color: rgb(218, 22, 22);
+      margin-left: 10px;
+
+      &:hover {
+        background-color: darkred;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .userTitle {
+      font-size: 20px;
+    }
+
+    .buttonGroup {
+      justify-content: space-between;
+    }
+
+    .userEditButton,
+    .userDeleteButton {
+      font-size: 14px;
+      width: 70px; /* Adjust button size for smaller screens */
+    }
+  }
+}
+
+.userDetailsBottom {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  color: rgb(0, 0, 0);
+
+  p {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    color: rgb(0, 0, 0);
+
+    strong {
+      font-weight: bold;
+      margin-right: 10px;
+      color: rgb(0, 0, 0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* Adjust to two columns for tablet size */
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr; /* Single column for mobile screens */
+  }
+}
+
+/* Drawer Styles */
+.drawerContent {
+  padding: 20px;
+
+  .drawerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+    }
+
+    .closeButton {
+      background: transparent;
+      border: 2px solid black;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      color: black;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+
+      &:hover {
+        background-color: gray;
+        color: white;
+        border-color: gray;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-weight: bold;
+      color: #333;
+
+      input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-top: 5px;
+        width: 100%; /* Use full width for inputs */
+        max-width: 330px; /* Limit max width */
+      }
+    }
+
+    button {
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      width: 100%; /* Use full width for buttons */
+      max-width: 350px;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px;
+
+    .editForm label {
+      font-size: 14px;
+    }
+
+    .editForm input {
+      padding: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      font-size: 14px;
+    }
+  }
+}

@@ -1,0 +1,89 @@
+.total-users-widget {
+  background-color: #59000f; /* Example color */
+  border: #59000f 5px;
+}
+
+.total-items-widget {
+  background-color: #59000f; /* Example color */
+}
+
+.low-stock-widget {
+  background-color: #59000f; /* Example color */
+}
+
+.out-of-stock-widget {
+  background-color: #59000f; /* Example color */
+}
+
+.widget {
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px;
+  height: 100px;
+  border: 3px solid #59000f; /* Add a border with your desired color */
+  background-color: transparent; /* Remove the background color */
+  flex-grow: 1; /* The content takes up remaining space */
+  overflow-x: hidden;
+  
+  .left,
+  .right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+
+    .title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #59000f;
+    }
+
+    .counter {
+      font-size: 30px;
+      font-weight: bolder;
+      color: #59000f;
+    }
+
+    .link {
+      width: max-content;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .icon {
+  font-size: 5vw; /* The icon size is 5% of the viewport width */
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  align-self: flex-end;
+}
+
+/* When the viewport width is smaller than 600px, adjust the icon size */
+@media (max-width: 600px) {
+  .icon {
+    font-size: 25px; /* Smaller font size for mobile devices */
+  }
+}
+
+/* When the viewport width is larger than 1200px, increase the icon size */
+@media (min-width: 1200px) {
+  .icon {
+    font-size: 50px; /* Larger size for larger screens */
+  }
+}
+
+
+    .link-style {
+      text-decoration: none;
+      color: #59000f;
+      font-size: 13px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

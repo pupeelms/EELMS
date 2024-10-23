@@ -1,0 +1,109 @@
+.return-partial-container {
+  background-color: #59000fd7; /* Dark red background similar to the image */
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 500px;
+  margin: 90px auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+
+  .bg-only {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1; /* Background behind the content */
+  }    
+}
+
+.partial-return-reason {
+  color: white;
+}
+
+.return-partial-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.return-partial-description,
+.return-partial-instruction {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.return-partial-items {
+  color: #f5d029;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.items-list-return {
+  list-style-type: none;
+  padding: 0;
+  text-align: center;
+
+  li {
+      text-align: center;
+      color: #e0a800;
+      margin-left: 150px;
+  }
+}
+
+.item {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.all-returned-message {
+  color: #f5d029;
+  font-weight: bold;
+}
+
+.return-partial-button {
+  background-color: #ffc107; /* Yellow button */
+  border: none;
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+      background-color: #e0a800; /* Slightly darker yellow on hover */
+  }
+}
+
+/* New styles for the enter reason section */
+.enter-reason {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 50px;
+  width: 400px;
+}
+
+  button {
+      background-color: #ffc107; /* Same yellow button as above */
+      border: none;
+      color: #000;
+      padding: 5px 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+          background-color: #e0a800; /* Slightly darker yellow on hover */
+      }
+  }
+

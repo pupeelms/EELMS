@@ -1,0 +1,19 @@
+.top-borrowed-chart-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // Center vertically
+    align-items: center; // Center horizontally
+    width: auto; // Ensure it takes full width
+    height: auto; // Ensure it takes full height
+    padding: 10px;
+    margin-bottom: 15px;
+    box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+    border-radius: 10px;
+  }
+  
+  .top-borrowed-chart-title {
+    font-size: 18px;
+    color: #59000f;
+    text-align: center;
+  }
+  

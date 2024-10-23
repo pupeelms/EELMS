@@ -1,0 +1,145 @@
+.sidebar { //-------------
+  width: 210px;
+  height: 100vh; // Ensure full viewport height
+  background-color: #59000f; // Set the background color to red
+  transition: width 0.01s ease;
+  color: #d9d9d9;
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+    padding: 0 10px;
+    color: white;
+    background-color: #59000f;
+
+    
+
+    .logo {
+      padding-left: 10px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 1;
+      color: #F5D029; // Change the logo text color to white for contrast
+    }
+
+    .toggle-btn {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding-right: 10px;
+    }
+  }
+
+  &.closed {
+    width: 65px;
+    transition: width 0.01s ease;
+
+    .logo {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    .icon + span {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.1s ease;
+    }
+
+    .toggle-btn {
+      padding-left: 10px;
+    }
+  }
+  
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+  
+      li {
+        position: relative;
+  
+        .menu-link {
+          display: flex;
+          align-items: center;
+          padding: 10px 20px;
+          text-decoration: none;
+          color: white; // Set menu text color to white for contrast
+          transition: background-color 0.3s ease, font-weight 0.3s ease;
+          cursor: pointer;
+  
+          .icon {
+            margin-right: 10px;
+            flex-shrink: 0;
+            transition: transform 0.1s ease, color 0.3s ease; // Smooth icon transition
+            color: white; // Set icon color to white for contrast
+          }
+  
+          .sidebar-name {
+            color: white;
+  
+            &:hover {
+              color: black;
+            }
+          }
+  
+          .counter {
+            position: absolute;
+            top: 11.5px;
+            right: 3px;
+            background-color: #bf211e;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+          }
+  
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: transparent;
+            z-index: -1;
+          }
+  
+          // When hovered or active
+          &:hover,
+          &.active {
+            background-color: #f0f0f0; // Light background when hovered or active
+            color: black; // Text color when hovered or active
+            border-right: 4px solid #F5D029; // Right border on active or hover
+  
+            .icon {
+              color: black; // Change icon color
+            }
+  
+            .sidebar-name {
+              color: black; // Ensure text color changes to black on hover/active
+            }
+          }
+  
+          // Icon hover effect
+          &:hover .icon,
+          &.active .icon {
+            transform: scale(1.2); // Slightly increase icon size on hover or active
+          }
+        }
+      }
+    }
+  }
+  

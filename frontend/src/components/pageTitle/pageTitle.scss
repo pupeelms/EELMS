@@ -1,0 +1,40 @@
+.pagetitle {
+    nav {
+      display: flex;
+      list-style-type: none;
+      margin-top: 10px;
+  
+      .paging-item {
+        margin-right: 16px; /* Adjust the spacing as needed */
+  
+        a {
+          text-decoration: none;
+          color: inherit;
+        }
+      }
+  
+      .paging-item-active {
+        display: flex;
+        align-items: center;
+        color: #5b5858;
+  
+        .icon-small {
+          margin-left: 5px; /* Adjust the spacing as needed */
+          font-size: 1.2rem; /* Adjust the size as needed */
+          color: #5b5858;
+          cursor: pointer;
+          padding-top: 5px;
+        }
+
+        &:hover .icon-small {
+          transform: scale(1); /* Slightly increase icon size on hover */
+          color: #050505; /* Optional: Change icon color on hover */
+        }
+  
+        .separator {
+          margin: 0 4px; /* Add spacing around the '/' */
+        }
+      }
+    }
+  }
+  

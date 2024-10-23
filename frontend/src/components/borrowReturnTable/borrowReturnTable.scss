@@ -1,0 +1,66 @@
+.table {
+  // height: 334px;
+  
+    .status {
+      padding: 5px;
+      border-radius: 5px;
+  
+      &.Pending {
+        color: goldenrod;
+        background-color: rgba(189, 189, 3, 0.103);
+      }
+
+      &.Completed {
+        color: green;
+        background-color: rgba(0, 128, 0, 0.151);
+      }
+
+      &.Overdue {
+        color: red;
+        background-color: rgba(169, 0, 0, 0.149);
+      }
+
+      .button {
+        color: red;
+        
+      }
+    }
+
+    .type {
+        padding: 5px;
+        border-radius: 5px;
+    
+        &.Borrowed {
+          color: red;
+          background-color: rgba(189, 3, 3, 0.103);
+        }
+  
+        &.Returned {
+          color: green;
+          background-color: rgba(0, 128, 0, 0.151);
+        }
+    }
+
+    .table{
+      color: #343333;
+    }
+    
+  .tableCell {
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    padding: 5px;
+    font-size: smaller;
+  }
+
+  .column {
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    font-weight: bold;
+    color: #343333;
+    background-color: rgb(118, 118, 26);
+    padding: 10px;
+    
+    ;
+  } 
+
+}

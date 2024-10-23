@@ -1,0 +1,70 @@
+.report {
+    display: flex;
+
+    .reportContainer {
+        flex: 6;
+        flex-grow: 1; /* The content takes up remaining space */
+        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+
+            .charts-container {
+                padding: 20px;
+                display: flex; /* Set flexbox to align items horizontally */
+                justify-content: space-between; /* Add space between the charts */
+                align-items: center; /* Center align the charts vertically */
+                margin: 10px 0; /* Add some spacing */
+                margin-bottom: -70px;
+               
+            }
+
+            .pm-table-container {
+                flex: 1;
+                box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px;
+            }
+
+            .reportlist-container {
+                flex: 1;
+                box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .charts-container {
+                display: grid;
+                grid-template-columns: 2.3fr 1.2fr 1.5fr; /* First column is larger (2fr), second column is smaller (1fr) */
+                grid-template-rows: auto auto auto; /* Two rows for the right column */
+                grid-gap: 20px; /* Space between charts */
+                margin-top: -24px;
+                
+            }
+            
+            .charts-container > *:nth-child(1) {
+                grid-column: 1; /* The first chart takes the entire first column */
+                grid-row: 1; /* The first chart spans across both rows */
+                
+               
+            }
+            
+            .charts-container > *:nth-child(2) {
+                grid-column: 2; /* The second chart goes to the second column */
+                grid-row: 1; /* It stays in the first row */
+                margin-top: 5%;
+                
+            }
+            
+            .charts-container > *:nth-child(3) {
+                grid-column: 3; /* The third chart also goes to the second column */
+                grid-row: 1; /* It stays in the second row */
+                margin-top: 3%;
+            }
+            
+        }
+    }
+}

@@ -1,0 +1,84 @@
+.cat-chart-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribute space between chart and title */
+  align-items: center;
+  width: auto; /* Ensure it takes full width */
+  height: 82%; /* Keep height consistent */
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  border-radius: 10px;
+  background-color: white;
+  flex-grow: 1; /* The content takes up remaining space */
+  overflow-x: hidden;
+}
+
+.cat-chart-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: #59000f;
+  margin-top: -10px;
+}
+
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Make sure the chart wrapper takes up the full width */
+  flex-direction: column; /* Ensure elements are stacked vertically */
+}
+
+.chart-pie {
+  margin-bottom: 20px; /* Add spacing between chart and legend */
+}
+
+.custom-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Wrap the legend items if they don't fit in one line */
+  
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  margin-bottom: 5px; /* Add spacing for each legend item */
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  margin-right: 5px;
+  border-radius: 50%;
+}
+
+.legend-name {
+  font-size: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cat-chart-container {
+    height: auto; /* Let the height adjust automatically on smaller screens */
+  }
+
+  .chart-wrapper {
+    flex-direction: column; /* Stack everything vertically on smaller screens */
+  }
+
+  .custom-legend {
+    justify-content: center; /* Center the legend on smaller screens */
+  }
+
+  .cat-chart-title {
+    font-size: 16px; /* Adjust title size for mobile */
+  }
+
+  .legend-name {
+    font-size: 10px; /* Make the legend font smaller for mobile */
+  }
+}

@@ -1,0 +1,61 @@
+.borrow-return-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border-radius: 10px;
+    background: #59000fcf; /* Same transparent background */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Content should be above the background */
+    max-width: 500px;
+    margin: 90px auto;
+  
+    .bg-only {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+  
+    h3 {
+      font-size: 30px;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+  
+    h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+  
+    button {
+      background-color: #f5d029;
+      color: #000000;
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 200px;
+      margin: 10px 0;
+      transition: background-color 0.3s ease;
+  
+      &:hover {
+        background-color: #cda802;
+      }
+    }
+  
+    /* To center buttons horizontally and adjust spacing */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px; /* Adjust the gap between buttons */
+    }
+  }
+  

@@ -1,0 +1,34 @@
+.notification{
+    display: flex;
+      
+     .notificationContainer{
+        flex: 6;
+        flex-grow: 1; /* The content takes up remaining space */
+        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+        }
+ 
+        .notifList{
+            flex: 1;
+            box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+            padding: 20px;
+            margin: 20px;
+            
+            border-radius: 10px;
+
+            .notifTitle{
+                font-weight: bold;
+                color: #59000f;
+                margin-top: 5px;
+                margin-bottom: 20px;
+
+
+                
+            }
+
+        }
+    }
+}

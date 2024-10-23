@@ -1,0 +1,60 @@
+.itemList{
+    display: flex;
+
+    .itemListContainer{
+        flex: 6;
+        flex-grow: 1; /* The content takes up remaining space */
+        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+        }
+
+        .itemListTable{
+            flex: 1;
+            box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+            padding: 20px; 
+            margin: 20px;
+            border-radius: 10px;
+            
+           
+        
+            .itemListTitle{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                
+                
+                .title {
+                   font-weight: bold; 
+                   color: #59000f;
+                   margin-bottom: 15px;  
+                 }
+
+                .link{
+                   text-decoration: none;
+                   margin-bottom: 15px;  
+                }
+
+                .addItem{
+                text-transform: none;
+                   border: none;
+                   padding: 5px;
+                   background-color: gray;
+                   border-radius: 5px;
+                   cursor: pointer;
+                   color: white;
+                   font-size: 16px;
+                   transition: background-color 0.3s ease;
+                   margin-bottom: 10px;
+                   
+
+                   &:hover {
+                      background-color: darkgray;
+                   }
+                }            
+            }
+        }
+    }
+}

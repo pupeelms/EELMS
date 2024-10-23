@@ -1,0 +1,85 @@
+.categoryTable {
+
+  .export-cat-button {
+    width: 100px;  // Ensure the button matches the select menu size
+    color: black;
+    background-color: #d9d9d9;
+    padding: 8px;
+    
+
+    &:hover {
+      background-color: #b4b3b3; // Darker blue on hover
+    }
+  }
+  
+    .MuiDataGrid-root {
+      background-color: white;
+    }
+  
+    .MuiDataGrid-cell {
+      display: flex;
+    //   justify-content: center;
+    //   align-items: center;
+    }
+  
+    button {
+      margin: 5px;
+    }
+  
+    img {
+      border-radius: 8px;
+    }
+  
+    .edit-button:hover {
+      background-color: white;
+    }
+
+    .delete-button:hover {
+      background-color: white;
+    }
+  
+    .view-button:hover {
+      background-color: white;
+    }
+
+  /* Drawer Styles */
+  .drawerContent {
+    padding: 20px;
+
+    .drawerHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      h2 {
+        margin: 0;
+      }
+
+      .closeButton {
+        background: transparent;
+        border: 2px solid black; // Initial border color
+        width: 30px; // Set width and height for the circle
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px; // Adjust font size as needed
+        cursor: pointer;
+        color: black;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+
+        &:hover {
+          background-color: gray; // Background color on hover
+          color: white; // Text color on hover
+          border-color: gray; // Border color on hover
+        }
+
+        &:focus {
+          outline: none; // Remove default focus outline
+        }
+      }
+    }
+  }
+}
+  

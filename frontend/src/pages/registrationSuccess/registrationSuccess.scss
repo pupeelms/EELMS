@@ -1,0 +1,15 @@
+.success{
+    display: flex;
+
+    .successContainer{
+        flex: 6;
+
+        .Content {
+            overflow-y: auto;
+            height: calc(100vh - 60px); // Full height minus navbar height
+        }
+
+    }
+ 
+    
+} 

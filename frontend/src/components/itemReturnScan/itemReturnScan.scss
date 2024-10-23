@@ -1,0 +1,131 @@
+.item-return-scan {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 60px;
+    background-color: #000000c9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    font-family: Arial, sans-serif;
+  
+    .bg-only { 
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1; /* Background behind the content */
+      }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+  
+    p {
+      font-size: 16px;
+      color: #ffffff;
+      margin: 5px 0;
+  
+      strong {
+        color: #ffffff;
+      }
+    }
+
+    label{
+      font-size: 16px;
+      color: #ffffff;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+  
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 15px 0;
+  
+      li {
+        background-color: #59000fc9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+  
+        p {
+          margin: 5px 0;
+  
+          strong {
+            color: #ffffff;
+          }
+        }
+      }
+      .return-condition{
+        margin-left: 5px;
+      }
+    }
+  
+    .error {
+      color: #d9534f;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  
+    .success {
+      color: #5cb85c;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  
+    input[type="text"] {
+      width: calc(100% - 100px);
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+      box-sizing: border-box;
+  
+      &:focus {
+        border-color: #66afe9;
+        box-shadow: 0 0 8px #ce0022;
+      }
+    }
+  
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      color: #000000;
+      background-color: #f5d029;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+  
+      &:hover {
+        background-color: #f3c600;
+      }
+  
+      &:disabled {
+        background-color: #999;
+        cursor: not-allowed;
+      }
+    }
+
+    .custom-condition-container{
+      input{
+        margin-top: 5px;
+      }
+    }
+  
+    .complete-return-btn {
+      background-color: #5cb85c;
+      margin-top: 20px;
+  
+      &:hover {
+        background-color: #4cae4c;
+      }
+    }
+  }
+  

@@ -1,0 +1,248 @@
+.select-admin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #4a0e14;
+    height: 100vh;
+    padding: 0;
+    color: white;
+    box-sizing: border-box;
+    overflow: hidden;
+  
+    h1 {
+      margin: 100px 0 10px 0;
+      font-weight: bold;
+      font-size: 50px;
+    }
+  
+    .profile-cards {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      flex-grow: 1;
+      align-items: center;
+      box-sizing: border-box; 
+    }
+  
+    .profile-card {
+      background-color: #ffc107;
+      margin-bottom: 70px;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      width: 150px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+      &:hover {
+        transform: scale(1.05);
+      }
+  
+      .profile-picture {
+        background-color: transparent;
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+  
+        .profile-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+  
+        .profile-placeholder {
+          color: rgb(0, 140, 255);
+          font-size: 0.8rem;
+        }
+      }
+  
+      .profile-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+        margin-bottom: 5px;
+      }
+    }
+  
+    /* Modal styling */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+  
+    .modal-content {
+      background-color: #f4f4f4;
+      padding-bottom: 30px;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 10px;
+      border-radius: 10px;
+      width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .close-button {
+      align-self: flex-end;
+      font-size: 30px;
+      cursor: pointer;
+      color: #333;
+
+      &:hover {
+        font-weight: bolder;
+        color: #59000f;
+      }
+    }
+  
+    .profile-modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .profile-modal-picture {
+      background-color: #ffc107;
+      border-radius: 50%;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-modal-placeholder{
+      color: black;
+    }
+
+    .profile-placeholder-icon{
+      color: black;
+    }
+  
+    .profile-modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+  
+    .profile-name {
+      font-size: 25px;
+      color: white;
+      margin: 10px 0 5px;
+    }
+  
+    .profile-role {
+      font-size: 14px;
+      font-weight: bold;
+      color: #59000f;
+      margin-top: 10px;
+    }
+
+
+    /* Profile name and role in modal */
+    .profile-name-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin: 10px 0 5px;
+    }
+  
+    .profile-role-display {
+      font-size: 18px;
+      font-weight: normal;
+      color: #666;
+      margin-bottom: 20px;
+    }
+  
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+  
+      input {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: none;
+        width: 300px;
+        background-color: #4a0e14;
+        color: white;
+      }
+
+      .input-password-wrapper {
+        position: relative;
+        width: 100%;
+    
+        input {
+          padding-right: 40px; // Padding to make space for the eye icon
+          width: 270px;
+        }
+    
+        .toggle-password-icon {
+          position: absolute;
+          right: 15px; // Position the eye icon to the right within the input
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 1.2rem;
+          color: #797878;
+          cursor: pointer;
+          margin-top: -4px;
+        }
+      }
+  
+      .remember-me-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        width: 100%;
+  
+        input[type="checkbox"] {
+          margin-right: 5px;
+          margin-left: 200px;
+        }
+  
+        label {
+            margin-right: 38%;
+            margin-bottom: 7px;
+            font-size: 0.9rem;
+            color: rgb(0, 0, 0); /* Ensures label is visible */
+            white-space: nowrap; /* Prevent label from wrapping or cutting off */
+          }
+        }
+  
+      .login-button {
+        padding: 10px;
+        width: 130px;
+        margin-top: 20px;
+        background-color: #006eff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: #005bb5;
+        }
+      }
+    }
+  }
+  

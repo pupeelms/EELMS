@@ -1,0 +1,69 @@
+.categoryRegistration {
+  -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+  background-color: #59000f;
+  width: auto;
+  border-radius: 10px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  
+  
+    .newCategoryTitle {
+      font-weight: bold;
+      color: rgb(255, 255, 255);
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+  
+    .newCategoryForm {
+      width: 330px;
+      margin-top: 10px;
+      align-items: center;
+      margin-left: -20px;
+
+    }
+  
+    .newCategoryField {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .newCategoryField label {
+      font-weight: normal;
+      margin-bottom: 2px;
+      color: white;
+    }
+  
+    .newCategoryField input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  
+    .submitButton {
+      background-color: #F5D029;
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 350px;
+
+      &:hover {
+        background-color:  #d5b31c;
+      }
+    }
+  
+    .errorMessages {
+      margin-top: 10px;
+      color: red;
+    }
+  }

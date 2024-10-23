@@ -1,0 +1,83 @@
+.feedbackForm {
+  box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+  .feedbackTitle {
+      font-weight: bold;
+      color: #59000f;
+      margin-bottom: 15px;
+      font-size: 20px;
+  }
+}
+
+.feedback-form {
+  width: 100%;
+  max-width: 400px; /* Limit the max width for larger screens */
+
+  h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+  }
+
+  label {
+      display: block;
+      margin-bottom: 10px;
+      color: #333;
+
+      .form-label {
+          display: flex;
+          margin-bottom: 2px;
+      }
+
+      &:last-child {
+          margin-bottom: 0;
+      }
+  }
+
+  input[type="text"],
+  input[type="email"],
+  textarea {
+      width: 100%; /* Make the input box take the full width of its parent */
+      padding: 7px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box; /* Ensure padding is included in the width */
+  }
+
+  textarea {
+      resize: vertical;
+      height: 150px;
+  }
+
+  input[type="file"] {
+      display: block;
+  }
+
+  button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 100%; /* Full width button */
+
+      &:hover {
+          background-color: #38823b;
+      }
+  }
+}

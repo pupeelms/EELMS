@@ -1,0 +1,98 @@
+.report-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 90px auto;
+  background: #59000fcf; /* Same transparent background */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1; /* Content should be above the background */
+  
+
+  .bg-only {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Background behind the content */
+  }
+}
+
+.report-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }
+
+  label {
+    margin-bottom: 5px;
+    color: #ffffff;
+  }
+
+  input,
+  textarea,
+  select {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+
+    &:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #f5d029;
+    color: #000000;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #b49922;
+    }
+  }
+
+  /* Style for the "Scan" button */
+  button[type='button'] {
+    background-color: #007bff;
+    color: #ffffff;
+    margin-bottom: 15px;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  /* Show the input box when the scan button is clicked */
+  .show-input {
+    display: block;
+  }
+
+  p {
+    color: #d9534f; // Red for error messages
+    text-align: center;
+    margin-top: 10px;
+  }
+}
