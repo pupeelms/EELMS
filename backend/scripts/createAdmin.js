@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
 
 dotenv.config();
-
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
