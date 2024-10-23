@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../utils/upload');
 const itemController = require('../controllers/itemController');
 const borrowReturnController = require('../controllers/borrowReturnController');
 const authMiddleware = require('../middleware/authMiddleware'); 
+const multer = require('multer');
+const upload = require('../utils/upload')
 
 // Routes
 router.post('/create', upload.single('image'), authMiddleware, itemController.createItem);

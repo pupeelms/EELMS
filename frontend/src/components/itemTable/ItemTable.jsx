@@ -66,17 +66,18 @@ export const ItemTable = () => {
       headerName: 'Image',
       minWidth: 150,
       renderCell: (params) => {
+        // Use params.value directly since it already contains the full image URL
         const imageUrl = params.value 
-          ? `${imageBaseURL.replace(/\/$/, '')}/${params.value.replace(/^\//, '')}`
+          ? params.value 
           : "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg";
-
+    
         return (
           <div className="table-cell-image">
-            <img src={imageUrl} alt="item" className="item-image" />
+            <img src={imageUrl} alt="item" className="item-image"  style={{ width: 'auto', height: '100%', objectFit: 'cover' }}  /> {/* Adjust styles as needed */}
           </div>
         );
       },
-    },
+    },    
     {
       field: 'barcodeImage',
       headerName: 'Barcode',

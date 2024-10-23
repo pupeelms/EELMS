@@ -2,7 +2,7 @@ const app = require('./app');
 const cron = require('node-cron');
 const { checkOverdueItems } = require('./utils/overdueService');
 const { startSmsReminderCron } =  require('./utils/reminderScheduler');
-
+const path = require('path');
 const PORT = process.env.PORT || 4000; // Change to another available port
 
 
@@ -24,7 +24,11 @@ process.on('unhandledRejection', (err) => {
 });
 
 process.on('uncaughtException', (err) => {
-  console.error(`Uncaught Exception: ${err.message}`);
-  server.close(() => process.exit(1));
-});
+  console.error('Uncaught Exception:', err.message);  // Logs just the error message
+  console.error('Stack Trace:', err.stack);  // Logs the stack trace for debugging
 
+  // Gracefully shut down the server
+  server.close(() => {
+    process.exit(1);
+  });
+});

@@ -8,9 +8,6 @@ const mongoose = require('mongoose');
 exports.createReport = async (req, res) => {
   const { itemId, issue, reportedByName, priority } = req.body;
 
-  // Log the incoming request body for debugging
-  console.log('Received data:', req.body);
-
   try {
     // Validate input - ensure all fields are present
     if (!itemId || !issue || !reportedByName || !priority) {
@@ -74,14 +71,11 @@ exports.getReportsForItem = async (req, res) => {
 
 // Get all reports
 exports.getAllReports = async (req, res) => {
-  console.log('getAllReports function called');
+ 
   try {
-    console.log('Attempting to fetch reports from database');
     // Fetch all reports and populate related item data (itemName, itemBarcode)
     const reports = await Report.find().populate('itemId', 'itemName itemBarcode');
     
-    console.log('Reports fetched:', reports);
-
     // Check if there are any reports
     if (!reports.length) {
       console.log('No reports found');

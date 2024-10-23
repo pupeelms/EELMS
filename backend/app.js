@@ -4,8 +4,10 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const dotenv = require('dotenv');
 const path = require('path');
-const upload = require('./utils/upload');
+const cloudinary = require('./utils/cloudinary'); 
 const MongoDBStore = require('connect-mongodb-session')(session);
+const bodyParser = require('body-parser')
+const upload = require('./utils/upload')
 
 dotenv.config();
 
@@ -44,6 +46,7 @@ app.use(cors({
 
 app.use(express.urlencoded({ extended: true }));
 
+
 // Session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || '4e0b0bcd0a7a0f13e24aaa87219e0c59785e59140e9f7eff4f17e6fbde300b61b1a4c78becd93a4d689c05ade3df481f746fb4249f41c459ff2c67789f2f5d38', // Use a strong secret key
@@ -75,18 +78,25 @@ app.use('/api/adminProfile', require('./routes/adminProfileRoutes'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// File Upload Route
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded');
-  }
-  res.status(200).json({ filePath: `/uploads/${req.file.filename}` });
-});
+// // Upload route
+// app.post('/upload', upload.single('file'), (req, res) => {
+//     // Check if file exists
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded.');
+//     }
 
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+//     // Upload to Cloudinary
+//     cloudinary.uploader.upload_stream((error, result) => {
+//         if (error) {
+//             return res.status(500).send(error.message);
+//         }
+//         // Return the Cloudinary response (URL and other info)
+//         res.json({
+//             message: 'File uploaded successfully!',
+//             url: result.secure_url,
+//             public_id: result.public_id,
+//         });
+//     }).end(req.file.buffer); // Send the file buffer to Cloudinary
+// });
 
 module.exports = app; // Export the app instance

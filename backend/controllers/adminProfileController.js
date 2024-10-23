@@ -1,7 +1,7 @@
 const AdminProfile = require('../models/AdminProfileModel'); // Path to your AdminProfile model
 const fs = require('fs'); // Required for file system operations if needed
 const path = require('path'); // Required for file path operations
-
+const cloudinary = require('../utils/cloudinary'); // Ensure your Cloudinary setup is correct
 
 exports.updateAdminProfile = async (req, res) => {
   console.log("Request received to update admin profile:", req.params.adminId);
@@ -27,17 +27,51 @@ exports.updateAdminProfile = async (req, res) => {
 
     // If a new profile image is uploaded
     if (req.file) {
-      console.log("New profile image uploaded:", req.file.filename);
-      adminProfile.profileImage = req.file.filename;
-    }
+      console.log("New profile image uploaded:", req.file);
 
-    await adminProfile.save();
-    res.status(200).json({ message: 'Admin profile updated successfully', adminProfile });
+      // Specify the folder where you want to upload the image
+      const folderName = 'admin_profiles'; // Change this to your desired folder name
+
+      // Upload the image to Cloudinary
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { resource_type: 'image', folder: folderName },
+        async (error, result) => {
+          if (error) {
+            console.error('Error uploading image to Cloudinary:', error);
+            return res.status(500).json({ message: 'Failed to upload image', error: error.message });
+          }
+
+          // Update the admin profile with the Cloudinary URL
+          adminProfile.profileImage = result.secure_url; // Use the secure URL from Cloudinary
+          await adminProfile.save();
+
+          // Delete the local file after successful upload
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error('Error deleting local file:', err);
+            } else {
+              console.log('Local file deleted:', req.file.path);
+            }
+          });
+
+          return res.status(200).json({ message: 'Admin profile updated successfully', adminProfile });
+        }
+      );
+
+      // Create a readable stream from the uploaded file
+      const fileStream = fs.createReadStream(req.file.path);
+      fileStream.pipe(uploadStream);
+      
+    } else {
+      await adminProfile.save();
+      res.status(200).json({ message: 'Admin profile updated successfully', adminProfile });
+    }
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Failed to update admin profile', error: error.message });
   }
 };
+
 
 
 // Get all admin profiles
@@ -109,7 +143,6 @@ exports.getSingleAdminProfile = async (req, res) => {
 // Fetch the logged-in admin's profile
 exports.getLoggedInAdminProfile = async (req, res) => {
   try {
-    console.log('Session on getLoggedInAdminProfile:', req.session);
 
     // Check if the session and adminProfile exist
     if (!req.session || !req.session.adminProfile || !req.session.adminProfile.id) {
@@ -118,7 +151,6 @@ exports.getLoggedInAdminProfile = async (req, res) => {
     }
 
     const adminId = req.session.adminProfile.id;
-    console.log(`Fetching profile for admin ID: ${adminId}`);
 
     // Find the admin profile by ID
     const profile = await AdminProfile.findById(adminId);
@@ -128,8 +160,7 @@ exports.getLoggedInAdminProfile = async (req, res) => {
       return res.status(404).json({ message: 'Admin not found' });
     }
 
-    console.log('Admin profile successfully retrieved:', profile);
-
+    
     // Return the profile data
     return res.status(200).json(profile);
   } catch (error) {

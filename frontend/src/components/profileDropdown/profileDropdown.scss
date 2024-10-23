@@ -74,7 +74,7 @@
       margin-top: 20px;
       display: flex;
       flex-direction: column;
-
+ 
       input {
         margin-bottom: 10px;
         padding: 8px;
@@ -130,9 +130,10 @@
       
       .password-toggle-button svg {
         font-size: 1.2rem;
-      }
-      
-      
+      }  
+    }
+    .profile-label{
+      color: black;
     }
   }
 }

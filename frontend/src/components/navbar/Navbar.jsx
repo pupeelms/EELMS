@@ -194,10 +194,10 @@ const Navbar = () => {
             <div ref={profileRef} onClick={toggleProfileDropdown} className="nav-item">
               {admin && admin.profileImage && !profileImageError ? (
                 <img
-                  src={`${imageBaseURL}/uploads/${admin.profileImage}`} // Dynamic image base URL
+                  src={admin.profileImage} // Use the full Cloudinary URL directly from admin object
                   alt="Profile"
                   className="profile-icon"
-                  onError={handleImageError}
+                  onError={handleImageError} // Handle any loading error
                 />
               ) : (
                 <AccountCircleRoundedIcon className="icon" />
@@ -212,6 +212,7 @@ const Navbar = () => {
               )}
             </div>
           </Tooltip>
+
         </div>
       </div>
     </div>

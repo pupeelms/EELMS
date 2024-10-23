@@ -15,6 +15,10 @@
     z-index: -1; /* Background behind the content */
   }
 
+  .visible-input{
+    margin-bottom: 15px;
+  }
+
   .qr-id-content-container {
     display: flex;
     flex-direction: column;

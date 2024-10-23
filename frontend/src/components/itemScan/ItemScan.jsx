@@ -106,7 +106,7 @@ const ItemScan = () => {
         itemBarcode: currentBarcode,
         itemName: itemDetails.itemName,
         quantity: requestedQuantity,
-        image: itemDetails.image ? `${imageBaseURL}uploads/${itemDetails.image}` : '',
+        image: itemDetails.image,
       };
       setScannedItems(prevItems => [...prevItems, newItem]);
     }
@@ -200,17 +200,19 @@ const ItemScan = () => {
             <p>Item: {itemDetails.itemName}</p>
             {itemDetails.image && (
               <img
-                src={`${imageBaseURL}${itemDetails.image}`}  // Concatenate base URL with image path
+                src={itemDetails.image}  // Use the full image URL directly from Cloudinary
                 alt={itemDetails.itemName}
                 className="item-image"
+                style={{ width: '30%', height: 'auto', objectFit: 'cover' }} // Cover style
                 onError={(e) => {
-                e.target.src = '/path/to/placeholder.png';  // Set fallback image if the requested image fails to load
-                e.target.onError = null;  // Prevent infinite loop if the placeholder also fails
-              }}
-            />
+                  e.target.src = '/path/to/placeholder.png';  // Set fallback image if the requested image fails to load
+                  e.target.onError = null;  // Prevent infinite loop if the placeholder also fails
+                }}
+              />
             )}
           </div>
         )}
+
 
         {itemDetails && (
           <>

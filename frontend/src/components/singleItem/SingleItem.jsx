@@ -91,21 +91,27 @@ const SingleItem = () => {
 
   const handleSave = async () => {
     const formData = new FormData();
-    
-    // Append fields manually to ensure they are in the correct format
+
+    // Iterate through updatedItem and append fields to FormData
     Object.keys(updatedItem).forEach((key) => {
       if (key === 'image' && updatedItem.image instanceof File) {
-        // Append the image file if it's a File instance
-        formData.append('image', updatedItem.image);
+        formData.append('image', updatedItem.image); // Append image if it's a File
       } else if (key === 'category' && updatedItem.category?._id) {
-        // Serialize the category object (just use the ID or convert to string)
-        formData.append('category', updatedItem.category._id);
-      } else if (updatedItem[key] !== undefined && updatedItem[key] !== null) {
-        // Add other fields, ensuring they're valid
-        formData.append(key, updatedItem[key]);
+        formData.append('category', updatedItem.category._id); // Append category ID
+      } else if (key !== 'maintenanceSchedule' && updatedItem[key] !== undefined && updatedItem[key] !== null) {
+        formData.append(key, updatedItem[key]); // Append other valid fields
       }
     });
-  
+
+console.log(updatedItem.image instanceof File);  // Should return true
+console.log(updatedItem.image);  // Should log the file object
+
+    
+    // Debug to see the final formData entries
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+    
     try {
       const response = await axios.put(`/api/items/${itemId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -151,19 +157,16 @@ const SingleItem = () => {
           </div>
 
           <div className="itemInfo">
-            <img
-              src={
-                (() => {
-                  const imageUrl = item.image
-                    ? `${imageBaseURL.replace(/\/$/, '')}/${item.image.replace(/^\//, '')}`
-                    : "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg";
-                  
-                  return imageUrl;
-                })()
-              }
-              alt={item.itemName}
-              className="itemImage"
-            />
+          <img
+            src={
+              updatedItem.image instanceof File
+                ? URL.createObjectURL(updatedItem.image)  // For local file preview
+                : updatedItem.image  // For Cloudinary URL
+            }
+            alt={item.itemName}
+            className="itemImage"
+          />
+
 
             <div className="itemDetailsTop">
               <p>{item.itemName}</p>

@@ -28,7 +28,7 @@ const ProfileDropdown = ({ admin, isOpen, toggleDropdown, updateAdminProfile }) 
       role: admin?.role || '',
       image: admin?.profileImage || '',
     });
-    setProfileImage(admin?.profileImage ? `${imageBaseURL}/uploads/${admin.profileImage}` : '');
+    setProfileImage(admin?.profileImage || '');
   }, [admin]);
 
   // Handle text input changes
@@ -126,7 +126,7 @@ const ProfileDropdown = ({ admin, isOpen, toggleDropdown, updateAdminProfile }) 
             <form onSubmit={handleSubmit} className="edit-profile-form">
 
               <div>
-                <label htmlFor="image-upload">Image:</label>
+                <label className='profile-label' htmlFor="image-upload">Image:</label>
                 <input
                   id="image-upload"
                   type="file"

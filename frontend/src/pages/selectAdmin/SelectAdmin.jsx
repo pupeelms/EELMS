@@ -24,8 +24,6 @@ const SelectAdmin = () => {
         const profilesWithImage = response.data.map((admin) => ({
           ...admin,
           profileImage: admin?.profileImage
-            ? `${imageBaseURL}/uploads/${admin.profileImage}`
-            : '', // If no image, fallback to empty string
         }));
         setProfiles(profilesWithImage);
       } catch (err) {

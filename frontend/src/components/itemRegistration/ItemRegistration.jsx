@@ -97,7 +97,7 @@ const ItemRegistration = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
-
+ 
       if (response.status === 201) {
         setOpenDialog(true);
       } else {

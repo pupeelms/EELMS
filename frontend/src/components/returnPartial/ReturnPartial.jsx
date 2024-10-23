@@ -58,7 +58,7 @@ const ReturnPartial = ({ remainingItems }) => {
           {items && items.length > 0 ? (
             items.map((item, index) => (
               <li key={index} className="item">
-                <strong>{item.itemName}</strong>  ({item.itemBarcode}) 
+                <strong style={{ marginRight: '5px' }}>{item.itemName}</strong> <div>({item.itemBarcode}) </div>
               </li>
             ))
           ) : (

@@ -2,15 +2,46 @@ const Item = require('../models/ItemModel');
 const Category = require('../models/CategoryModel');
 const { createNotification } = require('../utils/notificationService');
 const mongoose = require('mongoose');
+const cloudinary = require('../utils/cloudinary');
+const path = require('path'); 
+const fs = require('fs');
 
 const LOW_STOCK_THRESHOLD = 2;
 const OUT_OF_STOCK_THRESHOLD = 0;
 
 // Create new item
 exports.createItem = async (req, res) => {
+  console.log('Received fields:', req.body); // Log received fields
+  console.log('Received file:', req.file);   // Log received file
+
   try {
-    const file = req.file || null;
-    const imagePath = file ? `/uploads/${file.filename}` : '';
+    const file = req.file; // Get the uploaded file
+    let imagePath = '';    // Variable to hold the Cloudinary URL
+
+    const uploadFolder = 'items'; // Define the folder in Cloudinary
+
+    // If a file is uploaded, upload it to Cloudinary
+    if (file) {
+      imagePath = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'image',
+            folder: uploadFolder, // Specify the folder for the image
+          },
+          (error, result) => {
+            if (error) {
+              return reject(new Error('Cloudinary upload failed: ' + error.message));
+            }
+            resolve(result.secure_url); // Resolve with the secure URL
+          }
+        );
+
+        // Stream the buffer directly to Cloudinary
+        require('streamifier').createReadStream(file.buffer).pipe(uploadStream);
+      });
+    } else {
+      console.error('No file uploaded, creating item without image.');
+    }
 
     const { itemName, quantity, category, categoryName, newCategory, pmNeeded, pmFrequency } = req.body;
 
@@ -49,38 +80,31 @@ exports.createItem = async (req, res) => {
     if (pmNeeded === 'Yes') {
       switch (pmFrequency) {
         case 'Daily':
-          // 365 entries for Daily maintenance
           maintenanceSchedule = Array.from({ length: 365 }, (_, i) => ({
             week: `Day ${i + 1}`,
             status: 'Pending',
           }));
           break;
         case 'Weekly':
-          // 52 entries for Weekly maintenance
           maintenanceSchedule = Array.from({ length: 52 }, (_, i) => ({
             week: `Week ${i + 1}`,
             status: 'Pending',
           }));
           break;
         case 'Monthly':
-          // 12 entries for Monthly maintenance
           maintenanceSchedule = Array.from({ length: 12 }, (_, i) => ({
             week: `Month ${i + 1}`,
             status: 'Pending',
           }));
           break;
         case 'Quarterly':
-          // 4 entries for Quarterly maintenance
           maintenanceSchedule = Array.from({ length: 4 }, (_, i) => ({
             week: `Quarter ${i + 1}`,
             status: 'Pending',
           }));
           break;
         case 'Annually':
-          // 1 entry for Annual maintenance
-          maintenanceSchedule = [
-            { week: `Year 1`, status: 'Pending' },
-          ];
+          maintenanceSchedule = [{ week: `Year 1`, status: 'Pending' }];
           break;
         default:
           maintenanceSchedule = []; // No maintenance if frequency is undefined or something else
@@ -91,8 +115,8 @@ exports.createItem = async (req, res) => {
     const newItem = new Item({
       ...req.body,
       category: categoryDoc ? categoryDoc._id : null,
-      image: imagePath,
-      maintenanceSchedule,  // Add initialized schedule here
+      image: imagePath, // Assign the uploaded image URL
+      maintenanceSchedule, // Add initialized schedule here
     });
 
     await newItem.save();
@@ -120,11 +144,37 @@ exports.createItem = async (req, res) => {
 };
 
 //----------------------------------------------------------------
-// Update item details
+/// Update item details
 exports.updateItem = async (req, res) => {
+  console.log('Received fields:', req.body); // Log received fields
+  console.log('Received file:', req.file);   // Log received file
+
   try {
-    const file = req.file || null;
-    const imagePath = file ? `/uploads/${file.filename}` : '';
+    const file = req.file;
+    let imagePath = '';
+
+    const uploadFolder = 'items';
+
+    // If a file is uploaded, upload it to Cloudinary
+    if (file) {
+      imagePath = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'image',
+            folder: uploadFolder, // Specify the folder
+          },
+          (error, result) => {
+            if (error) {
+              return reject(new Error('Cloudinary upload failed: ' + error.message));
+            }
+            resolve(result.secure_url); // Resolve with the secure URL
+          }
+        );
+
+        // Stream the buffer directly to Cloudinary
+        require('streamifier').createReadStream(file.buffer).pipe(uploadStream);
+      });
+    }
 
     // Find the item by ID
     const item = await Item.findById(req.params.id);
@@ -137,20 +187,17 @@ exports.updateItem = async (req, res) => {
 
     // Category update logic
     if (mongoose.isValidObjectId(category)) {
-      // If `category` is a valid ObjectId, find the category document
       categoryDoc = await Category.findById(category);
       if (!categoryDoc) {
         return res.status(400).json({ error: 'Invalid category ID.' });
       }
     } else if (newCategory && newCategory.trim() !== '') {
-      // Create a new category if `newCategory` is provided
       categoryDoc = await Category.findOne({ categoryName: newCategory.trim() });
       if (!categoryDoc) {
         categoryDoc = new Category({ categoryName: newCategory.trim() });
         await categoryDoc.save();
       }
     } else if (categoryName && categoryName.trim() !== '') {
-      // Check for existing category by name if `categoryName` is provided
       categoryDoc = await Category.findOne({ categoryName: categoryName.trim() });
       if (!categoryDoc) {
         return res.status(400).json({ error: 'Invalid category name provided.' });
@@ -163,10 +210,10 @@ exports.updateItem = async (req, res) => {
       {
         ...req.body,
         category: categoryDoc ? categoryDoc._id : oldCategoryId,
-        image: imagePath || item.image,
+        image: imagePath || item.image, // Use the new image path if uploaded
       },
       { new: true }
-    ).populate('category'); // Populate the category field
+    ).populate('category');
 
     // Adjust category counts if the category has changed
     if (oldCategoryId && oldCategoryId.toString() !== updatedItem.category.toString()) {
@@ -186,10 +233,11 @@ exports.updateItem = async (req, res) => {
 
     res.status(200).json({ message: 'Item updated successfully', updatedItem });
   } catch (error) {
-    console.error('Error updating item:', error);
+    console.error('Error updating item:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 //----------------------------------------------------------
 // Get all items
