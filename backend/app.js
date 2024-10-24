@@ -54,8 +54,8 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // Cookie expiration (24 hours)
     httpOnly: true, // Prevent JS access to the cookie
-    secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Cross-site cookie handling
+    secure: true, // Only set secure cookies in production
+    sameSite: 'none', // Cross-site cookie handling
   }
 }));
 
