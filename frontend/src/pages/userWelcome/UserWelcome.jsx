@@ -13,16 +13,23 @@ const UserWelcome = () => {
     navigate('/report'); // Redirect to report page
   };
 
+  const handleAdminClick = () => {
+    navigate('/lab/admin'); // Redirect to admin page
+  };
+
   return (
     <div className="user-welcome-container">
       <img src="/ceafinal.png" alt="Background" className="bg-only" />
 
       <div className="user-welcome-content-container">
         <div className="user-welcome2-container">
-          <h1>User Portal</h1>
+          <h1>EELMS</h1>
           <h3>Electrical Engineering Laboratory Management System</h3>
         </div>
         <div className="user-welcome-form-container">
+          <button className="user-welcome-button" onClick={handleAdminClick}>
+            Admin
+          </button>
           <button className="user-welcome-button" onClick={handleUserClick}>
             User
           </button>
