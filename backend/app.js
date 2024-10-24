@@ -49,6 +49,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default_secret_key', // Use strong secret key from environment
   resave: false,
+  proxy: true,
   saveUninitialized: false,
   store: store,
   cookie: {
