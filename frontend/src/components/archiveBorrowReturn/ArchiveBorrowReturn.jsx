@@ -49,7 +49,7 @@ const fields = [
   { label: 'Feedback', field: 'feedbackEmoji' }, // Matches 'feedbackEmoji'
   { label: 'Partial Return Reason', field: 'partialReturnReason' }, // Matches 'partialReturnReason'
   { label: 'Notes/Comments', field: 'notesComments' }, // Matches 'notesComments'
-  { label: 'Reminder Sent', field: 'reminderSent' }, // Matches 'reminderSent'
+  // { label: 'Reminder Sent', field: 'reminderSent' }, // Matches 'reminderSent'
   { label: 'Item Barcode', field: 'items.itemBarcode' }, // Inside 'items', matches 'itemBarcode' for each item
   { label: 'Item Name', field: 'items.itemName' }, // Inside 'items', matches 'itemName'
   { label: 'Quantity Borrowed', field: 'items.quantityBorrowed' }, // Inside 'items', matches 'quantityBorrowed'

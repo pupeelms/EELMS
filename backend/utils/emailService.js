@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const { generateQRCode, createPDFWithQRCode } = require('../utils/pdfService'); // Updated import
+const BorrowReturnLogModel = require('../models/BorrowReturnLogModel');
 require('dotenv').config();
 
 
@@ -121,3 +122,81 @@ PUP EE LAB
         throw error;
     }
 };
+
+exports.sendReminderEmail = async (user, dueDate) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Reminder: Return Borrowed Items',
+            text: 
+`
+Hi ${user.fullName || "Valued User"},
+
+This is a friendly reminder that your borrowed items are due to be returned by ${dueDate.toLocaleString()}.
+
+If you wish to extend the borrowing period, please inform us at the EE Laboratory.
+
+Thank you,
+PUP EE LAB
+`
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Reminder email sent successfully');
+    } catch (error) {
+        console.error('Error sending reminder email:', error);
+        throw error;
+    }
+};
+
+// // Function to send overdue email
+// exports.sendOverdueEmail = async (user, overdueItemsList, dueDate) => {
+//     try {
+//         const mailOptions = {
+//             from: process.env.EMAIL_USER,
+//             to: user.email, // Correctly using 'user' parameter
+//             subject: 'Overdue: Return Borrowed Items As Soon As Possible',
+//             text: 
+// `
+// Hi ${user.fullName || "Valued User"},
+
+// The following items are overdue and need to be returned as soon as possible to avoid penalties:
+
+// Overdue Items:
+// ${overdueItemsList.map(item => `${item.itemName} - ${item.quantityBorrowed} pcs`).join("\n")}
+
+// Please return these items to the EE Laboratory as soon as possible.
+
+// Thank you,
+// PUP EE LAB
+// `
+//         };
+
+//         // Send the email using nodemailer transporter
+//         await transporter.sendMail(mailOptions);
+//         console.log('Overdue email sent successfully');
+//     } catch (error) {
+//         console.error('Error sending overdue email:', error);
+//         throw error;
+//     }
+// };
+
+// Function to send return process email
+exports.sendEmail = async (recipientEmail, emailSubject, emailBody) => {
+    const mailOptions = {
+      from: process.env.EMAIL_USER, // sender address
+      to: recipientEmail, // recipient address
+      subject: emailSubject,
+      text: emailBody,
+    };
+  
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Return process email sent successfully');
+    } catch (error) {
+      console.error('Error sending return process email:', error);
+      throw new Error('Failed to send return process email');
+    }
+  };
+   

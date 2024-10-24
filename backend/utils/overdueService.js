@@ -1,6 +1,8 @@
 const BorrowReturnLog = require('../models/BorrowReturnLogModel');
+const User = require('../models/UserModel'); // Import your User model
 const { createNotification } = require('../utils/notificationService');
 const axios = require('axios'); // Import axios to send HTTP requests
+const { sendEmail } = require('../utils/emailService'); // Import the sendEmail function
 
 exports.checkOverdueItems = async () => {
     try {
@@ -25,11 +27,30 @@ exports.checkOverdueItems = async () => {
 
                 console.log(`Log ID: ${log._id} has been updated to Overdue.`);
 
-                // Notify admin
+                // Fetch the user's email using userID
+                const user = await User.findById(log.userID);
+                if (!user || !user.email) {
+                    console.error(`User not found or email not available for user ID: ${log.userID}`);
+                    continue; // Skip to the next log if user not found or no email
+                }
+
+                // Send email notification to the user
+                const emailSubject = 'Reminder: Return Overdue Items';
+                const emailBody = `Hi ${log.userName},\n\nThis is a reminder that your borrowed item(s) are overdue. To avoid any potential penalties, please return them as soon as possible.\n\nWe appreciate your prompt attention to this matter!\n\nThank you,\nPUP EE LAB`;
+
+                try {
+                    await sendEmail(user.email, emailSubject, emailBody); // Use the user's email
+                    console.log(`Email sent to ${user.fullName} (Email: ${user.email}) regarding overdue items.`);
+                } catch (error) {
+                    console.error(`Error sending email to ${user.userName} (Email: ${user.email}):`, error.message);
+                    continue; // If email fails, skip the notification and SMS
+                }
+
+                // Notify admin after sending the email
                 await createNotification(
                     'Overdue Item',
                     `The item(s) borrowed by ${log.userName} are overdue.`,
-                    log.userID
+                    log.userID 
                 );
 
                 console.log(`Notification sent for log ID: ${log._id}`);

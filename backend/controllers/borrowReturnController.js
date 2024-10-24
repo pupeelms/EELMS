@@ -2,8 +2,9 @@ const BorrowReturnLog = require('../models/BorrowReturnLogModel');
 const User = require('../models/UserModel');
 const Item = require('../models/ItemModel');
 const { createNotification } = require('../utils/notificationService');
-const { sendTransactionEmail } = require('../utils/emailService');
+const { sendTransactionEmail, sendEmail } = require('../utils/emailService');
 const axios = require('axios'); // Import axios to send HTTP requests
+
 exports.logTransaction = async (req, res) => {
   try {
     const {
@@ -181,11 +182,14 @@ exports.completeReturn = async (req, res) => {
     // Loop through each item being returned and update the return quantity
     for (const logItem of itemsToProcess) {
       const returnedItem = itemsReturned.find(returned => returned.itemBarcode === logItem.itemBarcode);
-      
-      if (returnedItem) {
-        const returnQuantity = Math.min(returnedItem.quantity, logItem.quantityBorrowed - logItem.quantityReturned); // Get the quantity being returned from the frontend, but cap it at the remaining quantity
 
-        logItem.quantityReturned += returnQuantity; // Increment quantityReturned by the actual return quantity
+      if (returnedItem) {
+        // Calculate how much can still be returned
+        const remainingToReturn = logItem.quantityBorrowed - logItem.quantityReturned; // What's left to return
+        const returnQuantity = Math.min(returnedItem.quantity, remainingToReturn); // Determine the actual quantity to return
+
+        // Reset quantityReturned for this transaction to reflect only the current return
+        logItem.quantityReturned += returnQuantity; // Increment by the amount returned this time
 
         // Log to verify correct quantity update
         console.log(`Item ${logItem.itemBarcode} updated quantityReturned: ${logItem.quantityReturned} / ${logItem.quantityBorrowed}`);
@@ -204,7 +208,8 @@ exports.completeReturn = async (req, res) => {
           return res.status(404).json({ message: `Item with barcode ${logItem.itemBarcode} not found in the database.` });
         }
 
-        const updatedQuantity = foundItem.quantity + returnQuantity; // Increment stock by the return quantity
+        // Update the item's stock quantity by adding the returnQuantity
+        const updatedQuantity = foundItem.quantity + returnQuantity; // Update stock quantity
 
         try {
           // Update the item quantity in the database
@@ -235,7 +240,12 @@ exports.completeReturn = async (req, res) => {
       borrowReturnLog.returnStatus = "Completed";
       borrowReturnLog.transactionType = "Returned";
     } else {
-      borrowReturnLog.returnStatus = "Partially Returned";
+      // Check for partially returned items
+      const anyPartiallyReturned = borrowReturnLog.items.some(item => item.returnStatus !== 'Completed');
+      
+      if (anyPartiallyReturned) {
+        borrowReturnLog.returnStatus = "Partially Returned";
+      }
     }
 
     // Save the feedback emoji if provided
@@ -263,6 +273,29 @@ exports.completeReturn = async (req, res) => {
             .join(", ")}. Please ensure the remaining items are returned.`,
       null // Specify recipient if needed (e.g., admin ID)
     );
+
+    // Retrieve the user information
+    const user = await User.findById(borrowReturnLog.userID); // Ensure borrowReturnLog.userID is a valid ObjectId
+    console.log('Retrieved User:', user);
+
+    // Ensure user.email exists and is defined
+    if (!user || !user.email) {
+      console.error("User not found or email not available.");
+      return res.status(404).json({ message: "User not found or email not available." });
+    }
+
+    // New email sending logic
+    const emailSubject = allItemsReturned ? "Return Process Completed" : "Return Process Partially Completed";
+    const emailBody = allItemsReturned
+      ? `Dear ${borrowReturnLog.userName},\n\nYour return process has been completed successfully. Thank you for returning the following item(s):\n\n${itemsToProcess.map(item => `- ${item.itemName} (Quantity Returned: ${item.quantityReturned})`).join("\n")}\n\nWe value your feedback. Please take a moment to fill out this survey and let us know about your experience:\nhttps://forms.gle/ouxAmFz3ZyrsCEqy5\n\nThank you,\nPUP EE LAB`
+      : `Dear ${borrowReturnLog.userName},\n\nYour return process is partially completed. You have successfully returned the following item(s):\n\n${itemsToProcess.map(item => `- ${item.itemName} (Quantity Returned: ${item.quantityReturned})`).join("\n")}\n\nPlease remember to return the remaining item(s) as soon as possible.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
+
+    try {
+      await sendEmail(user.email, emailSubject, emailBody); // Pass the actual email
+    } catch (error) {
+      console.error("Error sending return email:", error);
+      return res.status(500).json({ message: "Error sending return email", error: error.message });
+    }
 
     // Send SMS notification via Server B
     const smsMessage = allItemsReturned
@@ -295,6 +328,7 @@ exports.completeReturn = async (req, res) => {
     });
   }
 };
+
 
 
 // Get transaction logs
@@ -419,84 +453,104 @@ exports.getAggregatedTransactionData = async (req, res) => {
 
 exports.extendBorrowingDuration = async (req, res) => {
   try {
-      const { borrowedDuration } = req.body; // New extension duration
-      const logId = req.params.id;
+    const { borrowedDuration } = req.body; // New extension duration
+    const logId = req.params.id;
 
-      // Validate input
-      if (!logId || !borrowedDuration) {
-          return res.status(400).json({ message: 'Log ID and new duration are required' });
-      }
+    // Validate input
+    if (!logId || !borrowedDuration) {
+      return res.status(400).json({ message: 'Log ID and new duration are required' });
+    }
 
-      // Find the log entry and populate user details
-      const borrowReturnLog = await BorrowReturnLog.findById(logId).populate('userID');
-      if (!borrowReturnLog) {
-          return res.status(404).json({ message: 'Borrow/Return log not found' });
-      }
+    // Find the log entry and populate user details
+    const borrowReturnLog = await BorrowReturnLog.findById(logId).populate('userID');
+    if (!borrowReturnLog) {
+      return res.status(404).json({ message: 'Borrow/Return log not found' });
+    }
 
-      // Check if the current status is "Overdue"
-      if (borrowReturnLog.returnStatus !== 'Overdue') {
-          return res.status(400).json({ message: 'Only overdue transactions can be extended' });
-      }
+    // Check if the current status is "Overdue"
+    if (borrowReturnLog.returnStatus !== 'Overdue') {
+      return res.status(400).json({ message: 'Only overdue transactions can be extended' });
+    }
 
-      // Update the borrowed duration and calculate the new extended time
-      const newExtensionMillis = convertDurationToMillis(borrowedDuration); // Convert duration to milliseconds
-      const currentDate = new Date();
-      const extendedDueDate = new Date(currentDate.getTime() + newExtensionMillis);
+    // Update the borrowed duration and calculate the new extended time
+    const newExtensionMillis = convertDurationToMillis(borrowedDuration); // Convert duration to milliseconds
+    const currentDate = new Date();
+    const extendedDueDate = new Date(currentDate.getTime() + newExtensionMillis);
 
-      // Initialize extendedDuration if it doesn't exist
-      if (!borrowReturnLog.extendedDuration) {
-        borrowReturnLog.extendedDuration = 0; // Initialize with 0 if no extension has been done yet
-      }
+    // Initialize extendedDuration if it doesn't exist
+    if (!borrowReturnLog.extendedDuration) {
+      borrowReturnLog.extendedDuration = 0; // Initialize with 0 if no extension has been done yet
+    }
 
-      // Update the extended duration by adding the new extension (in milliseconds)
-      borrowReturnLog.extendedDuration += newExtensionMillis;
+    // Update the extended duration by adding the new extension (in milliseconds)
+    borrowReturnLog.extendedDuration += newExtensionMillis;
 
-      // Update the due date
-      borrowReturnLog.dueDate = extendedDueDate; // Update the due date
-      
-      // Update return status to "Extended"
-      borrowReturnLog.returnStatus = "Extended";
-      borrowReturnLog.markModified('returnStatus');
+    // Update the due date
+    borrowReturnLog.dueDate = extendedDueDate; // Update the due date
+    
+    // Update return status to "Extended"
+    borrowReturnLog.returnStatus = "Extended";
+    borrowReturnLog.markModified('returnStatus');
 
-      // Log the total extended duration in minutes for readability
-      const totalExtendedMinutes = Math.floor(borrowReturnLog.extendedDuration / 60000); // Convert to minutes for logging
-      console.log(`Total Extended Duration: ${totalExtendedMinutes} minutes`);
-      console.log(`New Due Date: ${extendedDueDate.toLocaleString()}`);
+    // Log the total extended duration in minutes for readability
+    const totalExtendedMinutes = Math.floor(borrowReturnLog.extendedDuration / 60000); // Convert to minutes for logging
+    console.log(`Total Extended Duration: ${totalExtendedMinutes} minutes`);
+    console.log(`New Due Date: ${extendedDueDate.toLocaleString()}`);
 
-      // Save the updated log
-      await borrowReturnLog.save();
+    // Save the updated log
+    await borrowReturnLog.save();
 
-      // Notify user about the extension via SMS (via Server B)
-      const smsMessage = `Hello ${borrowReturnLog.userID.fullName}, your borrowing duration has been extended until ${extendedDueDate.toLocaleString()}.`;
-      const userContactNumber = borrowReturnLog.userID.contactNumber;
+     // Send email notification
+     const user = borrowReturnLog.userID; // User information is already populated
 
-      // Send the SMS request to Server B
-      const smsRequestData = {
-        number: userContactNumber,
-        message: smsMessage
-      };
+     // Ensure user.email exists and is defined
+     if (!user || !user.email) {
+       console.error("User not found or email not available.");
+       return res.status(404).json({ message: "User not found or email not available." });
+     }
+ 
+     // Create email subject and body
+     const emailSubject = "Borrowing Duration Extended";
+     const emailBody = `Hi ${user.fullName},\n\nYour borrowing duration has been successfully extended until ${extendedDueDate.toLocaleString()}.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
+ 
+     try {
+       await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email
+     } catch (error) {
+       console.error("Error sending extension email:", error);
+       return res.status(500).json({ message: "Error sending extension email", error: error.message });
+     }
 
-      try {
-        const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
-        console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-      } catch (error) {
-        console.error('Error sending SMS via Server B:', error);
-      }
+     
+    // Notify user about the extension via SMS (via Server B)
+    const smsMessage = `Hello ${borrowReturnLog.userID.fullName}, your borrowing duration has been extended until ${extendedDueDate.toLocaleString()}.`;
+    const userContactNumber = borrowReturnLog.userID.contactNumber;
 
-      // Optionally notify the user/admin
-      await createNotification(
-          'Borrowing Extended',
-          `The borrowing duration for ${borrowReturnLog.userID.fullName} has been extended until ${extendedDueDate.toLocaleString()}.`,
-          null
-      );
+    // Send the SMS request to Server B
+    const smsRequestData = {
+      number: userContactNumber,
+      message: smsMessage
+    };
 
-      res.status(200).json({ message: 'Borrowing duration extended successfully', borrowReturnLog });
+    try {
+      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
+      console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+    } catch (error) {
+      console.error('Error sending SMS via Server B:', error);
+    }
+
+    // Optionally notify the user/admin
+    await createNotification(
+      'Borrowing Extended',
+      `The borrowing duration for ${user.fullName} has been extended until ${extendedDueDate.toLocaleString()}.`,
+      null
+    );
+
+    res.status(200).json({ message: 'Borrowing duration extended successfully', borrowReturnLog });
   } catch (error) {
-      console.error('Error extending borrowing duration:', error);
-      res.status(200).json({ message: 'Error extending borrowing duration', error: error.message });
+    console.error('Error extending borrowing duration:', error);
+    res.status(500).json({ message: 'Error extending borrowing duration', error: error.message });
   }
 };
-
 
 const formatDuration = (millis) => {
   const seconds = millis / 1000;
