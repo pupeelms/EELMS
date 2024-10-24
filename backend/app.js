@@ -4,19 +4,16 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const dotenv = require('dotenv');
 const path = require('path');
-const cloudinary = require('./utils/cloudinary'); 
 const MongoDBStore = require('connect-mongodb-session')(session);
-const bodyParser = require('body-parser');
-const upload = require('./utils/upload');
 
-dotenv.config();
+dotenv.config(); // Load environment variables
 
+// Connect to MongoDB
 connectDB();
 
 const app = express();
-const fs = require('fs');
 
-// Create a MongoDB store instance
+// Create a MongoDB store instance for session storage
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
   collection: 'sessions',
@@ -25,36 +22,46 @@ const store = new MongoDBStore({
 
 // Handle errors with MongoDB store
 store.on('error', function (error) {
-  console.error(error); 
+  console.error(error);
 });
 
-// Middleware
-app.use(express.json());
+// Allowed origins for CORS
+const allowedOrigins = ['https://eelms.onrender.com', 'http://localhost:3000'];
+
+// Middleware to handle CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000', // Update with frontend URL
-  credentials: true // Allow cookies to be sent with requests
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // Allow credentials such as cookies to be sent
 }));
+
+// Body parsing middleware
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session Middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default_secret_key', // Use env variable for secret key
+  secret: process.env.SESSION_SECRET || 'default_secret_key', // Use strong secret key from environment
   resave: false,
   saveUninitialized: false,
   store: store,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // Cookie expiration (24 hours)
     httpOnly: true, // Prevent JS access to the cookie
-    secure: true,
-    // process.env.NODE_ENV === 'production', // Set secure cookie only in production
-    sameSite: "none" 
-    // process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Cross-site cookie handling
+    secure: process.env.NODE_ENV === 'production', // Only set secure cookies in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Cross-site cookie handling
   }
 }));
 
-// Session endpoint
-app.get('/api/session', (req, res) => {
-  res.json(req.session);
+// Intercept OPTIONS requests for preflight CORS
+app.options('*', (req, res) => {
+  res.sendStatus(200);
 });
 
 // API Routes
@@ -68,7 +75,7 @@ app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/adminProfile', require('./routes/adminProfileRoutes'));
 
+// Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-module.exports = app;
+module.exports = app; // Export the app instance
