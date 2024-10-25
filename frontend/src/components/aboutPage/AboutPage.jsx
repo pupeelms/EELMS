@@ -127,7 +127,7 @@ const AboutPage = () => {
         <div className="contact-info">
           <div className="contact-item">
             <Language className="icon" />
-            <a href="http://pupeelms.com" className="text" target="_blank" rel="noopener noreferrer">
+            <a href="https://eelms.onrender.com/" className="text" target="_blank" rel="noopener noreferrer">
               PUP EELMS
             </a>
           </div>

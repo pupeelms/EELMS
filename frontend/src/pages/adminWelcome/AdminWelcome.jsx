@@ -29,7 +29,7 @@ const AdminWelcome = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          A User's Guide Manual on How to Use EELMS (PDF)
+          An Admin's Guide Manual on How to Use EELMS (PDF)
         </a>
       </div>
         </div>

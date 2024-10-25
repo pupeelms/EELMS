@@ -6,11 +6,10 @@
   background-color: #f9f9f9;
   border-radius: 8px;
   max-width: 600px;
-  margin: 90px auto;
-  background: #59000fcf; /* Same transparent background */
+  margin: 75px auto;
+  background: #59000fcf;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  z-index: 1; /* Content should be above the background */
-  
+  z-index: 1;
 
   .bg-only {
     position: fixed;
@@ -19,7 +18,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -1; /* Background behind the content */
+    z-index: -1;
   }
 }
 
@@ -29,8 +28,9 @@
   flex-direction: column;
 
   h2 {
+    font-size: 1.3rem;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #ffffff;
   }
 
@@ -74,24 +74,74 @@
     }
   }
 
-  /* Style for the "Scan" button */
-  button[type='button'] {
-    background-color: #007bff;
-    color: #ffffff;
+  .scan-button{
+    margin-bottom: 15px;
+  }
+
+  .instructions {
+    background-color: white; // Light yellow background for emphasis
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #59000f;
+    margin-bottom: 15px;
+    border: 1px solid #f5d029;
+  }
+
+  .scanner-container {
+    position: relative;
     margin-bottom: 15px;
 
-    &:hover {
-      background-color: #0056b3;
+    .webcam-container {
+      position: relative;
+
+      video {
+        width: 100%;
+        border-radius: 4px;
+        border: 2px solid #ccc;
+      }
+
+      .scanner-frame {
+        position: absolute;
+        top: 25%;
+        left: 10%;
+        width: 80%;
+        height: 25%;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        pointer-events: none;
+        transition: border-color 0.3s ease;
+
+        &.detected {
+          border-color: green;
+        }
+
+        &.not-detected {
+          border-color: red;
+        }
+      }
+    }
+
+    .capture-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #218838;
+      }
     }
   }
 
-  /* Show the input box when the scan button is clicked */
-  .show-input {
-    display: block;
-  }
-
   p {
-    color: #d9534f; // Red for error messages
+    color: #d9534f;
     text-align: center;
     margin-top: 10px;
   }

@@ -77,7 +77,7 @@ const startSmsReminderCron = () => {
   cron.schedule('* * * * *', async () => { // Runs every minute
     try {
       const logs = await BorrowReturnLog.find({
-        returnStatus: { $in: ['Pending', 'Extended'] },
+        returnStatus: { $in: ['Pending', 'Extended', 'Partially Returned'] },
       }).populate('userID');
 
       for (const log of logs) {

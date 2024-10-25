@@ -40,7 +40,7 @@ exports.sendUserConfirmation = async (user, pdfFilePath) => {
             from: process.env.EMAIL_USER,
             to: user.email,
             subject: 'Registration Approved',
-            text: `Your registration has been approved!\n\nYou can download the attached QR code, which is now your key to seamless borrowing transactions in the Electrical Engineering Laboratory (EE Lab).\n\nSimply present this QR code during your visits to facilitate quick and efficient transactions.`,
+            text: `Hi ${user.fullName || "Valued User"},\n\nYour registration has been approved!\n\nAttached is your unique QR code, which you can use for seamless borrowing transactions in the Electrical Engineering Laboratory (EE Lab).\n\nSimply present this QR code during your visits to facilitate quick and efficient transactions.\n\nTo get started with using the Electrical Engineering Laboratory Management System (EELMS) and learn about its features, please review our User Manual here: https://drive.google.com/drive/folders/1zNQaJjD5R0eXBNdcikS9lzHJVrj5uxlK?usp=sharing.\n\nThank you,\nPUP EE LAB`,
             attachments: [
                 {
                     filename: 'user-info.pdf',
@@ -61,6 +61,7 @@ exports.sendUserConfirmation = async (user, pdfFilePath) => {
     }
 };
 
+
 // Send decline email with reason for rejection
 exports.sendUserDeclineEmail = async (user, notesComments) => {
     try {
@@ -68,7 +69,7 @@ exports.sendUserDeclineEmail = async (user, notesComments) => {
             from: process.env.EMAIL_USER,
             to: user.email,
             subject: 'Registration Declined',
-            text: `We regret to inform you that your registration has been declined for the following reason:\n\n${notesComments}\n\nIf you have any questions, please feel free to contact us.`
+            text: `Hi ${user.fullName || "Valued User"},\n\nWe regret to inform you that your registration has been declined for the following reason:\n\n${notesComments}\n\nIf you have any questions, please feel free to contact us.\n\nThank you,\nPUP EE LAB`
         };
 
         await transporter.sendMail(mailOptions);
@@ -149,38 +150,6 @@ PUP EE LAB
         throw error;
     }
 };
-
-// // Function to send overdue email
-// exports.sendOverdueEmail = async (user, overdueItemsList, dueDate) => {
-//     try {
-//         const mailOptions = {
-//             from: process.env.EMAIL_USER,
-//             to: user.email, // Correctly using 'user' parameter
-//             subject: 'Overdue: Return Borrowed Items As Soon As Possible',
-//             text: 
-// `
-// Hi ${user.fullName || "Valued User"},
-
-// The following items are overdue and need to be returned as soon as possible to avoid penalties:
-
-// Overdue Items:
-// ${overdueItemsList.map(item => `${item.itemName} - ${item.quantityBorrowed} pcs`).join("\n")}
-
-// Please return these items to the EE Laboratory as soon as possible.
-
-// Thank you,
-// PUP EE LAB
-// `
-//         };
-
-//         // Send the email using nodemailer transporter
-//         await transporter.sendMail(mailOptions);
-//         console.log('Overdue email sent successfully');
-//     } catch (error) {
-//         console.error('Error sending overdue email:', error);
-//         throw error;
-//     }
-// };
 
 // Function to send return process email
 exports.sendEmail = async (recipientEmail, emailSubject, emailBody) => {

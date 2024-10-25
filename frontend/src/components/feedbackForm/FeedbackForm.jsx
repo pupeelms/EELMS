@@ -36,7 +36,7 @@ const FeedbackForm = () => {
     console.log('Submitting form data:', formData); // Log the form data before sending
 
     try {
-      const response = await axios.post('/api/feedback', data, {
+      const response = await axios.post('/api/feedback/feedback', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       console.log('Response from server:', response); // Log server response
@@ -58,7 +58,7 @@ const FeedbackForm = () => {
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      console.error('Error submitting feedback:', error); // Log error
+      console.error('Error submitting feedback:', error.message); // Log error
       alert('Error submitting feedback.');
     } finally {
       setLoading(false); // Stop loading after action is complete

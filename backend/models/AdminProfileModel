@@ -9,7 +9,7 @@ const AdminProfileSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  profileImage: {
+  profileImage: { 
     type: String, // URL or path to profile image
   },
   contactInfo: {
