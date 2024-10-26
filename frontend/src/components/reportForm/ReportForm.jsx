@@ -53,40 +53,48 @@ const ReportForm = () => {
     }
   };
 
-  // Submit function with logging
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+// Submit function with logging
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const reportData = { itemId, issue, reportedByName, priority };
+  const reportData = { itemId, issue, reportedByName, priority };
 
-    // Log the data being sent to the backend
-    console.log("Submitting Report Data:", reportData);
+  // Log the data being sent to the backend
+  console.log("Submitting Report Data:", reportData);
 
-    try {
-      const response = await axios.post('/api/reports/make-reports', reportData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+  try {
+    const response = await axios.post('/api/reports/make-reports', reportData, {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-      // Log the response from the server
-      console.log("Response from backend:", response);
+    // Log the response from the server
+    console.log("Response from backend:", response);
 
-      if (response.status === 201) {
-        alert('Report submitted successfully');
-      } else {
-        alert('Failed to submit the report');
-      }
-    } catch (error) {
-      // Log the error from Axios
-      console.error("Error submitting report:", error.response || error);
-
-      // Log the specific response details for the 400 error
-      if (error.response && error.response.data) {
-        console.log("Error response data:", error.response.data);
-      }
-
-      alert('An error occurred while submitting the report');
+    if (response.status === 201) {
+      alert('Report submitted successfully');
+      
+      // Clear form fields after successful submission
+      setReportedByName('');
+      setIssue('');
+      setPriority('medium');
+      setItemId('');
+      setScanResult('');
+      setFrameStatus('not-detected');
+    } else {
+      alert('Failed to submit the report');
     }
-  };
+  } catch (error) {
+    // Log the error from Axios
+    console.error("Error submitting report:", error.response || error);
+
+    if (error.response && error.response.data) {
+      console.log("Error response data:", error.response.data);
+    }
+
+    alert('An error occurred while submitting the report');
+  }
+};
+
 
   const handleOpenScanner = () => {
     setScanning(true);
