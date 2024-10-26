@@ -36,10 +36,10 @@ const BorrowReturnLogSchema = new mongoose.Schema({
     default: false, // By default, no reminder has been sent
   },
 
-  smsSent: {
-    type: Boolean,
-    default: false, // By default, no reminder has been sent
-  }
+  // smsSent: {
+  //   type: Boolean,
+  //   default: false, // By default, no reminder has been sent
+  // }
 
 
 

@@ -99,20 +99,20 @@ exports.logTransaction = async (req, res) => {
       );
 
       // Send SMS notification for borrowing via Server B
-      const smsMessage = `Hi ${user.fullName}, please return the borrowed item(s) by ${borrowReturnLog.dueDate.toLocaleString()}. Details have been sent to your email. Thank you!`;
-      const smsRequestData = {
-        number: user.contactNumber,
-        message: smsMessage
-      };
-      console.log(user.contactNumber, smsMessage)
+      // const smsMessage = `Hi ${user.fullName}, please return the borrowed item(s) by ${borrowReturnLog.dueDate.toLocaleString()}. Details have been sent to your email. Thank you!`;
+      // const smsRequestData = {
+      //   number: user.contactNumber,
+      //   message: smsMessage
+      // };
+      // console.log(user.contactNumber, smsMessage)
 
-      // Sending the SMS request to Server B
-      try {
-        const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
-        console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-      } catch (error) {
-        console.error('Error sending SMS via Server B:', error);
-      }
+      // // Sending the SMS request to Server B
+      // try {
+      //   const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
+      //   console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+      // } catch (error) {
+      //   console.error('Error sending SMS via Server B:', error);
+      // }
 
       res.status(201).json({ message: "Borrowing transaction logged successfully", borrowReturnLog });
     } else {
@@ -298,22 +298,22 @@ exports.completeReturn = async (req, res) => {
     }
 
     // Send SMS notification via Server B
-    const smsMessage = allItemsReturned
-      ? `Hi ${borrowReturnLog.userName}, your return process has been completed successfully. Thank you!`
-      : `Hi ${borrowReturnLog.userName}, your return process is partially completed. Please return the remaining item(s) as soon as possible.`;
+    // const smsMessage = allItemsReturned
+    //   ? `Hi ${borrowReturnLog.userName}, your return process has been completed successfully. Thank you!`
+    //   : `Hi ${borrowReturnLog.userName}, your return process is partially completed. Please return the remaining item(s) as soon as possible.`;
 
-    const smsRequestData = {
-      number: borrowReturnLog.contactNumber,
-      message: smsMessage
-    };
+    // const smsRequestData = {
+    //   number: borrowReturnLog.contactNumber,
+    //   message: smsMessage
+    // };
 
-    try {
-      // Send the SMS request to Server B
-      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
-      console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-    } catch (err) {
-      console.error("Error sending SMS via Server B:", err);
-    }
+    // try {
+    //   // Send the SMS request to Server B
+    //   const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
+    //   console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+    // } catch (err) {
+    //   console.error("Error sending SMS via Server B:", err);
+    // }
 
     res.status(200).json({
       success: true,
@@ -522,21 +522,21 @@ exports.extendBorrowingDuration = async (req, res) => {
 
      
     // Notify user about the extension via SMS (via Server B)
-    const smsMessage = `Hello ${borrowReturnLog.userID.fullName}, your borrowing duration has been extended until ${extendedDueDate.toLocaleString()}.`;
-    const userContactNumber = borrowReturnLog.userID.contactNumber;
+    // const smsMessage = `Hello ${borrowReturnLog.userID.fullName}, your borrowing duration has been extended until ${extendedDueDate.toLocaleString()}.`;
+    // const userContactNumber = borrowReturnLog.userID.contactNumber;
 
-    // Send the SMS request to Server B
-    const smsRequestData = {
-      number: userContactNumber,
-      message: smsMessage
-    };
+    // // Send the SMS request to Server B
+    // const smsRequestData = {
+    //   number: userContactNumber,
+    //   message: smsMessage
+    // };
 
-    try {
-      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
-      console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-    } catch (error) {
-      console.error('Error sending SMS via Server B:', error);
-    }
+    // try {
+    //   const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with Server B's IP address
+    //   console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+    // } catch (error) {
+    //   console.error('Error sending SMS via Server B:', error);
+    // }
 
     // Optionally notify the user/admin
     await createNotification(

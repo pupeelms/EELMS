@@ -23,15 +23,15 @@ exports.createUser = async (req, res) => {
       await createNotification('User Registration', `New user ${newUser.fullName} registered and awaiting approval.`, null);
 
       // Send SMS request to Server B
-      const smsMessage = `Hello ${savedUser.fullName}, your registration has been received! Please await admin approval.`;
-      const smsRequestData = {
-          number: savedUser.contactNumber,
-          message: smsMessage
-      };
+      // const smsMessage = `Hello ${savedUser.fullName}, your registration has been received! Please await admin approval.`;
+      // const smsRequestData = {
+      //     number: savedUser.contactNumber,
+      //     message: smsMessage
+      // };
 
       // Sending the SMS request to Server B
-      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
-      console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
+      // const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
+      // console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
 
       res.status(201).json({ message: 'Registration successful! Await admin approval.' });
   } catch (error) {
@@ -81,16 +81,16 @@ exports.approveUser = async (req, res) => {
       await sendUserConfirmation(user, pdfFilePath);
 
       // Prepare the SMS message
-      const smsMessage = `Hi ${user.fullName}, your EELMS registration has been approved! Your QR code ID will be sent via email. Thank you!`;
+      // const smsMessage = `Hi ${user.fullName}, your EELMS registration has been approved! Your QR code ID will be sent via email. Thank you!`;
 
-      // Send SMS request to Server B
-      const smsRequestData = {
-          number: user.contactNumber,
-          message: smsMessage
-      };
+      // // Send SMS request to Server B
+      // const smsRequestData = {
+      //     number: user.contactNumber,
+      //     message: smsMessage
+      // };
 
-      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
-      console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
+      // const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
+      // console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
 
       // Create a notification for the admin
       await createNotification('User Registration Approved', `New user ${user.fullName} was approved.`, null);
@@ -124,16 +124,16 @@ exports.declineUser = async (req, res) => {
       await sendUserDeclineEmail(user, notesComments);
 
       // Prepare the SMS message
-      const smsMessage = `Hi ${user.fullName}, your EELMS registration was declined. Please check your email for further details. Thank you!`;
+      // const smsMessage = `Hi ${user.fullName}, your EELMS registration was declined. Please check your email for further details. Thank you!`;
 
-      // Send SMS request to Server B
-      const smsRequestData = {
-          number: user.contactNumber,
-          message: smsMessage
-      };
+      // // Send SMS request to Server B
+      // const smsRequestData = {
+      //     number: user.contactNumber,
+      //     message: smsMessage
+      // };
 
-      const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
-      console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
+      // const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
+      // console.log(`SMS request sent to Server B. Response: ${smsResponse.data.message}`);
 
       // Create a notification for the admin
       await createNotification('User Registration Declined', `User ${user.fullName} was declined.`, null);

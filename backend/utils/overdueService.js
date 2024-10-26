@@ -2,7 +2,7 @@ const BorrowReturnLog = require('../models/BorrowReturnLogModel');
 const User = require('../models/UserModel'); // Import your User model
 const { createNotification } = require('../utils/notificationService');
 const axios = require('axios'); // Import axios to send HTTP requests
-const { sendEmail } = require('../utils/emailService'); // Import the sendEmail function
+const { sendEmail } = require('./emailService'); // Import the sendEmail function
 
 exports.checkOverdueItems = async () => {
     try {
@@ -39,10 +39,11 @@ exports.checkOverdueItems = async () => {
                 const emailBody = `Hi ${log.userName},\n\nThis is a reminder that your borrowed item(s) are overdue. To avoid any potential penalties, please return them as soon as possible.\n\nWe appreciate your prompt attention to this matter!\n\nThank you,\nPUP EE LAB`;
 
                 try {
-                    await sendEmail(user.email, emailSubject, emailBody); // Use the user's email
+                    const emailResult = await sendEmail(user.email, emailSubject, emailBody); // Use the user's email
                     console.log(`Email sent to ${user.fullName} (Email: ${user.email}) regarding overdue items.`);
                 } catch (error) {
                     console.error(`Error sending email to ${user.userName} (Email: ${user.email}):`, error.message);
+                    console.error(error); // Detailed error for troubleshooting
                     continue; // If email fails, skip the notification and SMS
                 }
 
@@ -56,23 +57,23 @@ exports.checkOverdueItems = async () => {
                 console.log(`Notification sent for log ID: ${log._id}`);
 
                 // Send SMS to user via Server B, informing them of the overdue status
-                const smsMessage = `Hi ${log.userName}, your borrowed item(s) are overdue. Please return them as soon as possible. Thank you!`;
+                // const smsMessage = `Hi ${log.userName}, your borrowed item(s) are overdue. Please return them as soon as possible. Thank you!`;
 
-                // Prepare SMS request data
-                const smsRequestData = {
-                    number: log.contactNumber,
-                    message: smsMessage
-                };
+                // // Prepare SMS request data
+                // const smsRequestData = {
+                //     number: log.contactNumber,
+                //     message: smsMessage
+                // };
 
-                try {
-                    // Send the SMS request to Server B
-                    const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
-                    console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-                } catch (error) {
-                    console.error(`Error sending SMS to ${log.userName} (Contact: ${log.contactNumber}):`, error.message);
-                }
+                // try {
+                //     // Send the SMS request to Server B
+                //     const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
+                //     console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+                // } catch (error) {
+                //     console.error(`Error sending SMS to ${log.userName} (Contact: ${log.contactNumber}):`, error.message);
+                // }
 
-                console.log(`SMS sent to ${log.userName} (Contact: ${log.contactNumber}) regarding overdue items.`);
+                // console.log(`SMS sent to ${log.userName} (Contact: ${log.contactNumber}) regarding overdue items.`);
             } else {
                 console.log(`Log ID: ${log._id} is not overdue. Skipping...`);
             }

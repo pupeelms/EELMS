@@ -5,23 +5,23 @@ const axios = require('axios'); // Import axios to send HTTP requests
 const { sendReminderEmail } = require('./emailService'); // Import the email sending function
 
 // Function to send SMS via external SMS gateway (Server B)
-const sendSMSOnce = async (recipient, message) => {
-  try {
-    const smsRequestData = {
-      number: recipient,
-      message: message,
-    };
+// const sendSMSOnce = async (recipient, message) => {
+//   try {
+//     const smsRequestData = {
+//       number: recipient,
+//       message: message,
+//     };
 
-    const response = await axios.post(`${process.env.GSMClientIP}`, smsRequestData);
-    console.log(`SMS sent successfully to ${recipient}. Response: ${JSON.stringify(response.data)}`);
+//     const response = await axios.post(`${process.env.GSMClientIP}`, smsRequestData);
+//     console.log(`SMS sent successfully to ${recipient}. Response: ${JSON.stringify(response.data)}`);
     
-    return response.data;
-  } catch (error) {
-    console.error(`Failed to send SMS to ${recipient}: ${error.message}`);
-    console.log(`Error details: ${JSON.stringify(error)}`);
-    throw error;
-  }
-};
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Failed to send SMS to ${recipient}: ${error.message}`);
+//     console.log(`Error details: ${JSON.stringify(error)}`);
+//     throw error;
+//   }
+// };
 
 // Function to send both SMS and Email if the current time is within 5 minutes of the due date
 const sendReminderIfDue = async (log) => {
@@ -34,7 +34,7 @@ const sendReminderIfDue = async (log) => {
   // Check if we are within 5 minutes of the due date
   if (now.isBetween(fiveMinutesBeforeDue, dueDate)) {
     const user = log.userID;
-    const smsMessage = `Hi ${user.fullName}, reminder to return borrowed item(s) by due date. To extend, inform us in the lab. Thank you!`;
+    // const smsMessage = `Hi ${user.fullName}, reminder to return borrowed item(s) by due date. To extend, inform us in the lab. Thank you!`;
 
     // Try sending the email first
     try {
@@ -48,22 +48,22 @@ const sendReminderIfDue = async (log) => {
     }
 
     // Try sending the SMS
-    try {
-      if (!log.smsSent) { // Check if SMS has already been sent
-        console.log(`Sending reminder SMS to ${user.fullName} (${user.contactNumber})`);
-        await sendSMSOnce(user.contactNumber, smsMessage);
-        log.smsSent = true; // Mark SMS as sent
-      }
-    } catch (error) {
-      console.error(`Failed to send SMS to ${user.fullName}: ${error.message}`);
-    }
+    // try {
+    //   if (!log.smsSent) { // Check if SMS has already been sent
+    //     console.log(`Sending reminder SMS to ${user.fullName} (${user.contactNumber})`);
+    //     await sendSMSOnce(user.contactNumber, smsMessage);
+    //     log.smsSent = true; // Mark SMS as sent
+    //   }
+    // } catch (error) {
+    //   console.error(`Failed to send SMS to ${user.fullName}: ${error.message}`);
+    // }
 
     // Save the log after potentially updating email and SMS sent statuses
     await log.save();
 
     // Log the results of the reminders sent
-    if (log.emailSent || log.smsSent) {
-      console.log(`Reminder sent successfully to ${user.fullName} (${user.contactNumber}, ${user.email})`);
+    if (log.emailSent) {
+      console.log(`Reminder sent successfully to ${user.fullName} (${user.email})`);
     } else {
       console.log(`No reminder sent for log ID: ${log._id}`);
     }
