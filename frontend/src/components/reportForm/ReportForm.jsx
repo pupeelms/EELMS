@@ -1,10 +1,12 @@
 import "./reportForm.scss";
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import { BrowserMultiFormatReader } from '@zxing/library'; // ZXing barcode scanner library
 import axios from 'axios'; // Import axios
 
 const ReportForm = () => {
+  const navigate = useNavigate();
   const [reportedByName, setReportedByName] = useState('');
   const [issue, setIssue] = useState('');
   const [priority, setPriority] = useState('medium');
@@ -14,6 +16,7 @@ const ReportForm = () => {
   const [frameStatus, setFrameStatus] = useState('not-detected'); // Scanner frame color state
   const webcamRef = useRef(null); // Ref to access the webcam
   const codeReader = new BrowserMultiFormatReader();
+ 
 
   useEffect(() => {
     let interval;
@@ -53,48 +56,56 @@ const ReportForm = () => {
     }
   };
 
-// Submit function with logging
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const reportData = { itemId, issue, reportedByName, priority };
-
-  // Log the data being sent to the backend
-  console.log("Submitting Report Data:", reportData);
-
-  try {
-    const response = await axios.post('/api/reports/make-reports', reportData, {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    // Log the response from the server
-    console.log("Response from backend:", response);
-
-    if (response.status === 201) {
-      alert('Report submitted successfully');
-      
-      // Clear form fields after successful submission
-      setReportedByName('');
-      setIssue('');
-      setPriority('medium');
-      setItemId('');
-      setScanResult('');
-      setFrameStatus('not-detected');
-    } else {
-      alert('Failed to submit the report');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const reportData = { itemId, issue, reportedByName, priority };
+  
+    // Log the data being sent to the backend
+    console.log("Submitting Report Data:", reportData);
+  
+    try {
+      const response = await axios.post('/api/reports/make-reports', reportData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      // Log the response from the server
+      console.log("Response from backend:", response);
+  
+      if (response.status === 201) {
+        alert('Report submitted successfully');
+        
+        // Clear form fields after successful submission
+        setReportedByName('');
+        setIssue('');
+        setPriority('medium');
+        setItemId('');
+        setScanResult('');
+        setFrameStatus('not-detected');
+      } else {
+        alert('Failed to submit the report');
+      }
+    } catch (error) {
+      // Log the error from Axios
+      console.error("Error submitting report:", error.response || error);
+  
+      // Check for specific error messages and display them
+      let errorMessage = 'An error occurred while submitting the report';
+  
+      if (error.response && error.response.data) {
+        // Use the error message from the backend if available
+        errorMessage = error.response.data.message || errorMessage;
+        console.log("Error response data:", error.response.data);
+      }
+  
+      alert(errorMessage);
     }
-  } catch (error) {
-    // Log the error from Axios
-    console.error("Error submitting report:", error.response || error);
-
-    if (error.response && error.response.data) {
-      console.log("Error response data:", error.response.data);
-    }
-
-    alert('An error occurred while submitting the report');
-  }
+  };
+  
+ // Handle going back to the previous page
+ const handleGoBack = () => {
+  navigate(-1); // Navigate back to the previous page
 };
-
 
   const handleOpenScanner = () => {
     setScanning(true);
@@ -111,30 +122,30 @@ const handleSubmit = async (e) => {
         <h3>Guidelines:</h3>
       <ul>
         <li>Ensure you are a registered user of EELMS before submitting a report.</li>
-        <li>The barcode you scan must be a valid EE laboratory barcode.</li>
+        <li>The barcode you scan must be a valid EE laboratory item barcode.</li>
         <li>Submit reports only when necessary to avoid penalties.</li>
         <li>Once submitted, your report will be reviewed by the laboratory admin.</li>
       </ul>
     </div>
 
-        <label htmlFor="reportedByName">Your Name</label>
+        <label htmlFor="reportedByName">Full Name</label>
         <input
           type="text"
           id="reportedByName"
           value={reportedByName}
           onChange={(e) => setReportedByName(e.target.value)}
           required
-          placeholder="Enter your name"
+          placeholder="FN MI LN"
         />
 
-        <label htmlFor="itemId">Item ID</label>
+        <label htmlFor="itemId">Item Barcode</label>
         <input
           type="text"
           id="itemId"
           value={itemId}
           onChange={(e) => setItemId(e.target.value)}
           required
-          placeholder="Scan or enter the Item ID"
+          placeholder="Scan or enter the item barcode BC******"
         />
 
         {/* Button to open the scanner */}
@@ -171,7 +182,7 @@ const handleSubmit = async (e) => {
           value={issue}
           onChange={(e) => setIssue(e.target.value)}
           required
-          placeholder="Describe the issue with the item"
+          placeholder="Briefly describe the issue with the item"
         />
 
         <label htmlFor="priority">Priority Level</label>
@@ -186,6 +197,10 @@ const handleSubmit = async (e) => {
         </select>
 
         <button type="submit">Submit Report</button>
+
+          {/* Back Button */}
+        <p type="text" className="reportBackButton" onClick={handleGoBack}>Back</p>
+
       </form>
     </div>
   );

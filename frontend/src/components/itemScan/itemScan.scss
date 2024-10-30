@@ -6,9 +6,14 @@
   position: relative;
   background: #59000fd8; /* Slightly transparent background */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
   margin: 90px auto;
   border-radius: 8px;
+  padding: 20px; /* Add padding for better spacing */
+
+  // This will allow the container to resize with the image
+  min-width: 300px; /* Adjust as necessary */
+  min-height: 300px; /* Adjust as necessary */
+  max-width: 600px; /* Max width for larger screens */
   
   .bg-only {
     position: fixed;
@@ -22,7 +27,7 @@
 
   h2 {
     font-size: 36px;
-    margin-top: 50px;
+    margin-top: 25px;
     color: #f5d029;
   }
 
@@ -68,8 +73,9 @@
     }
     
     .item-image {
-      width: 100px;
-      height: auto;
+      width: auto; // Change to auto to allow responsive width
+      max-width: 100%; // Ensures the image never exceeds the container width
+      height: auto; // Maintain aspect ratio
       display: block;
       margin-top: 10px;
     }

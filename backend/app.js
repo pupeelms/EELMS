@@ -74,6 +74,7 @@ app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/pmTable', require('./routes/pmTableRoutes'));
 app.use('/api/adminProfile', require('./routes/adminProfileRoutes'));
 
 // Serve static files from uploads directory

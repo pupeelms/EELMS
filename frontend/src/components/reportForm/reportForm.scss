@@ -74,6 +74,20 @@
     }
   }
 
+  .reportBackButton{
+    background: none;
+    border: none;
+    color: #f5d029;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+  
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .scan-button{
     margin-bottom: 15px;
   }

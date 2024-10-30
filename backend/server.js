@@ -2,6 +2,8 @@ const app = require('./app');
 const cron = require('node-cron');
 const { checkOverdueItems } = require('./utils/overdueService');
 const { startSmsReminderCron } =  require('./utils/reminderScheduler');
+const { maintenanceScheduler} =  require('./utils/maintenanceScheduler');
+
 const path = require('path');
 const PORT = process.env.PORT || 4000; // Change to another available port
 
@@ -11,6 +13,8 @@ console.log('Cron job for overdue items check is set up to run every minute.');
 
 // Call to start the SMS reminder cron job
 startSmsReminderCron();
+
+maintenanceScheduler();
 
 
 const server = app.listen(PORT, () => {

@@ -101,22 +101,22 @@ const AboutPage = () => {
         <div className="team-grid">
           <div className="team-member">
             <img src="/tolitol.jpg" alt="Erika" />
-            <h3>Erika</h3>
+            <h3>Erika Tolitol</h3>
             <p>A dedicated coder, constantly learning and refining her craft.</p>
           </div>
           <div className="team-member">
             <img src="/padilla.jpg" alt="Carmelle" />
-            <h3>Carmelle</h3>
+            <h3>Carmelle Joy Padilla</h3>
             <p>The organizational wizard, who had a knack for creating efficient workflows.</p>
           </div>
           <div className="team-member">
             <img src="/gramatica.jpg" alt="Rose" />
-            <h3>Rose</h3>
+            <h3>Rosemarie Gramatica</h3>
             <p>The tech-savvy designer, whose eye for detail brought their vision to life.</p>
           </div>
           <div className="team-member">
             <img src="/labajanan.jpg" alt="Mary" />
-            <h3>Mary</h3>
+            <h3>Mary Rose Labajanan</h3>
             <p>The problem-solver, who could troubleshoot and refine their ideas until they shone.</p>
           </div>
         </div>
@@ -128,7 +128,7 @@ const AboutPage = () => {
           <div className="contact-item">
             <Language className="icon" />
             <a href="https://eelms.onrender.com/" className="text" target="_blank" rel="noopener noreferrer">
-              PUP EELMS
+              https://eelms.onrender.com
             </a>
           </div>
           <div className="contact-item">

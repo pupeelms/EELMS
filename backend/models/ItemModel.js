@@ -59,8 +59,7 @@ const ItemSchema = new mongoose.Schema({
     type: String, 
   },
   quantity: { 
-    type: Number, 
-    required: true 
+    type: Number,  
   },
   serialNumber: { 
     type: String, // Added Serial Number field
@@ -69,11 +68,11 @@ const ItemSchema = new mongoose.Schema({
     type: String, // Added PUP Property Number field
   },
   number: { 
-    type: Number, // Added Number field (separate from quantity)
+    type: String, // Added Number field (separate from quantity)
   },
   condition: {
     type: String,
-    enum: ['Functional', 'Defective', 'For Disposal'], // Updated Condition options
+    enum: ['Functional', 'Defective', 'For Disposal', 'No Status'], // Updated Condition options
     default: '',
   },
   location: { 
@@ -83,11 +82,10 @@ const ItemSchema = new mongoose.Schema({
     type: String,
     enum: ['Yes', 'No'], 
     default: '',
-    required: true
   }, 
   pmFrequency: { 
     type: String, // Changed from calibrationFrequency to pmFrequency
-    enum: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annually', 'Other'],
+    enum: ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annually'],
   },
   specification: {
     type: String, // Added Specification field
@@ -95,6 +93,10 @@ const ItemSchema = new mongoose.Schema({
   notesComments: {
     type: String,
   },
+  lastNotified: { 
+    type: Number, 
+    default: null, 
+  }, // To track the last notified week number
   maintenanceSchedule: [{
     week: { type: String }, // e.g., 'Week 1', 'Week 2'
     status: { type: String, enum: ['Pending', 'Completed', 'Skipped'], default: 'Pending' }

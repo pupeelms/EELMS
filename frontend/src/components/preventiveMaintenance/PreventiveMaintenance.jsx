@@ -20,11 +20,11 @@ const getMaintenanceWeeks = (pmFrequency) => {
       maintenanceWeeks.push(1); // Only one maintenance for the entire year
       break;
     case "Quarterly":
-      maintenanceWeeks.push(1, 14, 27, 40); // Maintenance at weeks 1, 14, 27, and 40
+      maintenanceWeeks.push(2, 15, 28, 41); // Maintenance at weeks 2, 15, 28, and 41
       break;
     case "Monthly":
       for (let i = 0; i < 52; i += 4) {
-        maintenanceWeeks.push(i + 1); // Every 4 weeks (roughly)
+        maintenanceWeeks.push(i + 2); // Every 4 weeks (roughly)
       }
       break;
     case "Weekly":
@@ -34,7 +34,7 @@ const getMaintenanceWeeks = (pmFrequency) => {
       break;
     case "Daily":
       for (let i = 1; i <= 52; i++) {
-        maintenanceWeeks.push(i); // Every week (for simplicity in the 52-week layout)
+        maintenanceWeeks.push(i); // Every week
       }
       break;
     default:
@@ -70,15 +70,36 @@ const PreventiveMaintenance = () => {
     const fetchItems = async () => {
       try {
         const response = await axios.get("/api/items");
-        const filteredItems = response.data.filter((item) => item.pmNeeded === "Yes");
+        const filteredItems = response.data
+          .filter((item) => item.pmNeeded === "Yes")
+          .map(item => {
+            if (!item.maintenanceSchedule) {
+              item.maintenanceSchedule = Array.from({ length: 52 }, (_, index) => ({
+                week: index + 1,
+                status: index === 1 ? "Pending" : "Skipped"
+              }));
+            }
+            return item;
+          });
         setItems(filteredItems);
       } catch (err) {
         console.error("Error fetching items:", err);
       }
     };
-
+  
+    const fetchMonthlyRanges = async () => {
+      try {
+        const response = await axios.get("/api/pmTable"); // Make sure this endpoint returns the saved ranges
+        setDynamicMonths(response.data.ranges); // Update state with fetched ranges
+      } catch (error) {
+        console.error("Error fetching monthly ranges:", error);
+      }
+    };
+  
     fetchItems();
+    fetchMonthlyRanges(); // Call the new function to fetch monthly ranges
   }, []);
+  
 
   const handleLocationChange = (e) => {
     setSelectedLocation(e.target.value);
@@ -99,31 +120,57 @@ const PreventiveMaintenance = () => {
   };
 
   const handleStatusChange = async (itemId, weekNumber, newStatus) => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item._id === itemId
-          ? {
-              ...item,
-              maintenanceSchedule: item.maintenanceSchedule.map((week, index) =>
-                index + 1 === weekNumber ? { ...week, status: newStatus } : week
-              ),
-            }
-          : item
-      )
-    );
-  
+    console.log(`Updating status for item ${itemId} in week ${weekNumber} to ${newStatus}`);
+    
     try {
+      // Optimistically update local state
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item._id === itemId
+            ? {
+                ...item,
+                maintenanceSchedule: item.maintenanceSchedule.map((week, index) =>
+                  index + 1 === weekNumber ? { ...week, status: newStatus } : week
+                ),
+              }
+            : item
+        )
+      );
+  
+      // Make API call to update status
       await axios.put(`/api/items/${itemId}/schedule/update`, {
         weekNumber,
         status: newStatus,
       });
+  
+      // Optionally refetch items to ensure local state is in sync
+      const response = await axios.get("/api/items");
+      setItems(response.data.filter(item => item.pmNeeded === "Yes")); // Adjust filter as necessary
     } catch (err) {
       console.error("Error updating maintenance status:", err);
+      // Optionally handle errors by showing a notification or reverting local state changes
+    }
+  };
+  
+   // New function to handle submitting the monthly ranges
+   const handleSubmitRanges = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    try {
+      await axios.post("/api/pmTable", {
+        ranges: dynamicMonths,
+      });
+      
+      setShowForm(false);
+    } catch (error) {
+      console.error("Error updating monthly ranges:", error);
+      alert("Failed to update monthly ranges.");
     }
   };
 
+
   const renderMonthForm = () => (
-    <form className="month-form">
+    <form className="month-form" onSubmit={handleSubmitRanges}>
       {Object.keys(dynamicMonths).map((month) => (
         <div key={month} className="month-range-input">
           <label>{month}:</label>
@@ -139,6 +186,7 @@ const PreventiveMaintenance = () => {
           />
         </div>
       ))}
+       <button type="submit" className="monthRange">Update Ranges</button>
     </form>
   );
 

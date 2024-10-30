@@ -21,6 +21,9 @@ const SingleUser = () => {
   const [updatedUser, setUpdatedUser] = useState({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [backendErrorMessage, setBackendErrorMessage] = useState('');
+
 
   useEffect(() => { 
     if (userId) {
@@ -47,16 +50,31 @@ const SingleUser = () => {
   };
 
   const handleSave = async () => {
+    setBackendErrorMessage(''); // Reset the backend error message before making the request
     try {
       const response = await axios.put(`/api/users/${userId}`, updatedUser);
       if (response.status === 200) {
         setIsEditing(false);
-        fetchUser();
+        fetchUser(); // Fetch updated user data
       }
     } catch (error) {
+      // Log the error in the console in the specified format
       console.error('Error saving user:', error.response ? error.response.data : error.message);
+  
+      // Handle backend validation errors
+      if (error.response && error.response.data) {
+        const { message, error: validationErrors } = error.response.data;
+  
+        // Construct a user-friendly error message
+        const backendErrorMessage = `${message} - ${validationErrors}`;
+        setBackendErrorMessage(backendErrorMessage);
+      } else {
+        setBackendErrorMessage('An unexpected error occurred.');
+      }
     }
   };
+  
+  
 
   const handleDeleteClick = () => {
     setShowDeleteConfirmation(true);
@@ -138,6 +156,14 @@ const SingleUser = () => {
               <Button className="closeButton" onClick={handleEditClick}>✖</Button>
             </div>
             <form className="editForm">
+            <TextField
+                label="Full Name"
+                name="fullName"
+                value={updatedUser.fullName || ''}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
               <TextField
                 label="Gender"
                 name="gender"
@@ -214,6 +240,7 @@ const SingleUser = () => {
               <Button type="button" variant="contained" color="primary" onClick={handleSave}>
                 Save
               </Button>
+              {backendErrorMessage && <div className="error-message">{backendErrorMessage}</div>}
             </form>
           </div>
         </Drawer>

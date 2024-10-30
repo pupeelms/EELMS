@@ -81,8 +81,6 @@ exports.getAllReports = async (req, res) => {
       console.log('No reports found');
       return res.status(404).json({ message: 'No reports found' });
     }
-
-    console.log('Sending reports in response');
     // Return the reports in the response
     res.status(200).json(reports);
   } catch (error) {

@@ -340,7 +340,7 @@ console.log(updatedItem.image);  // Should log the file object
               <TextField
                 label="Number"
                 name="number"
-                type="number"
+                type="text"
                 value={updatedItem.number || ""}
                 onChange={handleInputChange}
                 fullWidth
@@ -376,7 +376,7 @@ console.log(updatedItem.image);  // Should log the file object
                 margin="normal"
               />
               <FormControl fullWidth margin="normal">
-                <InputLabel id="condition-label">Condition</InputLabel>
+                <InputLabel id="condition-label">Status</InputLabel>
                 <Select
                   labelId="condition-label"
                   name="condition"
@@ -387,6 +387,7 @@ console.log(updatedItem.image);  // Should log the file object
                   <MenuItem value="Functional">Functional</MenuItem>
                   <MenuItem value="Defective">Defective</MenuItem>
                   <MenuItem value="For Disposal">For Disposal</MenuItem>
+                  <MenuItem value="No Status">No Status</MenuItem>
                 </Select>
               </FormControl>
               
@@ -418,7 +419,6 @@ console.log(updatedItem.image);  // Should log the file object
                   <MenuItem value="Monthly">Monthly</MenuItem>
                   <MenuItem value="Quarterly">Quarterly</MenuItem>
                   <MenuItem value="Annually">Annually</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
 

@@ -43,10 +43,10 @@ exports.createItem = async (req, res) => {
       console.error('No file uploaded, creating item without image.');
     }
 
-    const { itemName, quantity, category, categoryName, newCategory, pmNeeded, pmFrequency } = req.body;
+    const { itemName, quantity, condition, category, categoryName, newCategory, pmNeeded, pmFrequency } = req.body;
 
-    if (!itemName || !quantity) {
-      return res.status(400).json({ error: 'Item name and quantity are required.' });
+    if (!itemName || !quantity || !condition) {
+      return res.status(400).json({ error: 'Item name, quantity, or status are required.' });
     }
 
     let categoryDoc;
@@ -144,6 +144,42 @@ exports.createItem = async (req, res) => {
 };
 
 //----------------------------------------------------------------
+// Helper function to generate the maintenance schedule based on pmFrequency
+const generateMaintenanceSchedule = (pmNeeded, pmFrequency) => {
+  if (pmNeeded === 'Yes' && pmFrequency) {
+    switch (pmFrequency) {
+      case 'Daily':
+        return Array.from({ length: 365 }, (_, i) => ({
+          week: `Day ${i + 1}`,
+          status: 'Pending',
+        }));
+      case 'Weekly':
+        return Array.from({ length: 52 }, (_, i) => ({
+          week: `Week ${i + 1}`,
+          status: 'Pending',
+        }));
+      case 'Monthly':
+        return Array.from({ length: 12 }, (_, i) => ({
+          week: `Month ${i + 1}`,
+          status: 'Pending',
+        }));
+      case 'Quarterly':
+        return Array.from({ length: 4 }, (_, i) => ({
+          week: `Quarter ${i + 1}`,
+          status: 'Pending',
+        }));
+      case 'Annually':
+        return Array.from({ length: 1 }, (_, i) => ({
+          week: `Year ${i + 1}`,
+          status: 'Pending',
+        }));
+      default:
+        return []; // No maintenance if frequency is undefined or something else
+    }
+  }
+  return []; // No maintenance if pmNeeded is not 'Yes'
+};
+
 /// Update item details
 exports.updateItem = async (req, res) => {
   console.log('Received fields:', req.body); // Log received fields
@@ -181,7 +217,7 @@ exports.updateItem = async (req, res) => {
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
     const oldCategoryId = item.category;
-    const { category, newCategory, categoryName, quantity } = req.body;
+    const { category, newCategory, categoryName, quantity, pmNeeded, pmFrequency } = req.body;
 
     let categoryDoc;
 
@@ -211,6 +247,9 @@ exports.updateItem = async (req, res) => {
         ...req.body,
         category: categoryDoc ? categoryDoc._id : oldCategoryId,
         image: imagePath || item.image, // Use the new image path if uploaded
+         // Add this line to update the maintenance schedule
+         maintenanceSchedule: generateMaintenanceSchedule(pmNeeded, pmFrequency)
+
       },
       { new: true }
     ).populate('category');
@@ -379,8 +418,30 @@ exports.updateMaintenanceStatus = async (req, res) => {
       return res.status(404).json({ message: 'Item not found' });
     }
 
-    // Format the week number to match the format in the database ('Week 1', 'Week 2', etc.)
-    const formattedWeek = `Week ${weekNumber}`;
+    // Determine the maintenance frequency of the item
+    const pmFrequency = item.pmFrequency; // Assuming pmFrequency is a field in your item model
+
+    // Format the week number based on the frequency
+    let formattedWeek;
+    switch (pmFrequency) {
+      case "Annually":
+        formattedWeek = `Year ${weekNumber}`; // Only one maintenance per year
+        break;
+      case "Quarterly":
+        formattedWeek = `Quarter ${weekNumber}`;
+        break;
+      case "Monthly":
+        formattedWeek = `Month ${weekNumber}`; // Format as 'Month X'
+        break;
+      case "Weekly":
+        formattedWeek = `Week ${weekNumber}`; // Format as 'Week X'
+        break;
+      case "Daily":
+        formattedWeek = `Day ${weekNumber}`; // Format as 'Day X'
+        break;  
+      default:
+        return res.status(400).json({ error: 'Invalid maintenance frequency.' });
+    }
 
     // Update the specific week in the maintenance schedule
     const updatedSchedule = item.maintenanceSchedule.map((schedule) =>
@@ -389,8 +450,16 @@ exports.updateMaintenanceStatus = async (req, res) => {
 
     item.maintenanceSchedule = updatedSchedule;
 
-    // Save the updated item
-    await item.save();
+    // Save the updated item and handle potential errors
+    try {
+      await item.save();
+    } catch (saveError) {
+      console.error('Error saving item:', saveError);
+      return res.status(500).json({ error: 'Failed to update item in the database.' });
+    }
+
+    // Log the updated schedule for verification
+    console.log("Updated Schedule:", updatedSchedule);
 
     res.status(200).json({ message: 'Maintenance status updated successfully', updatedSchedule });
   } catch (err) {

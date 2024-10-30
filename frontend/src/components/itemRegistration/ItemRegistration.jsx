@@ -104,7 +104,7 @@ const ItemRegistration = () => {
         setErrors(response.data.errors || [response.data.error || 'Error registering item. Please try again later.']);
       }
     } catch (error) {
-      setErrors(['Error connecting to the server. Please check your network connection or try again later.']);
+      setErrors([error.response?.data?.error || 'An unexpected error occurred. Please try again.']);
     } finally {
       setLoading(false); // Set loading state to false when submission is complete
     }
@@ -139,6 +139,7 @@ const ItemRegistration = () => {
             placeholder="Item Name"
             value={formData.itemName}
             onChange={handleChange}
+            required
           />
         </div>
         <div className="newItemField">
@@ -235,7 +236,7 @@ const ItemRegistration = () => {
         <div className="newItemField">
           <label>Number: </label>
           <input
-            type="number"
+            type="text"
             name="number"
             placeholder="Number"
             value={formData.number}
@@ -250,7 +251,6 @@ const ItemRegistration = () => {
             placeholder="Quantity"
             value={formData.quantity}
             onChange={handleChange}
-            required
           />
         </div>
         <div className="newItemField">
@@ -278,6 +278,7 @@ const ItemRegistration = () => {
             <option value="Functional">Functional</option>
             <option value="Defective">Defective</option>
             <option value="For Disposal">For Disposal</option>
+            <option value="No Status">No Status</option>
           </select>
         </div>
         <div className="newItemField">
@@ -288,7 +289,6 @@ const ItemRegistration = () => {
             placeholder="Location"
             value={formData.location}
             onChange={handleChange}
-            required
           />
         </div>
         <div className="newItemField">
@@ -309,7 +309,6 @@ const ItemRegistration = () => {
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
                 <option value="Annually">Annually</option>
-                <option value="Other">Other</option>
               </select>
             </div>
           </>

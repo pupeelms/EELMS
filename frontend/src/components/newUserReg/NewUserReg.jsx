@@ -37,7 +37,7 @@ const NewUserReg = () => {
       [e.target.name]: e.target.value,
     });
   };
-
+ 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ const NewUserReg = () => {
         }
       }
     } catch (error) {
-      setErrors(['Error connecting to the server.']);
+      setErrors(['Please check your details and ensure they follow the required format.']);
     } finally {
       setIsLoading(false); // Stop loading
     }
@@ -119,7 +119,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="address"
-            placeholder="Address"
+            placeholder="City Address only"
             value={formData.address}
             onChange={handleChange}
             required
@@ -144,7 +144,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="program"
-            placeholder="Program"
+            placeholder="BS**"
             value={formData.program}
             onChange={handleChange}
             required
@@ -169,7 +169,7 @@ const NewUserReg = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Active Email Address"
             value={formData.email}
             onChange={handleChange}
             required
@@ -195,7 +195,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="registrationCard"
-            placeholder="Link to registration card"
+            placeholder="Gdrive link to registration card"
             value={formData.registrationCard}
             onChange={handleChange}
           />
@@ -207,7 +207,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="updatedClassSchedule"
-            placeholder="Link to class schedule"
+            placeholder="Gdrive link to class schedule"
             value={formData.updatedClassSchedule}
             onChange={handleChange}
           />

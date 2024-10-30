@@ -1,8 +1,10 @@
 const BorrowReturnLog = require('../models/BorrowReturnLogModel');
-const User = require('../models/UserModel'); // Import your User model
+const User = require('../models/UserModel'); 
 const { createNotification } = require('../utils/notificationService');
-const axios = require('axios'); // Import axios to send HTTP requests
-const { sendEmail } = require('./emailService'); // Import the sendEmail function
+const axios = require('axios'); 
+const { sendEmail } = require('./emailService');
+
+const MAX_EMAIL_RETRIES = 1; // Maximum attempts for sending email
 
 exports.checkOverdueItems = async () => {
     try {
@@ -34,46 +36,48 @@ exports.checkOverdueItems = async () => {
                     continue; // Skip to the next log if user not found or no email
                 }
 
-                // Send email notification to the user
+                // Send email notification to the user with retry mechanism
                 const emailSubject = 'Reminder: Return Overdue Items';
                 const emailBody = `Hi ${log.userName},\n\nThis is a reminder that your borrowed item(s) are overdue. To avoid any potential penalties, please return them as soon as possible.\n\nWe appreciate your prompt attention to this matter!\n\nThank you,\nPUP EE LAB`;
 
-                try {
-                    const emailResult = await sendEmail(user.email, emailSubject, emailBody); // Use the user's email
-                    console.log(`Email sent to ${user.fullName} (Email: ${user.email}) regarding overdue items.`);
-                } catch (error) {
-                    console.error(`Error sending email to ${user.userName} (Email: ${user.email}):`, error.message);
-                    console.error(error); // Detailed error for troubleshooting
-                    continue; // If email fails, skip the notification and SMS
+                let emailSent = false;
+                for (let attempt = 1; attempt <= MAX_EMAIL_RETRIES; attempt++) {
+                    try {
+                        await sendEmail(user.email, emailSubject, emailBody);
+                        console.log(`Email successfully sent to ${user.fullName} (Email: ${user.email}) on attempt ${attempt}.`);
+                        emailSent = true;
+                        break; // Exit retry loop if email is sent successfully
+                    } catch (error) {
+                        console.error(`Attempt ${attempt} - Error sending email to ${user.userName} (Email: ${user.email}):`, error.message);
+                        if (attempt === MAX_EMAIL_RETRIES) {
+                            console.error(`Failed to send email to ${user.userName} after ${MAX_EMAIL_RETRIES} attempts.`);
+                        }
+                    }
                 }
 
-                // Notify admin after sending the email
+                // Notify admin regardless of email success
                 await createNotification(
                     'Overdue Item',
                     `The item(s) borrowed by ${log.userName} are overdue.`,
                     log.userID 
                 );
-
                 console.log(`Notification sent for log ID: ${log._id}`);
 
-                // Send SMS to user via Server B, informing them of the overdue status
-                // const smsMessage = `Hi ${log.userName}, your borrowed item(s) are overdue. Please return them as soon as possible. Thank you!`;
+                // Optionally send SMS (uncomment if needed)
+                /*
+                const smsMessage = `Hi ${log.userName}, your borrowed item(s) are overdue. Please return them as soon as possible. Thank you!`;
+                const smsRequestData = {
+                    number: log.contactNumber,
+                    message: smsMessage
+                };
 
-                // // Prepare SMS request data
-                // const smsRequestData = {
-                //     number: log.contactNumber,
-                //     message: smsMessage
-                // };
-
-                // try {
-                //     // Send the SMS request to Server B
-                //     const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData); // Replace <Server_B_IP> with the actual IP address of Server B
-                //     console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
-                // } catch (error) {
-                //     console.error(`Error sending SMS to ${log.userName} (Contact: ${log.contactNumber}):`, error.message);
-                // }
-
-                // console.log(`SMS sent to ${log.userName} (Contact: ${log.contactNumber}) regarding overdue items.`);
+                try {
+                    const smsResponse = await axios.post(`${process.env.GSMClientIP}`, smsRequestData);
+                    console.log('SMS request sent to Server B. Response:', smsResponse.data.message);
+                } catch (error) {
+                    console.error(`Error sending SMS to ${log.userName} (Contact: ${log.contactNumber}):`, error.message);
+                }
+                */
             } else {
                 console.log(`Log ID: ${log._id} is not overdue. Skipping...`);
             }

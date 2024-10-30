@@ -16,7 +16,9 @@ const ReportsList = ({ itemId }) => {
   const [selectedFields, setSelectedFields] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // State to manage delete confirmation dialog
   const [reportToDelete, setReportToDelete] = useState(null); // State to track the report ID to delete
-
+  const [selectedIssue, setSelectedIssue] = useState(null); // State for selected issue text
+  const [issueModalOpen, setIssueModalOpen] = useState(false); // State for controlling the modal visibility
+  
 
   const fields = [
     { label: 'Item Name', field: 'itemName' },
@@ -66,6 +68,12 @@ const ReportsList = ({ itemId }) => {
     }
   };
 
+  const openIssueModal = (issueText) => {
+    setSelectedIssue(issueText); // Set the selected issue text
+    setIssueModalOpen(true); // Open the modal
+  };
+  
+
 // Open delete confirmation dialog
 const handleDeleteReport = (reportId) => {
   setReportToDelete(reportId);
@@ -100,10 +108,22 @@ const cancelDelete = () => {
     { field: 'date', headerName: 'Date Reported', width: 200 },
     { field: 'itemName', headerName: 'Item Name', width: 200 },
     { field: 'itemBarcode', headerName: 'Item Barcode', width: 200 },
-    { field: 'issue', headerName: 'Issue', width: 300 },
+    {
+      field: 'issue',
+      headerName: 'Issue',
+      width: 300,
+      renderCell: (params) => (
+        <span
+          onClick={() => openIssueModal(params.row.issue)} // Open modal with full issue text
+          style={{ cursor: 'pointer', textDecoration: 'none' }} // Styling for clickable text
+        >
+          {params.row.issue.length > 50 ? `${params.row.issue.slice(0, 50)}...` : params.row.issue} {/* Display truncated text */}
+        </span>
+      ),
+    },    
     { field: 'reportedBy', headerName: 'Reported By', width: 200 },
     { field: 'priority', headerName: 'Priority', width: 120 },
-    {
+    { 
         field: 'status',
         headerName: 'Status',
         width: 150,
@@ -150,13 +170,12 @@ const cancelDelete = () => {
   const rows = reports
   .map((report) => ({
     id: report._id,
-    itemName: report.itemId.itemName,
-    itemBarcode: report.itemId.itemBarcode,
+    itemName: report.itemId ? report.itemId.itemName : 'Item Deleted ', // Check for null
+    itemBarcode: report.itemId ? report.itemId.itemBarcode : 'N/A', // Check for null
     issue: report.issue,
     reportedBy: report.reportedBy,
     priority: report.priority,
     status: report.status,
-    // Keep the date in its original form for sorting, but format it for display
     rawDate: new Date(report.date), // Raw date used for sorting
     date: new Date(report.date).toLocaleString(), // Formatted date for display
   }))
@@ -292,6 +311,16 @@ const cancelDelete = () => {
           <Button onClick={confirmDelete} color="secondary">
             Delete
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={issueModalOpen} onClose={() => setIssueModalOpen(false)}>
+        <DialogTitle>Issue Details</DialogTitle>
+        <DialogContent>
+          <p>{selectedIssue}</p> {/* Display the selected issue text */}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIssueModalOpen(false)} color="primary">Close</Button>
         </DialogActions>
       </Dialog>
 

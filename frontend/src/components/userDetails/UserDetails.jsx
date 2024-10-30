@@ -66,6 +66,7 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
           <label>Professor:</label>
           <input
             type="text"
+            placeholder="Sir/Ma'am"
             value={professor}
             onChange={(e) => setProfessor(e.target.value)}
             required

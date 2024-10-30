@@ -68,7 +68,7 @@ const UserRegistration = () => {
       if (error.response && error.response.data.errors) {
         setErrors(error.response.data.errors);
       } else {
-        setErrors(['Error registering user']);
+        setErrors(['Please check your details and ensure they follow the required format.']);
       }
     } finally {
       setIsLoading(false);  // Stop loading
@@ -120,7 +120,7 @@ const UserRegistration = () => {
           <input
             type="text"
             name="address"
-            placeholder="Address"
+            placeholder="City Address only"
             value={formData.address}
             onChange={handleChange}
             required
@@ -145,7 +145,7 @@ const UserRegistration = () => {
           <input
             type="text"
             name="program"
-            placeholder="Program"
+            placeholder="BS**"
             value={formData.program}
             onChange={handleChange}
             required
@@ -170,7 +170,7 @@ const UserRegistration = () => {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Active Email Address"
             value={formData.email}
             onChange={handleChange}
             required
@@ -196,7 +196,7 @@ const UserRegistration = () => {
           <input
             type="text"
             name="registrationCard"
-            placeholder="Link to registration card"
+            placeholder="Gdrive link to registration card"
             value={formData.registrationCard}
             onChange={handleChange}
           />
@@ -208,7 +208,7 @@ const UserRegistration = () => {
           <input
             type="text"
             name="updatedClassSchedule"
-            placeholder="Link to class schedule"
+            placeholder="Gdrive link to class schedule"
             value={formData.updatedClassSchedule}
             onChange={handleChange}
           />
