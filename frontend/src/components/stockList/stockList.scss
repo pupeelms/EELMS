@@ -22,6 +22,9 @@
   .table-wrapper {
     width: 100%;  // Ensure the DataGrid fits its parent container
     overflow-x: auto;  // Allow horizontal scrolling within the table only
+    overflow-x: hidden;
+    max-height: 600px;
+    position: relative;
   }
   
   .paper {
@@ -47,4 +50,11 @@
       background-color: white;
     }
   }
+
+  .MuiDataGrid-root .MuiDataGrid-columnHeaders {
+    position: sticky;  // Make the header sticky
+    top: 0;  // Stick to the top of the container
+    z-index: 1;  // Ensure it stays above other content
+    background-color: #d9d9d9;  // Match header background color
+}
   

@@ -138,6 +138,17 @@ export const ItemTable = () => {
     );
   };
 
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      // If checked, select all fields
+      const allFieldNames = fields.map(field => field.field);
+      setSelectedFields(allFieldNames); // Update selectedFields with all field names
+    } else {
+      // If unchecked, clear all selections
+      setSelectedFields([]); // Clear selected fields
+    }
+  };
+
   // Export to Excel based on selected fields and location
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -190,55 +201,6 @@ export const ItemTable = () => {
     link.download = 'ItemTableExport.xlsx';
     link.click();
   };
-
-const exportToPDF = () => {
-  const doc = new jsPDF({ orientation: 'landscape' });
-  doc.text("Item Table Export", 14, 10);
-
-  const data = filteredRows.map((row) => {
-    return selectedFields.map((field) => {
-      if (field === 'category') {
-        return row.category ? row.category.categoryName : 'N/A';  // Access category name
-      } else if (field === 'barcodeImage') {
-        return row.barcodeImage ? " " : "No Barcode";  // Add " " to manually insert barcode image later
-      }
-      return row[field] || 'N/A';
-    });
-  });
-
-  doc.autoTable({
-    head: [selectedFields.map(field => field.charAt(0).toUpperCase() + field.slice(1))], // Capitalize headers
-    body: data,
-    startY: 20,
-    didDrawCell: (data) => {
-      // Ensure the barcode is only added to data rows, not header
-      if (data.section === 'body' && selectedFields.includes('barcodeImage') && data.column.index === selectedFields.indexOf('barcodeImage')) {
-        const barcode = filteredRows[data.row.index].barcodeImage;
-        if (barcode) {
-          const barcodeWidth = 20;  // Adjust the width here
-          const barcodeHeight = 8; // Adjust the height here to maintain aspect ratio
-          const cellPadding = 5; // Add padding to avoid overlap
-
-          // Draw the barcode image at the correct position with padding
-          doc.addImage(
-            `data:image/png;base64,${barcode}`,
-            'PNG',
-            data.cell.x + cellPadding, // Add padding to x position
-            data.cell.y + cellPadding, // Add padding to y position
-            barcodeWidth,
-            barcodeHeight
-          );
-        }
-      }
-    },
-    styles: {
-      cellPadding: { top: 8, bottom: 5 } // Increase cell padding to prevent overlapping
-    }
-  });
-
-  doc.save("ItemTableExport.pdf");
-};
-
 
   const paginationModel = { page: 0, pageSize: 5 };
 
@@ -300,20 +262,42 @@ const exportToPDF = () => {
       <Dialog open={openModal} onClose={handleModalClose}>
         <DialogTitle>Select Fields to Export</DialogTitle>
         <DialogContent>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={selectedFields.length === fields.length} // Check if all fields are selected
+                onChange={handleSelectAll} // Call handleSelectAll on change
+              />
+            }
+            label="Select All"
+          />
           {fields.map((field) => (
             <FormControlLabel
               key={field.field}
-              control={<Checkbox checked={selectedFields.includes(field.field)} onChange={() => handleFieldChange(field.field)} />}
+              control={
+                <Checkbox
+                  checked={selectedFields.includes(field.field)}
+                  onChange={() => handleFieldChange(field.field)}
+                />
+              }
               label={field.label}
             />
           ))}
         </DialogContent>
         <DialogActions>
-      <Button onClick={() => { exportToExcel(); handleModalClose(); }} color="primary">Export to Excel</Button>
-      <Button onClick={() => { exportToPDF(); handleModalClose(); }} color="secondary">Export to PDF</Button>
-      <Button onClick={handleModalClose}>Cancel</Button>
-    </DialogActions>
+          <Button
+            onClick={() => {
+              exportToExcel();
+              handleModalClose();
+            }}
+            color="primary"
+          >
+            Export to Excel
+          </Button>
+          <Button onClick={handleModalClose}>Cancel</Button>
+        </DialogActions>
       </Dialog>
+
     </Paper>
   );
 };

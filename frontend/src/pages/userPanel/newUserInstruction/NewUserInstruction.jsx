@@ -25,7 +25,7 @@ const NewUserInstruction = () => {
       <h2>New User Instructions</h2>
       <strong>Welcome! Please follow these instructions to register:</strong>
       <ol>
-        <li>Scan the QR code below to register or click the "Register New User" button to access the form.</li>
+        <li>Scan the QR code below to register or click the "Register New User" button to access the registration form.</li>
         <li>Fill out the required information.</li>
         <li>Submit the form and await confirmation via email.</li>
       </ol>

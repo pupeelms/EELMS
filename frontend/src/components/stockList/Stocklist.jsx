@@ -96,13 +96,17 @@ const Stocklist = () => {
                 pageSizeOptions={[5, 10, 20]}
                 checkboxSelection
                 getRowId={(row) => row._id}
-                autoHeight
+                autoHeight={false}
                 disableExtendRowFullWidth
                 disableColumnMenu
                 sx={{
-                  "& .MuiDataGrid-columnHeaders": {
-                    color: "#59000f", 
-                    fontWeight: "bold",  
+                  '& .MuiDataGrid-columnHeaders': {
+                    backgroundColor: '#d9d9d9', // Change the background color of the header
+                    color: 'maroon', // Change the text color
+                    fontSize: '16px', // Change the font size
+                  },
+                  '& .MuiDataGrid-columnHeaderTitle': {
+                    fontWeight: 'bold',
                   },
                 }}
               />
@@ -125,7 +129,6 @@ const Stocklist = () => {
                 pageSizeOptions={[5, 10, 20]}
                 checkboxSelection
                 getRowId={(row) => row._id}
-                autoHeight
                 
                 disableColumnMenu
               />

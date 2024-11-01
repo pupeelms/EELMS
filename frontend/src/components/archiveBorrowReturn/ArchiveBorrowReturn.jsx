@@ -84,6 +84,17 @@ const fields = [
     setPage(0);
   };
 
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      // If checked, select all fields
+      const allFieldNames = fields.map((field) => field.field); // Get all field names
+      setSelectedFields(allFieldNames); // Update selectedFields with all field names
+    } else {
+      // If unchecked, clear all selections
+      setSelectedFields([]); // Clear selected fields
+    }
+  };  
+
   const handleSortRequest = (property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -192,6 +203,22 @@ const exportToExcel = () => {
     return;
   }
 
+// Helper function to format duration from milliseconds into a human-readable format
+const formatDuration = (millis) => {
+  const seconds = millis / 1000;
+  const minutes = seconds / 60;
+  const hours = minutes / 60;
+  const days = hours / 24;
+
+  if (minutes < 60) {
+    return `${Math.round(minutes)} minutes`;
+  } else if (hours < 24) {
+    return `${Math.round(hours)} hours`;
+  } else {
+    return `${Math.round(days)} days`;
+  }
+};
+
   const filteredRows = Object.values(sortedRows).flat(); // Flatten the grouped data
   const worksheet = XLSX.utils.json_to_sheet(
     filteredRows.map((row) => {
@@ -222,6 +249,9 @@ const exportToExcel = () => {
           case 'returnDate':
             data['Return Date'] = row.returnDate ? formatDateTime(row.returnDate) : 'N/A'; // Format return date
             break;
+          case 'extendedDuration':
+            data['Extended Duration'] = row.extendedDuration ? formatDuration(row.extendedDuration) : 'N/A'; // Format extended duration
+            break;
           default:
             data[field] = row[field] || 'N/A';
         }
@@ -234,55 +264,6 @@ const exportToExcel = () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "BorrowReturnRecords");
   XLSX.writeFile(workbook, "BorrowReturnRecords.xlsx");
 };
-
-const exportToPDF = () => {
-  if (selectedFields.length === 0) {
-    alert("Please select at least one field to export.");
-    return;
-  }
-
-  const filteredRows = Object.values(sortedRows).flat(); // Flatten the grouped data
-  const doc = new jsPDF({ orientation: 'landscape' });
-  doc.text("Borrow Return Records", 14, 10);
-
-  const data = filteredRows.map((row) => {
-    return selectedFields.map((field) => {
-      switch (field) {
-        case 'items.itemBarcode':
-          return row.items && row.items.map(item => item.itemBarcode).join(', ') || 'N/A';
-        case 'items.itemName':
-          return row.items && row.items.map(item => item.itemName).join(', ') || 'N/A';
-        case 'items.quantityBorrowed':
-          return row.items && row.items.map(item => item.quantityBorrowed).join(', ') || 0;
-        case 'items.quantityReturned':
-          return row.items && row.items.map(item => item.quantityReturned).join(', ') || 0;
-        case 'items.condition':
-          return row.items && row.items.map(item => item.condition).join(', ') || 'N/A';
-        case 'dateTime':
-          return row.dateTime ? formatDateTime(row.dateTime) : 'N/A'; // Format date
-        case 'returnDate':
-          return row.returnDate ? formatDateTime(row.returnDate) : 'N/A'; // Format return date
-        default:
-          return row[field] || 'N/A';
-      }
-    });
-  });
-
-  doc.autoTable({
-    head: [selectedFields.map(field => {
-      return field.split('.').pop().replace(/([A-Z])/g, ' $1').trim(); // Adds spaces before capital letters and removes prefixes
-    })],
-    body: data,
-    startY: 20,
-    styles: {
-      cellPadding: { top: 8, bottom: 5 },
-    },
-  });
-  
-  doc.save("BorrowReturnRecords.pdf");
-};
-
-  
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -448,25 +429,48 @@ const exportToPDF = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-<Dialog open={openModal} onClose={handleModalClose}>
+        <Dialog open={openModal} onClose={handleModalClose}>
         <DialogTitle>Select Fields to Export</DialogTitle>
         <DialogContent>
+          {/* Select All Checkbox */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={selectedFields.length === fields.length} // Check if all fields are selected
+                onChange={handleSelectAll} // Call handleSelectAll on change
+              />
+            }
+            label="Select All"
+          />
+
+          {/* Individual Field Checkboxes */}
           {fields.map((field) => (
             <FormControlLabel
               key={field.field}
-              control={<Checkbox checked={selectedFields.includes(field.field)} onChange={() => handleFieldChange(field.field)} />}
+              control={
+                <Checkbox
+                  checked={selectedFields.includes(field.field)} // Check if this field is selected
+                  onChange={() => handleFieldChange(field.field)} // Handle individual field changes
+                />
+              }
               label={field.label}
             />
           ))}
         </DialogContent>
         <DialogActions>
-      <Button onClick={() => { exportToExcel(); handleModalClose(); }} color="primary">Export to Excel</Button>
-      <Button onClick={() => { exportToPDF(); handleModalClose(); }} color="secondary">Export to PDF</Button>
-      <Button onClick={handleModalClose}>Cancel</Button>
-    </DialogActions>
+          <Button
+            onClick={() => {
+              exportToExcel(); // Export the selected fields to Excel
+              handleModalClose(); // Close the modal
+            }}
+            color="primary"
+          >
+            Export to Excel
+          </Button>
+          <Button onClick={handleModalClose}>Cancel</Button>
+        </DialogActions>
       </Dialog>
-
-      
+  
     </Paper>
   );
 };

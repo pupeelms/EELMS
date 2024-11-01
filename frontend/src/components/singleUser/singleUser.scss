@@ -140,6 +140,16 @@
   gap: 15px;
   color: rgb(0, 0, 0);
 
+  .userlink{
+    text-decoration: none;
+    color: black;
+    
+    &:hover {
+     text-decoration: underline;
+    }
+
+  }
+
   p {
     font-size: 16px;
     display: flex;

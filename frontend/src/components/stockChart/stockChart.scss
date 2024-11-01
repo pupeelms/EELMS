@@ -56,6 +56,12 @@
   border-radius: 50%;
 }
 
+.legend-value {
+  margin-left: 5px; // Space between name and count
+  font-size: 0.7em; // Adjust size as needed
+  color: #666; // Change color for item count, e.g., gray
+}
+
 .legend-name {
   font-size: 12px;
   color: gray;

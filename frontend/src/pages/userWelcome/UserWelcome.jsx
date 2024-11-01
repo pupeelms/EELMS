@@ -13,6 +13,10 @@ const UserWelcome = () => {
     navigate('/report'); // Redirect to report page
   };
 
+  const handleAboutUsClick = () => {
+    navigate('/aboutUs'); // Redirect to About Us page
+  };
+
   return (
     <div className="user-welcome-container">
       <img src="/ceafinal.png" alt="Background" className="bg-only" />
@@ -27,8 +31,13 @@ const UserWelcome = () => {
             User
           </button>
           <button className="user-welcome-button" onClick={handleReportClick}>
-            Report an Issue
+            Report an Issue 
           </button>
+
+          <div className="user-welcome-about-us" onClick={handleAboutUsClick}>
+              About Us
+          </div>
+          
         </div>
       </div>
     </div>

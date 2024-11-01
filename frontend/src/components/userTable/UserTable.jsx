@@ -53,7 +53,7 @@ const UserTable = () => {
     { field: 'fullName', headerName: 'Full Name', minWidth: 265 },
     { field: 'studentNo', headerName: 'Student No', minWidth: 180 },
     { field: 'program', headerName: 'Program', minWidth: 150 },
-    { field: 'yearAndSection', headerName: 'Year & Section', minWidth: 120 },
+    { field: 'yearAndSection', headerName: 'Year & Sec', minWidth: 120 },
     {
       field: 'status',
       headerName: 'Status',
@@ -182,6 +182,18 @@ const UserTable = () => {
 
   const handleModalClose = () => setOpenModal(false);
 
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      // If checked, select all fields
+      const allFieldNames = fields.map(field => field.field);
+      setSelectedFields(allFieldNames); // Update selectedFields with all field names
+    } else {
+      // If unchecked, clear all selections
+      setSelectedFields([]); // Clear selected fields
+    }
+  };
+  
+
   const handleFieldChange = (fieldName) => {
     setSelectedFields(prev => prev.includes(fieldName)
       ? prev.filter(f => f !== fieldName)
@@ -217,23 +229,6 @@ const UserTable = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
     XLSX.writeFile(workbook, "UserTableExport.xlsx");
-  };
-
-  const exportToPDF = () => {
-    const doc = new jsPDF({ orientation: 'landscape' });
-    doc.text("User Table Export", 14, 10);
-
-    const data = filteredRows.map((row) => {
-      return selectedFields.map((field) => row[field] || 'N/A');
-    });
-
-    doc.autoTable({
-      head: [selectedFields],
-      body: data,
-      startY: 20,
-    });
-
-    doc.save("UserTableExport.pdf");
   };
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -326,35 +321,42 @@ const UserTable = () => {
 
 
 
-      {/* Modal for selecting export fields */}
-      <Dialog open={openModal} onClose={handleModalClose}>
-        <DialogTitle>Select Fields to Export</DialogTitle>
-        <DialogContent>
-          {fields.map((field) => (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectedFields.includes(field.field)}
-                  onChange={() => handleFieldChange(field.field)}
-                />
-              }
-              label={field.label}
-              key={field.field}
-            />
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={exportToExcel} color="primary">
-            Export to Excel
-          </Button>
-          <Button onClick={exportToPDF} color="secondary">
-            Export to PDF
-          </Button>
-          <Button onClick={handleModalClose} color="default">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+{/* Modal for selecting export fields */}
+<Dialog open={openModal} onClose={handleModalClose}>
+  <DialogTitle>Select Fields to Export</DialogTitle>
+  <DialogContent>
+    <FormControlLabel
+      control={
+        <Checkbox
+          checked={selectedFields.length === fields.length} // Check if all fields are selected
+          onChange={handleSelectAll} // Call handleSelectAll on change
+        />
+      }
+      label="Select All"
+    />
+    {fields.map((field) => (
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={selectedFields.includes(field.field)}
+            onChange={() => handleFieldChange(field.field)}
+          />
+        }
+        label={field.label}
+        key={field.field}
+      />
+    ))}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={exportToExcel} color="primary">
+      Export to Excel
+    </Button>
+    <Button onClick={handleModalClose} color="default">
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
+
     </Paper>
   );
 };

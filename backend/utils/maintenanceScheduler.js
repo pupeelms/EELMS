@@ -4,7 +4,7 @@ const Item = require('../models/ItemModel');
 
 // Function to start the cron job
 const maintenanceScheduler = () => {
-  cron.schedule("* 9 * * *", async () => {
+  cron.schedule("0 9 * * *", async () => {
     console.log("Cron job started: Checking for maintenance schedules...");
 
     try {

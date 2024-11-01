@@ -22,7 +22,7 @@ const BorrowReturnLogSchema = new mongoose.Schema({
   profAttendance: { type: String, enum: ['Yes','No', 'yes', 'no'] },
   roomNo: { type: String },
   borrowedDuration: { type: String },
-  extendedDuration: { type: String, default: '0 minute' },
+  extendedDuration: { type: String },
   dueDate: { type: Date },
   transactionType: { type: String, enum: ['Borrowed','Returned'] },
   returnStatus: { type: String, enum: ['Pending', 'Completed', 'Overdue', 'Partially Returned', 'Extended'], default: 'Pending' },

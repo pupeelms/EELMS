@@ -5,6 +5,7 @@ const feedbackController = require('../controllers/feedbackController');
 
 // Apply authMiddleware if needed
 router.post('/feedback', upload.single('attachment'), (req, res) => {
+
     feedbackController.sendFeedback({
         name: req.body.name,
         email: req.body.email,
@@ -13,7 +14,10 @@ router.post('/feedback', upload.single('attachment'), (req, res) => {
         attachment: req.file
     })
     .then(() => res.status(200).send('Feedback submitted successfully'))
-    .catch(err => res.status(500).send('Error submitting feedback'));
+    .catch(err => {
+        console.error('Error in feedback route:', err);
+        res.status(500).send('Error submitting feedback');
+    });
 });
 
 module.exports = router;

@@ -96,6 +96,17 @@ const confirmDelete = async () => {
   }
 };
 
+const handleSelectAll = (event) => {
+  if (event.target.checked) {
+    // If checked, select all fields
+    const allFieldNames = fields.map(field => field.field);
+    setSelectedFields(allFieldNames); // Update selectedFields with all field names
+  } else {
+    // If unchecked, clear all selections
+    setSelectedFields([]); // Clear selected fields
+  }
+};
+
 
 // Cancel deletion
 const cancelDelete = () => {
@@ -211,23 +222,6 @@ const cancelDelete = () => {
     XLSX.writeFile(workbook, "ReportsExport.xlsx");
   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF({ orientation: 'landscape' });
-    doc.text("Reports Export", 14, 10);
-
-    const data = filteredRows.map((row) => {
-      return selectedFields.map((field) => row[field] || 'N/A');
-    });
-
-    doc.autoTable({
-      head: [selectedFields],
-      body: data,
-      startY: 20,
-    });
-
-    doc.save("ReportsExport.pdf");
-  };
-
   const handleExport = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
   const handleFieldChange = (fieldName) => {
@@ -285,20 +279,45 @@ const cancelDelete = () => {
       <Dialog open={openModal} onClose={handleModalClose}>
         <DialogTitle>Select Fields to Export</DialogTitle>
         <DialogContent>
+          {/* Select All Checkbox */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={selectedFields.length === fields.length} // Check if all fields are selected
+                onChange={handleSelectAll} // Call handleSelectAll on change
+              />
+            }
+            label="Select All"
+          />
+          
+          {/* Individual Field Checkboxes */}
           {fields.map((field) => (
             <FormControlLabel
               key={field.field}
-              control={<Checkbox checked={selectedFields.includes(field.field)} onChange={() => handleFieldChange(field.field)} />}
+              control={
+                <Checkbox
+                  checked={selectedFields.includes(field.field)}
+                  onChange={() => handleFieldChange(field.field)} // Handle individual field changes
+                />
+              }
               label={field.label}
             />
           ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => { exportToExcel(); handleModalClose(); }} color="primary">Export to Excel</Button>
-          <Button onClick={() => { exportToPDF(); handleModalClose(); }} color="secondary">Export to PDF</Button>
+          <Button
+            onClick={() => {
+              exportToExcel(); // Export the selected fields to Excel
+              handleModalClose(); // Close the modal
+            }}
+            color="primary"
+          >
+            Export to Excel
+          </Button>
           <Button onClick={handleModalClose}>Cancel</Button>
         </DialogActions>
       </Dialog>
+
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={cancelDelete}>

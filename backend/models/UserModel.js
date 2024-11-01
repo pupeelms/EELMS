@@ -7,14 +7,14 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     trim: true,
-    // unique: true, 
+    unique: true, 
     match: [/.+@.+\..+/, 'Please enter a valid email address'] // Email validation
   },
   gender: { type: String, required: true },
   address: { type: String, required: true },
   studentNo: { 
     type: String,  
-    // unique: true,
+    unique: true,
     match: [/^20\d{2}-\w{5}-MN-\w$/, 'Student number must follow the format 20**-*****-MN-*'] // Student number validation
   },
   program: { type: String },

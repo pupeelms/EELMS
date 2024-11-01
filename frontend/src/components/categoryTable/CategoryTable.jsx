@@ -129,23 +129,6 @@ export const CategoryTable = () => {
     XLSX.writeFile(workbook, "CategoryTableExport.xlsx");
   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF({ orientation: 'landscape' });
-    doc.text("Category Table Export", 14, 10);
-
-    const data = filteredRows.map((row) => {
-      return selectedFields.map((field) => row[field] || 'N/A');
-    });
-
-    doc.autoTable({
-      head: [selectedFields],
-      body: data,
-      startY: 20,
-    });
-
-    doc.save("CategoryTableExport.pdf");
-  };
-
   const columns = [
     { field: '_id', headerName: 'ID', minWidth: 250 },
     { field: 'categoryName', headerName: 'Category Name', minWidth: 250 },
@@ -278,7 +261,6 @@ export const CategoryTable = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { exportToExcel(); handleModalClose(); }} color="primary">Export to Excel</Button>
-          <Button onClick={() => { exportToPDF(); handleModalClose(); }} color="secondary">Export to PDF</Button>
           <Button onClick={handleModalClose}>Cancel</Button>
         </DialogActions>
       </Dialog>

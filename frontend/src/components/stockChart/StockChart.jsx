@@ -3,7 +3,18 @@ import { PieChart, Pie, Tooltip, Cell } from 'recharts';
 import axios from 'axios'; // Import Axios
 import './stockChart.scss';
 
-const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0', '#9966FF']; // Customize as needed
+// Function to generate distinct hues
+const generateDistinctHues = (numHues) => {
+  const hues = [];
+  const hueInterval = 360 / numHues; // Calculate the interval between hues
+
+  for (let i = 0; i < numHues; i++) {
+    const hue = Math.round(i * hueInterval); // Generate hues with distinct intervals
+    hues.push(`hsl(${hue}, 55%, 50%)`); // Create HSL color
+  }
+
+  return hues;
+};
 
 const StockChart = () => {
   const [categories, setCategories] = useState([]);
@@ -12,7 +23,13 @@ const StockChart = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get('/api/categories'); // Fetch data from your endpoint
-        setCategories(response.data);
+        // Assign colors to each category
+        const hues = generateDistinctHues(response.data.length); // Generate colors based on the number of categories
+        const categoriesWithColor = response.data.map((category, index) => ({
+          ...category,
+          color: hues[index % hues.length] // Assign color based on index
+        }));
+        setCategories(categoriesWithColor);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -21,11 +38,26 @@ const StockChart = () => {
     fetchCategories();
   }, []);
 
-  // Map the API data to a format compatible with Recharts PieChart
-  const chartData = categories.map((category, index) => ({
-    name: category.categoryName, // Name for the label
-    value: category.itemCount, // Value for the pie slice
-  }));
+  // Filter out categories with itemCount of 0 for the pie chart
+  const chartData = categories
+    .filter(category => category.itemCount > 0)
+    .map(category => ({
+      name: category.categoryName, // Name for the label
+      value: category.itemCount, // Value for the pie slice
+      color: category.color // Use the assigned color
+    }));
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+          <p style={{ color: 'gray', fontSize: '18px' }}>{payload[0].name}</p>
+          <p style={{ color: '#82ca9d', fontSize: '16px' }}>{`Stock Count: ${payload[0].value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="cat-chart-container">
@@ -39,26 +71,26 @@ const StockChart = () => {
               nameKey="name"
               outerRadius={75}
               innerRadius={45}
-              fill="#8884d8"
               isAnimationActive={true}
-              label={({ percent }) => `${(percent * 100).toFixed(0)}%`} // Show only percentage in the chart
+              label={({ value }) => (value > 0 ? `${((value / categories.reduce((acc, category) => acc + category.itemCount, 0)) * 100).toFixed(0)}%` : '')} // Show percentage only if value is greater than 0
               labelLine={false} // Remove label lines
             >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={entry.color} /> // Use assigned color
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </div>
         <div className="custom-legend">
-          {chartData.map((entry, index) => (
+          {categories.map((entry, index) => ( // Use all categories for the legend
             <div key={`legend-${index}`} className="legend-item">
               <span
                 className="legend-color"
-                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                style={{ backgroundColor: entry.itemCount > 0 ? entry.color : '#ddd' }} // Use assigned color or gray out for 0 count
               />
-              <span className="legend-name">{entry.name}</span>
+              <span className="legend-name">{entry.categoryName}</span>
+              <span className="legend-value">({entry.itemCount})</span> {/* Show item count in the legend */}
             </div>
           ))}
         </div>

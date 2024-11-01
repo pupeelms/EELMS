@@ -136,6 +136,7 @@ const UserRegistration = () => {
             placeholder="20**-*****-MN-*"
             value={formData.studentNo}
             onChange={handleChange}
+            unique
           />
         </div>
 
@@ -174,6 +175,7 @@ const UserRegistration = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            unique
           />
         </div>
 

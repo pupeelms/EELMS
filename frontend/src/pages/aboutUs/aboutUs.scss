@@ -1,0 +1,215 @@
+.about-page {
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+  
+    // Section 1: About Us
+    .about-section {
+      text-align: center;
+      margin-bottom: 40px;
+  
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #59000f;
+      }
+  
+      p {
+        font-size: 1.25rem;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+    }
+  
+    // Section 2: Project About
+    .project-about {
+      text-align: center;
+      margin-bottom: 40px;
+  
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+  
+      p {
+        font-size: 1.2rem;
+        line-height: 1.5;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+    }
+  
+    // Section 3: Vision and Mission
+    .vision-mission {
+      .vision-mission-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+  
+        .vision, .mission {
+          flex: 1;
+          padding: 20px;
+  
+          h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+          }
+  
+          p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+          }
+        }
+  
+        .vision-image {
+          flex: 1;
+          text-align: center;
+  
+          img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+          }
+        }
+
+        .mission-image{
+          flex: 1;
+          text-align: center;
+  
+          img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+          }
+        }
+      }
+    }
+  
+    // Section 4: Team Story
+    .team-story {
+      text-align: center;
+      margin-bottom: 50px;
+  
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }
+  
+      p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto 20px;
+      }
+  
+      blockquote {
+        font-style: italic;
+        font-size: 30px;
+        margin-top: 30px;
+        cite {
+          display: block;
+          font-size: 15px;
+          color: #777;
+          margin-top: 10px;
+        }
+      }
+    }
+  
+    // Section 5: The Team
+    .team-section {
+      text-align: center;
+      margin-bottom: 50px;
+  
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+      }
+  
+      .team-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+  
+        .team-member {
+          flex: 1 1 250px;
+          max-width: 300px;
+          text-align: center;
+          margin-bottom: 20px;
+  
+          img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 15px;
+          }
+  
+          h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+          }
+  
+          p {
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: #555;
+          }
+        }
+      }
+    }
+  
+    // Section 6: Footer
+    .footer {
+      padding: 20px;
+      background-color: #f8f8f8;
+      text-align: center;
+  
+      .contact-info {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+  
+        .contact-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          a{
+            text-decoration: none;
+            color: black;
+
+            &:hover{
+              text-decoration: underline;
+            }
+          }
+  
+          .icon {
+            font-size: 2rem;
+          }
+  
+          .text {
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+  
+    // Media Queries for responsiveness
+    @media (max-width: 768px) {
+      .vision-mission-row {
+        flex-direction: column;
+      }
+  
+      .team-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+  
+      .team-member {
+        max-width: none;
+      }
+    }
+  }
+  

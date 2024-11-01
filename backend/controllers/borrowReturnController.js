@@ -472,22 +472,26 @@ exports.extendBorrowingDuration = async (req, res) => {
       return res.status(400).json({ message: 'Only overdue transactions can be extended' });
     }
 
-    // Update the borrowed duration and calculate the new extended time
-    const newExtensionMillis = convertDurationToMillis(borrowedDuration); // Convert duration to milliseconds
+// Convert duration to milliseconds
+    const newExtensionMillis = convertDurationToMillis(borrowedDuration);
     const currentDate = new Date();
     const extendedDueDate = new Date(currentDate.getTime() + newExtensionMillis);
 
-    // Initialize extendedDuration if it doesn't exist
-    if (!borrowReturnLog.extendedDuration) {
+    // Ensure extendedDuration is a number, initialize if necessary
+    if (typeof borrowReturnLog.extendedDuration !== 'number') {
       borrowReturnLog.extendedDuration = 0; // Initialize with 0 if no extension has been done yet
     }
 
+    // Log current extended duration before updating
+    console.log(`Current Extended Duration: ${borrowReturnLog.extendedDuration} milliseconds`);
+
     // Update the extended duration by adding the new extension (in milliseconds)
-    borrowReturnLog.extendedDuration += newExtensionMillis;
+    const updatedDuration = borrowReturnLog.extendedDuration + newExtensionMillis;
+    borrowReturnLog.extendedDuration = updatedDuration;
 
     // Update the due date
     borrowReturnLog.dueDate = extendedDueDate; // Update the due date
-    
+
     // Update return status to "Extended"
     borrowReturnLog.returnStatus = "Extended";
     borrowReturnLog.markModified('returnStatus');
@@ -500,25 +504,25 @@ exports.extendBorrowingDuration = async (req, res) => {
     // Save the updated log
     await borrowReturnLog.save();
 
-     // Send email notification
-     const user = borrowReturnLog.userID; // User information is already populated
+    // Send email notification
+    const user = borrowReturnLog.userID; // User information is already populated
 
-     // Ensure user.email exists and is defined
-     if (!user || !user.email) {
-       console.error("User not found or email not available.");
-       return res.status(404).json({ message: "User not found or email not available." });
-     }
- 
-     // Create email subject and body
-     const emailSubject = "Borrowing Duration Extended";
-     const emailBody = `Hi ${user.fullName},\n\nYour borrowing duration has been successfully extended until ${extendedDueDate.toLocaleString()}.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
- 
-     try {
-       await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email
-     } catch (error) {
-       console.error("Error sending extension email:", error);
-       return res.status(500).json({ message: "Error sending extension email", error: error.message });
-     }
+    // Ensure user.email exists and is defined
+    if (!user || !user.email) {
+      console.error("User not found or email not available.");
+      return res.status(404).json({ message: "User not found or email not available." });
+    }
+
+    // Create email subject and body
+    const emailSubject = "Borrowing Duration Extended";
+    const emailBody = `Hi ${user.fullName},\n\nYour borrowing duration has been successfully extended until ${extendedDueDate.toLocaleString()}.\n\nPlease note that you can only extend the borrowing duration once. We kindly ask you to return the item(s) after this extension.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
+
+    try {
+      await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email
+    } catch (error) {
+      console.error("Error sending extension email:", error);
+      return res.status(500).json({ message: "Error sending extension email", error: error.message });
+    }
 
      
     // Notify user about the extension via SMS (via Server B)

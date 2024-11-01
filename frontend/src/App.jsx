@@ -33,9 +33,10 @@ import Report from './pages/reports/Report';
 import Archives from './pages/archives/Archives';
 import About from './pages/about/About';
 import Stocks from './pages/stocks/Stocks';
-import UserWelcome from './pages/UserWelcome/UserWelcome';
+import UserWelcome from './pages/userWelcome/UserWelcome';
 import AdminWelcome from './pages/adminWelcome/AdminWelcome';
 import ProtectedRoute from './components/ProtectedRoute'; // Importing ProtectedRoute
+import AboutUs from './pages/aboutUs/AboutUs';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<UserWelcome />} />
           <Route path="/lab/admin" element={<AdminWelcome />} />
+          <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/report" element={<ReportForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/select-profile" element={<SelectAdmin />} />

@@ -70,4 +70,17 @@
     margin-top: 20px;
     color: #59000f;
   }
+
+  .user-welcome-about-us{
+      font-size: 15px;
+      font-weight: bold;
+      color: #59000f;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+  }
 }

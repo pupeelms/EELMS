@@ -81,6 +81,16 @@ const CategoryItems = () => {
               rows.length === 0 ? <MessageRow /> : <></> // Display the message row if no data
             )
           }}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#d9d9d9', // Change the background color of the header
+              color: 'maroon', // Change the text color
+              fontSize: '16px', // Change the font size
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
+          }}
         />
       </div>
       {error && <div className="error-message">{error}</div>}

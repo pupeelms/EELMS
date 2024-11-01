@@ -136,7 +136,7 @@ Hi ${user.fullName || "Valued User"},
 
 This is a friendly reminder that your borrowed items are due to be returned by ${dueDate.toLocaleString()}.
 
-If you wish to extend the borrowing period, please inform us at the EE Laboratory.
+If you wish to extend the borrowing period, please inform us at the EE Laboratory. Please note that you can only extend the borrowing duration once.
 
 Thank you,
 PUP EE LAB

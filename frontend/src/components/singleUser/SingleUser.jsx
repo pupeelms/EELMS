@@ -125,14 +125,14 @@ const SingleUser = () => {
             <p><strong>Contact Number:</strong> {user.contactNumber}</p>
             <p>
               <strong>
-                <a href={user.registrationCard} target="_blank" rel="noopener noreferrer" className="link">
+                <a href={user.registrationCard} target="_blank" rel="noopener noreferrer" className="userlink">
                   Registration Card
                 </a>
               </strong>
             </p>
             <p>
               <strong>
-                <a href={user.updatedClassSchedule} target="_blank" rel="noopener noreferrer" className="link">
+                <a href={user.updatedClassSchedule} target="_blank" rel="noopener noreferrer" className="userlink">
                   Updated Class Schedule
                 </a>
               </strong>

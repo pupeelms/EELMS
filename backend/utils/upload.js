@@ -8,7 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
     // Allow only specific file types
     if (ext !== '.jpg' && ext !== '.jpeg' && ext !== '.png' &&
         ext !== '.pdf' && ext !== '.xls' && ext !== '.xlsx') {

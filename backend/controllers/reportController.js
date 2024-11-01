@@ -78,7 +78,6 @@ exports.getAllReports = async (req, res) => {
     
     // Check if there are any reports
     if (!reports.length) {
-      console.log('No reports found');
       return res.status(404).json({ message: 'No reports found' });
     }
     // Return the reports in the response

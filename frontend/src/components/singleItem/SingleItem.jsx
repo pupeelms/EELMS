@@ -375,6 +375,16 @@ console.log(updatedItem.image);  // Should log the file object
                 fullWidth
                 margin="normal"
               />
+              <TextField
+                label="Notes/Comments"
+                name="notesComments"
+                value={updatedItem.notesComments || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={4}
+                fullWidth
+                margin="normal"
+              />
               <FormControl fullWidth margin="normal">
                 <InputLabel id="condition-label">Status</InputLabel>
                 <Select

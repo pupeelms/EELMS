@@ -32,17 +32,22 @@ const TopBorrowedChart = () => {
       <ResponsiveContainer width="100%" height={310}>
         <BarChart
           data={borrowedData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }} // Increased bottom margin for space
+          margin={{ top: 20, right: 30, left: 20, bottom: 40 }} // Increased bottom margin for more space
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name">
-            <Label value="Item Name" offset={-10} position="insideBottom" />
+          <XAxis
+            dataKey="name"
+            angle={-30} // Rotate labels for better fit
+            textAnchor="end" // Align text to the end
+            height={60} // Increase height for the X-axis to prevent overflow
+          >
+            <Label value="Item Name" offset={-12} position="insideBottom" />
           </XAxis>
-          <YAxis label={{ value: "Borrow Count", angle: -90, position: "insideLeft" }} />
+          <YAxis label={{ value: "Borrow Count", angle: -90, position: "outside"}} />
           <Tooltip />
           <Legend
             verticalAlign="bottom"
-            wrapperStyle={{ paddingTop: 20 }} // Add padding to push the legend further down
+            wrapperStyle={{ paddingBottom: 0, marginBottom: -20 }} // Add padding to push the legend further down
           />
           <Bar dataKey="borrowedCount" fill="#82ca9d" barSize={40} name="Borrowed Count" />
         </BarChart>

@@ -12,6 +12,8 @@ const transporter = nodemailer.createTransport({
 
 exports.sendFeedback = async (feedback) => {
     try {
+        console.log('Received feedback:', feedback); // Add this line
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.RESEARCHER_EMAIL, // Add your email address here
@@ -28,19 +30,15 @@ ${feedback.message}
             `,
             attachments: feedback.attachment ? [{
                 filename: feedback.attachment.originalname,
-                path: feedback.attachment.path
+                content: feedback.attachment.buffer
             }] : []
         };
 
         await transporter.sendMail(mailOptions);
 
-        if (feedback.attachment) {
-            fs.unlinkSync(feedback.attachment.path); // Clean up the file after sending
-        }
-
         console.log('Feedback email sent successfully');
     } catch (error) {
-        console.error('Error sending feedback email:', error);
+        console.error('Error sending feedback email:', error.message);
         throw error;
     }
 };
