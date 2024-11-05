@@ -4,7 +4,7 @@ const Item = require('../models/ItemModel');
 
 // Function to start the cron job
 const maintenanceScheduler = () => {
-  cron.schedule("0 9 * * *", async () => {
+  cron.schedule("0 10 * * *", async () => {
     console.log("Cron job started: Checking for maintenance schedules...");
 
     try {
@@ -78,21 +78,19 @@ const getMaintenanceWeeks = (pmFrequency) => {
 
   switch (pmFrequency) {
     case "Annually":
-      maintenanceWeeks.push(1); // Annual maintenance on week 1
-      break;
+    maintenanceWeeks.push(5); // Annual maintenance on week 5
+    break;
     case "Quarterly":
-      maintenanceWeeks.push(1, 14, 27, 40); // Quarterly maintenance weeks
+      maintenanceWeeks.push(2, 15, 28, 41); // Quarterly maintenance on weeks 2, 15, 28, and 41
       break;
     case "Monthly":
-      for (let i = 1; i <= 12; i++) {
-        maintenanceWeeks.push(i * 4); // Monthly maintenance on weeks 4, 8, 12, etc.
-      }
+      maintenanceWeeks.push(2, 7, 11, 15, 19, 24, 28, 33, 37, 41, 46, 50); // Monthly maintenance on specified weeks
       break;
     case "Weekly":
       for (let i = 1; i <= 52; i++) {
         maintenanceWeeks.push(i); // Weekly maintenance for every week
       }
-      break;
+    break;
     case "Daily":
       // Instead of pushing "Daily", we will check each day explicitly in the main loop
       break;

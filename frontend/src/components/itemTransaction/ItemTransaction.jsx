@@ -9,14 +9,17 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination, 
+  TablePagination,
   TableSortLabel,
+  TextField,
 } from "@mui/material";
 
 const ItemTransaction = () => {
   const { itemId } = useParams();
   const [item, setItem] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState("desc");
@@ -26,6 +29,25 @@ const ItemTransaction = () => {
   useEffect(() => {
     fetchItemDetails();
   }, [itemId]);
+
+  useEffect(() => {
+    filterTransactions();
+  }, [searchQuery, transactions]);
+
+  const filterTransactions = () => {
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const filtered = transactions.filter(transaction => 
+      transaction.userName.toLowerCase().includes(lowerCaseQuery) ||
+      new Date(transaction.dateTime).toLocaleString().toLowerCase().includes(lowerCaseQuery) ||
+      transaction.transactionType.toLowerCase().includes(lowerCaseQuery) ||
+      transaction.returnStatus.toLowerCase().includes(lowerCaseQuery) ||
+      transaction.borrowedDuration.toString().toLowerCase().includes(lowerCaseQuery) ||
+      transaction.items.some(item =>
+        item.itemName.toLowerCase().includes(lowerCaseQuery)
+      )
+    );
+    setFilteredTransactions(filtered);
+  };
 
   const fetchItemDetails = async () => {
     try {
@@ -53,7 +75,7 @@ const ItemTransaction = () => {
     setOrderBy(property);
   };
 
-  const sortedTransactions = transactions.slice().sort((a, b) => {
+  const sortedTransactions = filteredTransactions.slice().sort((a, b) => {
     if (orderBy === "quantityBorrowed" || orderBy === "quantityReturned") {
       return order === "asc" ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
     } else {
@@ -72,10 +94,22 @@ const ItemTransaction = () => {
     setPage(0);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value); 
+  };
+
   if (!item) return <div>Loading item details...</div>;
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <TextField
+        variant="outlined"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        fullWidth
+        margin="normal"
+      />
       <TableContainer sx={{ maxHeight: 440 }} className="table">
         <Table stickyHeader aria-label="item transactions table">
           <TableHead>
@@ -84,6 +118,7 @@ const ItemTransaction = () => {
                 { id: "dateTime", label: "Date & Time" },
                 { id: "userName", label: "User Name" },
                 { id: "transactionType", label: "Transaction Type" },
+                { id: "borrowedDuration", label: "Borrowed Duration" },
                 { id: "quantityBorrowed", label: "Quantity Borrowed" },
                 { id: "quantityReturned", label: "Quantity Returned" },
                 { id: "returnStatus", label: "Return Status" },
@@ -117,6 +152,11 @@ const ItemTransaction = () => {
                             {transaction.transactionType}
                           </span>
                         </TableCell>
+                        <TableCell className="tableCell">
+                          <span className={`type ${transaction.borrowedDuration}`}>
+                            {transaction.borrowedDuration}
+                          </span>
+                        </TableCell>
                         <TableCell className="tableCell">{item.quantityBorrowed}</TableCell>
                         <TableCell className="tableCell">{item.quantityReturned}</TableCell>
                         <TableCell className="tableCell">
@@ -130,7 +170,7 @@ const ItemTransaction = () => {
                 ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: "center" }} >
+                <TableCell colSpan={7} style={{ textAlign: "center" }}>
                   No transactions found for this item.
                 </TableCell>
               </TableRow>
@@ -141,7 +181,7 @@ const ItemTransaction = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={transactions.length}
+        count={filteredTransactions.length} // Update to count filtered transactions
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

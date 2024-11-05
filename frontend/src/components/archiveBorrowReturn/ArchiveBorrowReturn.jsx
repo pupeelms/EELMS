@@ -19,7 +19,7 @@ import axios from "axios";
 const ArchiveBorrowReturn = () => {
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25); // Longer table by default
+  const [rowsPerPage, setRowsPerPage] = useState(10); // Longer table by default
   const [searchTerm, setSearchTerm] = useState("");
   const [openRow, setOpenRow] = useState({});
   const [order, setOrder] = useState("desc");
@@ -49,7 +49,6 @@ const fields = [
   { label: 'Feedback', field: 'feedbackEmoji' }, // Matches 'feedbackEmoji'
   { label: 'Partial Return Reason', field: 'partialReturnReason' }, // Matches 'partialReturnReason'
   { label: 'Notes/Comments', field: 'notesComments' }, // Matches 'notesComments'
-  // { label: 'Reminder Sent', field: 'reminderSent' }, // Matches 'reminderSent'
   { label: 'Item Barcode', field: 'items.itemBarcode' }, // Inside 'items', matches 'itemBarcode' for each item
   { label: 'Item Name', field: 'items.itemName' }, // Inside 'items', matches 'itemName'
   { label: 'Quantity Borrowed', field: 'items.quantityBorrowed' }, // Inside 'items', matches 'quantityBorrowed'
@@ -116,49 +115,85 @@ const fields = [
   };
 
   const filterAndGroupByDate = () => {
-    const filteredRows = rows.filter((row) => {
-      const searchTermLower = searchTerm.toLowerCase();
-      const rowDate = new Date(row.dateTime);
-
-      // Search by userName, transactionType, returnStatus, or date
-      const matchesUserName = row.userName.toLowerCase().includes(searchTermLower);
-      const matchesTransactionType = row.transactionType.toLowerCase().includes(searchTermLower);
-      const matchesReturnStatus = row.returnStatus.toLowerCase().includes(searchTermLower);
-      const matchesDate = rowDate.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }).toLowerCase().includes(searchTermLower);
-
-      // Filter by date range
+    // Convert startDate and endDate to Date objects
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+  
+    const filteredByDateRange = rows.filter((row) => {
+      const rowDate = new Date(row.dateTime); // Ensure this is a Date object
+  
+      // Check if the rowDate falls within the start and end dates
       const matchesDateRange =
-        (!startDate || rowDate >= new Date(startDate)) &&
-        (!endDate || rowDate <= new Date(endDate));
-
-      return (matchesUserName || matchesTransactionType || matchesReturnStatus || matchesDate) && matchesDateRange;
-    });
-
-    // Sort the filtered rows by the selected column and order
-    const sortedFilteredRows = filteredRows.sort((a, b) => {
-      if (orderBy === "dateTime") {
-        return order === "asc"
-          ? new Date(a.dateTime) - new Date(b.dateTime)
-          : new Date(b.dateTime) - new Date(a.dateTime);
-      } else if (orderBy === "userName") {
-        return order === "desc"
-          ? a.userName.localeCompare(b.userName)
-          : b.userName.localeCompare(a.userName);
-      } else if (orderBy === "transactionType") {
-        return order === "desc"
-          ? a.transactionType.localeCompare(b.transactionType)
-          : b.transactionType.localeCompare(a.transactionType);
-      } else if (orderBy === "returnStatus") {
-        return order === "desc"
-          ? a.returnStatus.localeCompare(b.returnStatus)
-          : b.returnStatus.localeCompare(a.returnStatus);
+        (!start || rowDate >= start) && (!end || rowDate <= end);
+  
+      // Adjust to include the end date itself
+      if (end && rowDate.toDateString() === end.toDateString()) {
+        return true; // Include the exact end date
       }
-      return 0;
+  
+      return matchesDateRange; // Only keep rows within the date range
     });
+  
+  
+  // Step 2: Now filter by search term
+  const filteredRows = filteredByDateRange.filter((row) => {
+    const searchTermLower = searchTerm.toLowerCase();
+    const formattedDate = new Date(row.dateTime).toLocaleDateString("en-PH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+    
+
+    // Search by userName, transactionType, returnStatus, or date
+    const matchesDates = formattedDate.toLowerCase().includes(searchTermLower);
+    const matchesUserName = row.userName.toLowerCase().includes(searchTermLower);
+    const matchesTransactionType = row.transactionType.toLowerCase().includes(searchTermLower);
+    const matchesReturnStatus = row.returnStatus.toLowerCase().includes(searchTermLower);
+    const matchesDate = new Date(row.dateTime).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).toLowerCase().includes(searchTermLower);
+
+    // Additional search fields
+    const matchesBorrowedDuration = row.borrowedDuration.toLowerCase().includes(searchTermLower);
+    const matchesProfessor = row.professor.toLowerCase().includes(searchTermLower);
+    const matchesRoomNo = row.roomNo.toLowerCase().includes(searchTermLower);
+    const matchesCourseSubject = row.courseSubject.toLowerCase().includes(searchTermLower);
+    const matchesItemName = row.items && row.items.some(item => item.itemName.toLowerCase().includes(searchTermLower));
+    const matchesItemBarcode = row.items && row.items.some(item => item.itemBarcode.toLowerCase().includes(searchTermLower));
+
+    // Return true if any of the search matches are true
+    return (
+      matchesUserName || matchesTransactionType || matchesReturnStatus || 
+      matchesDate || matchesDates || matchesBorrowedDuration || 
+      matchesProfessor || matchesRoomNo || matchesCourseSubject || 
+      matchesItemName || matchesItemBarcode
+    );
+  });
+
+  // Step 3: Sort the filtered rows by the selected column and order
+  const sortedFilteredRows = filteredRows.sort((a, b) => {
+    if (orderBy === "dateTime") {
+      return order === "asc"
+        ? new Date(a.dateTime) - new Date(b.dateTime)
+        : new Date(b.dateTime) - new Date(a.dateTime);
+    } else if (orderBy === "userName") {
+      return order === "desc"
+        ? a.userName.localeCompare(b.userName)
+        : b.userName.localeCompare(a.userName);
+    } else if (orderBy === "transactionType") {
+      return order === "desc"
+        ? a.transactionType.localeCompare(b.transactionType)
+        : b.transactionType.localeCompare(a.transactionType);
+    } else if (orderBy === "returnStatus") {
+      return order === "desc"
+        ? a.returnStatus.localeCompare(b.returnStatus)
+        : b.returnStatus.localeCompare(a.returnStatus);
+    }
+    return 0; // Return 0 if none of the specified conditions match
+  });
 
     // Group the sorted rows by date
     const groupedRows = sortedFilteredRows.reduce((acc, row) => {
@@ -185,15 +220,21 @@ const fields = [
   };
 
  // Utility function to format the date in 'MM/DD/YYYY HH:mm' format
-const formatDateTime = (dateTimeString) => {
+ const formatDateTime = (dateTimeString) => {
+  // Check if the dateTimeString is provided and valid
+  if (!dateTimeString || isNaN(Date.parse(dateTimeString))) {
+      return ''; // Return an empty string if no date or invalid date
+  }
+
   const date = new Date(dateTimeString);
   return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true // 24-hour format
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true // Use 12-hour format
   });
 };
 
@@ -265,170 +306,171 @@ const formatDuration = (millis) => {
   XLSX.writeFile(workbook, "BorrowReturnRecords.xlsx");
 };
 
-  return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <div style={{ display: "flex", gap: "1rem"}}>
-        {/* Date pickers for date range filtering */}
-        <Tooltip>
+return (
+  <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", gap: "1rem" }}>
+      {/* Date pickers for date range filtering */}
+      <Tooltip>
         <label htmlFor="start-date">Start Date </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </Tooltip>
-        <Tooltip>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
+      </Tooltip>
+      <Tooltip>
         <label htmlFor="end-date">End Date </label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </Tooltip>
-        <Button 
-          className="export-archive-button" 
-          onClick={handleExport} 
-          style={{ color: "black", backgroundColor: "#d9d9d9" }}>
-          EXPORT
-        </Button>
-      </div>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
+      </Tooltip>
+      <Button
+        className="export-archive-button"
+        onClick={handleExport}
+        style={{ color: "black", backgroundColor: "#d9d9d9" }}>
+        EXPORT
+      </Button>
+    </div>
 
-      <TextField
-        label="Search Transactions"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        onChange={handleSearch}
-        value={searchTerm}
-      />
+    <TextField
+      label="Search Transactions"
+      variant="outlined"
+      fullWidth
+      margin="normal"
+      onChange={handleSearch}
+      value={searchTerm}
+    />
 
-      <TableContainer sx={{ maxHeight: 700 }} className="table">
-        <Table stickyHeader aria-label="archive borrow-return logs table">
-          <TableHead>
-            <TableRow>
-              <TableCell className="column">
-                <TableSortLabel
-                  active={orderBy === "dateTime"}
-                  direction={orderBy === "dateTime" ? order : "asc"}
-                  onClick={() => handleSortRequest("dateTime")}
-                >
-                  Date & Time
-                </TableSortLabel>
-              </TableCell>
-              <TableCell className="column">
-                <TableSortLabel
-                  active={orderBy === "userName"}
-                  direction={orderBy === "userName" ? order : "asc"}
-                  onClick={() => handleSortRequest("userName")}
-                >
-                  User Name
-                </TableSortLabel>
-              </TableCell>
-              <TableCell className="column">
-                <TableSortLabel
-                  active={orderBy === "transactionType"}
-                  direction={orderBy === "transactionType" ? order : "asc"}
-                  onClick={() => handleSortRequest("transactionType")}
-                >
-                  Transaction Type
-                </TableSortLabel>
-              </TableCell>
-              <TableCell className="column">Return Status</TableCell>
-              <TableCell className="column">Items Summary</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.keys(sortedRows).map((date) => (
+    <TableContainer sx={{ maxHeight: 700 }} className="table">
+      <Table stickyHeader aria-label="archive borrow-return logs table">
+        <TableHead>
+          <TableRow>
+            <TableCell className="column">
+              <TableSortLabel
+                active={orderBy === "dateTime"}
+                direction={orderBy === "dateTime" ? order : "asc"}
+                onClick={() => handleSortRequest("dateTime")}
+              >
+                Date & Time
+              </TableSortLabel>
+            </TableCell>
+            <TableCell className="column">
+              <TableSortLabel
+                active={orderBy === "userName"}
+                direction={orderBy === "userName" ? order : "asc"}
+                onClick={() => handleSortRequest("userName")}
+              >
+                User Name
+              </TableSortLabel>
+            </TableCell>
+            <TableCell className="column">
+              <TableSortLabel
+                active={orderBy === "transactionType"}
+                direction={orderBy === "transactionType" ? order : "asc"}
+                onClick={() => handleSortRequest("transactionType")}
+              >
+                Transaction Type
+              </TableSortLabel>
+            </TableCell>
+            <TableCell className="column">Borrowed Duration</TableCell>
+            <TableCell className="column">Return Status</TableCell>
+            <TableCell className="column">Items Summary</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.keys(sortedRows)
+            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // paginate based on unique dates
+            .map((date) => (
               <React.Fragment key={date}>
                 <TableRow>
                   <TableCell colSpan={5} style={{ fontWeight: "bold" }}>
                     {date}
                   </TableCell>
                 </TableRow>
-                {sortedRows[date]
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <React.Fragment key={row._id}>
-                      <TableRow hover>
-                        <TableCell className="tableCell">
-                          {new Date(row.dateTime).toLocaleString()}
-                        </TableCell>
-                        <TableCell className="tableCell">{row.userName}</TableCell>
-                        <TableCell className="tableCell">{row.transactionType}</TableCell>
-                        <TableCell className="tableCell">
-                          <span className={`status ${row.returnStatus}`}>
-                            {row.returnStatus}
-                          </span>
-                        </TableCell>
-                        <TableCell className="tableCell">
-                          {calculateUniqueItemCount(row.items || [])} Item/s
-                          <IconButton
-                            size="small"
-                            onClick={() => handleToggleRow(row._id)}
-                          >
-                            {openRow[row._id] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
+                {sortedRows[date].map((row) => (
+                  <React.Fragment key={row._id}>
+                    <TableRow hover>
+                      <TableCell className="tableCell">
+                        {new Date(row.dateTime).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="tableCell">{row.userName}</TableCell>
+                      <TableCell className="tableCell">{row.transactionType}</TableCell>
+                      <TableCell className="tableCell">{row.borrowedDuration}</TableCell>
+                      <TableCell className="tableCell">
+                        <span className={`status ${row.returnStatus}`}>
+                          {row.returnStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {calculateUniqueItemCount(row.items || [])} Item/s
+                        <IconButton
+                          size="small"
+                          onClick={() => handleToggleRow(row._id)}
+                        >
+                          {openRow[row._id] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
 
-                      <TableRow>
-                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                          <Collapse in={openRow[row._id]} timeout="auto" unmountOnExit>
-                            <Table size="small" aria-label="items">
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell colSpan={7}><strong>Items:</strong></TableCell>
+                    <TableRow>
+                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                        <Collapse in={openRow[row._id]} timeout="auto" unmountOnExit>
+                          <Table size="small" aria-label="items">
+                            <TableBody>
+                              <TableRow>
+                                <TableCell colSpan={7}><strong>Items:</strong></TableCell>
+                              </TableRow>
+                              {row.items && row.items.map((item, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>Item Name: {item.itemName}</TableCell>
+                                  <TableCell>Barcode: {item.itemBarcode}</TableCell>
+                                  <TableCell>Borrowed: {item.quantityBorrowed}</TableCell>
+                                  <TableCell>Returned: {item.quantityReturned}</TableCell>
+                                  <TableCell>Condition: {item.condition}</TableCell>
                                 </TableRow>
-                                {row.items && row.items.map((item, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell>Item Name: {item.itemName}</TableCell>
-                                    <TableCell>Barcode: {item.itemBarcode}</TableCell>
-                                    <TableCell>Borrowed: {item.quantityBorrowed}</TableCell>
-                                    <TableCell>Returned: {item.quantityReturned}</TableCell>
-                                    <TableCell>Condition: {item.condition}</TableCell>
-                                  </TableRow>
-                                ))}
-                                <TableRow>
-                                  <TableCell colSpan={7}><strong>Other Details:</strong></TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell>Course: {row.courseSubject}</TableCell>
-                                  <TableCell>Professor: {row.professor}</TableCell>
-                                  <TableCell>Prof Present? {row.profAttendance}</TableCell>
-                                  <TableCell>Room: {row.roomNo}</TableCell> 
-                                </TableRow>
+                              ))}
+                              <TableRow>
+                                <TableCell colSpan={7}><strong>Other Details:</strong></TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>Returned Date: {formatDateTime(row.returnDate)}</TableCell>
+                                <TableCell>Course: {row.courseSubject}</TableCell>
+                                <TableCell>Professor: {row.professor}</TableCell>
+                                <TableCell>Prof Present? {row.profAttendance}</TableCell>
+                                <TableCell>Room: {row.roomNo}</TableCell>
+                              </TableRow>
 
-                                <TableRow>
-                                  <TableCell colSpan={7}><strong>Other Concerns:</strong></TableCell>
-                                </TableRow>
-                                  <TableCell>Partial Return Reason: {row.partialReturnReason}</TableCell> 
-                                  <TableCell>Feedback: {row.feedbackEmoji}</TableCell>
+                              <TableRow>
+                                <TableCell colSpan={7}><strong>Other Concerns:</strong></TableCell>
+                              </TableRow>
+                              <TableCell>Partial Return Reason: {row.partialReturnReason}</TableCell>
+                              <TableCell>Feedback: {row.feedbackEmoji}</TableCell>
 
-
-                              </TableBody>
-                            </Table>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  ))}
+                            </TableBody>
+                          </Table>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))}
               </React.Fragment>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <TablePagination
+      rowsPerPageOptions={[10, 25, 50, 100]}
+      component="div"
+      count={Object.keys(sortedRows).length} // count of unique dates for pagination
+      rowsPerPage={rowsPerPage}
+      page={page}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />
         <Dialog open={openModal} onClose={handleModalClose}>
         <DialogTitle>Select Fields to Export</DialogTitle>
         <DialogContent>

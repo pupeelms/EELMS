@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./preventiveMaintenance.scss"; // Link to external SCSS
 import * as XLSX from "xlsx"; // For Excel export
+import Swal from 'sweetalert2';
 
 // Define possible statuses
 const statusOptions = ["Pending", "Completed", "Skipped"];
@@ -17,15 +18,13 @@ const getMaintenanceWeeks = (pmFrequency) => {
 
   switch (pmFrequency) {
     case "Annually":
-      maintenanceWeeks.push(1); // Only one maintenance for the entire year
+      maintenanceWeeks.push(5); // Only one maintenance for the entire year
       break;
     case "Quarterly":
       maintenanceWeeks.push(2, 15, 28, 41); // Maintenance at weeks 2, 15, 28, and 41
       break;
     case "Monthly":
-      for (let i = 0; i < 52; i += 4) {
-        maintenanceWeeks.push(i + 2); // Every 4 weeks (roughly)
-      }
+        maintenanceWeeks.push(2, 7, 11, 15, 19, 24, 28, 33, 37, 41, 46, 50); // Every 4 weeks (roughly)
       break;
     case "Weekly":
       for (let i = 1; i <= 52; i++) {
@@ -65,6 +64,8 @@ const PreventiveMaintenance = () => {
   const [dynamicMonths, setDynamicMonths] = useState(months);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); // State to track search input
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -73,19 +74,21 @@ const PreventiveMaintenance = () => {
         const filteredItems = response.data
           .filter((item) => item.pmNeeded === "Yes")
           .map(item => {
+            // If maintenanceSchedule exists, use it; otherwise, create a default one
             if (!item.maintenanceSchedule) {
               item.maintenanceSchedule = Array.from({ length: 52 }, (_, index) => ({
                 week: index + 1,
-                status: index === 1 ? "Pending" : "Skipped"
+                status: index === 1 ? "Pending" : "Skipped" // Default statuses can be adjusted
               }));
             }
-            return item;
+            return { ...item };
           });
         setItems(filteredItems);
       } catch (err) {
         console.error("Error fetching items:", err);
       }
     };
+    
   
     const fetchMonthlyRanges = async () => {
       try {
@@ -123,34 +126,34 @@ const PreventiveMaintenance = () => {
     console.log(`Updating status for item ${itemId} in week ${weekNumber} to ${newStatus}`);
     
     try {
-      // Optimistically update local state
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item._id === itemId
-            ? {
-                ...item,
-                maintenanceSchedule: item.maintenanceSchedule.map((week, index) =>
-                  index + 1 === weekNumber ? { ...week, status: newStatus } : week
-                ),
-              }
-            : item
-        )
-      );
-  
-      // Make API call to update status
-      await axios.put(`/api/items/${itemId}/schedule/update`, {
-        weekNumber,
-        status: newStatus,
-      });
-  
-      // Optionally refetch items to ensure local state is in sync
-      const response = await axios.get("/api/items");
-      setItems(response.data.filter(item => item.pmNeeded === "Yes")); // Adjust filter as necessary
+        // Make API call to update status
+        await axios.put(`/api/items/${itemId}/schedule/update`, {
+            weekNumber,
+            status: newStatus,
+        });
+
+        // Update local state without refetching all items
+        setItems((prevItems) =>
+            prevItems.map((item) => {
+                if (item._id === itemId) {
+                    return {
+                        ...item,
+                        maintenanceSchedule: item.maintenanceSchedule.map((week) => {
+                            if (week.week === `Week ${weekNumber}`) {
+                                return { ...week, status: newStatus }; // Update the status directly
+                            }
+                            return week;
+                        }),
+                    };
+                }
+                return item;
+            })
+        );
     } catch (err) {
-      console.error("Error updating maintenance status:", err);
-      // Optionally handle errors by showing a notification or reverting local state changes
+        console.error("Error updating maintenance status:", err);
     }
-  };
+};
+  
   
    // New function to handle submitting the monthly ranges
    const handleSubmitRanges = async (e) => {
@@ -194,13 +197,34 @@ const PreventiveMaintenance = () => {
   .filter((item) => selectedLocation === "All" || item.location === selectedLocation)
   .filter((item) => {
     const itemNameMatch = item.itemName.toLowerCase().includes(searchTerm.toLowerCase());
+    const specificationMatch = item.specification.toLowerCase().includes(searchTerm.toLowerCase());
     const categoryMatch = item.category?.categoryName.toLowerCase().includes(searchTerm.toLowerCase());
     const pmFrequencyMatch = item.pmFrequency.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return itemNameMatch || categoryMatch || pmFrequencyMatch;
+    return itemNameMatch || specificationMatch || categoryMatch || pmFrequencyMatch;
   })
   .sort((a, b) => a.itemName.localeCompare(b.itemName));
   const locations = [...new Set(items.map((item) => item.location))];
+
+  const showAlert = (specification) => {
+    Swal.fire({
+      title: 'Specification Details',
+      text: specification,
+      icon: null, // Remove the icon
+      confirmButtonText: 'Close',
+      width: '400px', // Set the width of the alert box (adjust as needed)
+      customClass: {
+        popup: 'custom-swal-popup', // You can add custom classes here
+      },
+      padding: '20px', // Optional: Add padding to the content
+      showClass: {
+        popup: '', // Disable show animation
+      },
+      hideClass: {
+        popup: '', // Disable hide animation
+      },
+    });
+  };
 
   const renderTable = () => (
     <table className="pm-table">
@@ -228,30 +252,45 @@ const PreventiveMaintenance = () => {
           <tr key={item._id}>
             <td>{item.itemName}</td>
             <td>{item.category?.categoryName || "N/A"}</td>
-            <td>{item.specification}</td>
+            <td 
+              style={{ maxWidth: '150px', width: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
+              onClick={() => showAlert(item.specification)} // Show custom alert on click
+            >
+              {item.specification}
+            </td>
             <td>{item.location || "N/A"}</td>
             <td>{item.pmFrequency}</td>
-            {Array.from({ length: 52 }, (_, i) => {
-              const week = i + 1;
-              const maintenanceWeeks = getMaintenanceWeeks(item.pmFrequency);
-              const isMaintenanceWeek = maintenanceWeeks.includes(week);
+            {Array.from({ length: 52 }, (_, weekIndex) => {
+              const weekNumber = weekIndex + 1; // Week number (1-52)
+              const weekData = item.maintenanceSchedule.find(week => week.week === `Week ${weekNumber}`);
+              const currentStatus = weekData ? weekData.status : "N/A"; // Default to "N/A" if no data
   
               return (
-                <td key={week}>
-                  {isMaintenanceWeek ? (
-                    <select
-                      style={{ backgroundColor: statusColors[item.maintenanceSchedule[week - 1]?.status || "Pending"] }}
-                      value={item.maintenanceSchedule[week - 1]?.status || "Pending"}
-                      onChange={(e) => handleStatusChange(item._id, week, e.target.value)}
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                <td key={weekNumber}>
+                  {currentStatus === "N/A" ? (
+                    "-" // Display dash if current status is N/A
                   ) : (
-                    "-"
+                    <div style={{ position: 'relative' }}>
+                      <select
+                        style={{ 
+                          backgroundColor: statusColors[currentStatus], // Use current status for color
+                          color: '#000', // Ensure text is readable
+                          border: 'none',
+                          borderRadius: '5px',
+                          padding: '5px',
+                          cursor: 'pointer'
+                        }} 
+                        value={currentStatus}
+                        onChange={(e) => handleStatusChange(item._id, weekNumber, e.target.value)}
+                        title={`Current Status: ${currentStatus}`} // Tooltip for current status
+                      >
+                        {statusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   )}
                 </td>
               );
@@ -262,34 +301,63 @@ const PreventiveMaintenance = () => {
     </table>
   );
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.aoa_to_sheet([
-      [
-        "Item Name",
-        "Category",
-        "Specification",
-        "Location",
-        "PM Frequency",
-        ...Array.from({ length: 52 }, (_, i) => i + 1),
-      ]
-    ]);
-  
-    filteredItems.forEach(item => {
-      const row = [
-        item.itemName,
-        item.category?.categoryName || "N/A",
-        item.specification,
-        item.location || "N/A",
-        item.pmFrequency,
-        ...Array.from({ length: 52 }, (_, i) => item.maintenanceSchedule[i]?.status || "-")
-      ];
-      XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: -1 });
+
+    // Function to export the maintenance schedule
+    const exportToExcel = () => {
+  const worksheetData = [];
+  const headers = ['Item Name', 'Category', 'Specification', 'Location', 'PM Frequency'];
+
+  // Calculate max weeks to determine how many columns to create
+  const maxWeeks = 52; // Set to 52 weeks for weekly/monthly reporting
+
+  // Add headers for each week
+  for (let week = 1; week <= maxWeeks; week++) {
+    headers.push(`Week ${week}`);
+  }
+
+  worksheetData.push(headers);
+
+  items.forEach((item) => {
+    const row = [
+      item.itemName,
+      item.category?.categoryName || "N/A",
+      item.specification,
+      item.location || "N/A",
+      item.pmFrequency,
+    ];
+
+    // Create an array to hold the week statuses
+    const weekStatuses = Array(maxWeeks).fill('-'); // Default all weeks to '-'
+
+    // Get the maintenance schedule for the item
+    const maintenanceSchedule = item.maintenanceSchedule || [];
+
+    // Assign statuses based on the maintenance schedule
+    maintenanceSchedule.forEach((weekData) => {
+      const weekNumberString = weekData.week; // Get the week string (e.g., "Week 2")
+      const weekNumber = parseInt(weekNumberString.replace("Week ", ""), 10); // Extract the week number
+
+      const status = weekData.status; // Get the status
+      if (weekNumber >= 1 && weekNumber <= maxWeeks) {
+        weekStatuses[weekNumber - 1] = status; // Set the status for the corresponding week
+      }
     });
+
+    // Push statuses into the row
+    row.push(...weekStatuses);
+    worksheetData.push(row);
+  });
+
+  // Create a new workbook and add the data
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Maintenance Schedule');
+
+  // Export the workbook
+  XLSX.writeFile(workbook, 'Maintenance_Schedule.xlsx');
+};
   
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Preventive Maintenance");
-    XLSX.writeFile(workbook, "PreventiveMaintenance.xlsx");
-  };
+  
 
   const toggleForm = () => {
     setShowForm(!showForm);

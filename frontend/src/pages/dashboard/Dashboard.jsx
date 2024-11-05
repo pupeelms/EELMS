@@ -24,7 +24,7 @@ const Dashboard = () => {
             <Widget type="Out of stock" />
           </div>
           <div className="listContainer">
-            <div className="listTitle">Borrow/Return Transactions</div>
+            <div className="listTitleBorrow">Borrow/Return Transactions</div>
             <BorrowReturnTable/>
           </div>
         </div> 

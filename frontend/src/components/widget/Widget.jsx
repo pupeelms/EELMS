@@ -18,7 +18,9 @@ const Widget = ({ type }) => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('/api/users');
-        setUserCount(response.data.length);
+        // Filter users to get only those with 'Approved' status
+        const approvedUsers = response.data.filter(user => user.status === 'Approved');
+        setUserCount(approvedUsers.length); // Set count to the number of approved users
       } catch (error) {
         console.error("Error fetching users:", error);
         setUserCount(0); // If there's an error, display 0

@@ -41,7 +41,7 @@ const TopBorrowedChart = () => {
             textAnchor="end" // Align text to the end
             height={60} // Increase height for the X-axis to prevent overflow
           >
-            <Label value="Item Name" offset={-12} position="insideBottom" />
+            <Label value="Item Name" offset={-15} position="insideBottom" />
           </XAxis>
           <YAxis label={{ value: "Borrow Count", angle: -90, position: "outside"}} />
           <Tooltip />

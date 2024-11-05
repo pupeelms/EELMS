@@ -135,7 +135,7 @@ export const CategoryTable = () => {
     { field: 'itemCount', headerName: 'Item Count', minWidth: 150 },
     {
       field: 'action',
-      headerName: 'Action',
+      headerName: 'Actions',
       width: 350,
       renderCell: (params) => (
         <div>
@@ -168,11 +168,11 @@ export const CategoryTable = () => {
     },
   ];
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   return (
     <Paper className="categoryTable">
-      <div style={{ height: '520px', width: '100%' }}>
+       <div style={{ height: 520, width: '100%', display: 'flex', flexDirection: 'column' }}>
 
         {/* Search Bar */}
     <div className="search-cat-bar" style={{ marginBottom: '0px', marginLeft: '10px', padding: '10px' }}>
@@ -190,14 +190,11 @@ export const CategoryTable = () => {
 
     </div>
 
-    {/* DataGrid with filtered rows */}
-    <div style={{ height: '400px', width: '100%' }}>
-
     <DataGrid
        rows={filteredRows}
        columns={columns}
        initialState={{ pagination: { paginationModel } }}
-       pageSizeOptions={[5, 10, 20]}
+       pageSizeOptions={[10, 25, 50]}
        checkboxSelection
        loading={loading}
        getRowId={(row) => row._id}
@@ -215,7 +212,6 @@ export const CategoryTable = () => {
       }}
       
     />
-    </div>
   </div>
 
       {/* Edit Drawer */}

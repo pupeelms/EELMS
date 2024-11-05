@@ -231,7 +231,7 @@ const UserTable = () => {
     XLSX.writeFile(workbook, "UserTableExport.xlsx");
   };
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   return (
     <Paper className="userTable" sx={{ width: '100%', overflow: 'hidden', height: '100%' }}>
@@ -260,7 +260,7 @@ const UserTable = () => {
           rows={filteredRows}
           columns={columns}
           initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10, 20]}
+          pageSizeOptions={[10, 25, 50, 100]}
           checkboxSelection
           loading={loading}
           getRowId={(row) => row._id}

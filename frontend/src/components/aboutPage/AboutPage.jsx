@@ -90,8 +90,8 @@ const AboutPage = () => {
         </p>
 
         <blockquote>
-          "Awa na lang"
-          <cite>PUPian est. 2024</cite>
+          "Leave everything in the future."
+          <cite>CREM est. 2024</cite>
         </blockquote>
       </div>
 

@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from 'xlsx';
 import './reportList.scss';
+import Swal from 'sweetalert2';
 
 const ReportsList = ({ itemId }) => {
   const [reports, setReports] = useState([]);
@@ -67,12 +68,27 @@ const ReportsList = ({ itemId }) => {
       console.error('Error updating status:', error);
     }
   };
-
-  const openIssueModal = (issueText) => {
-    setSelectedIssue(issueText); // Set the selected issue text
-    setIssueModalOpen(true); // Open the modal
-  };
   
+  const openIssueModal = (issueText) => {
+    Swal.fire({
+      title: 'Issue Details',
+      text: issueText,
+      icon: null, // Remove the icon
+      confirmButtonText: 'Close',
+      width: '400px', // Set the width of the alert box (adjust as needed)
+      customClass: {
+        popup: 'custom-swal-popup', // Custom class for the popup
+        confirmButton: 'custom-confirm-button', // Custom class for the confirm button
+      },
+      padding: '20px', // Optional: Add padding to the content
+      showClass: {
+        popup: '', // Disable show animation
+      },
+      hideClass: {
+        popup: '', // Disable hide animation
+      },
+    });
+  };
 
 // Open delete confirmation dialog
 const handleDeleteReport = (reportId) => {
@@ -125,13 +141,13 @@ const cancelDelete = () => {
       width: 300,
       renderCell: (params) => (
         <span
-          onClick={() => openIssueModal(params.row.issue)} // Open modal with full issue text
-          style={{ cursor: 'pointer', textDecoration: 'none' }} // Styling for clickable text
+          onClick={() => openIssueModal(params.row.issue)} // Open SweetAlert2 with full issue text
+          style={{ cursor: 'pointer', textDecoration: 'none' }}
         >
-          {params.row.issue.length > 50 ? `${params.row.issue.slice(0, 50)}...` : params.row.issue} {/* Display truncated text */}
+          {params.row.issue.length > 50 ? `${params.row.issue.slice(0, 50)}...` : params.row.issue}
         </span>
       ),
-    },    
+    },  
     { field: 'reportedBy', headerName: 'Reported By', width: 200 },
     { field: 'priority', headerName: 'Priority', width: 120 },
     { 
@@ -256,9 +272,14 @@ const cancelDelete = () => {
       {/* DataGrid or No Reports Message */}
       {filteredRows.length > 0 ? (
         <DataGrid
-          rows={filteredRows}
+          rows={filteredRows} 
           columns={columns}
-          pageSize={10}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 5 }, // Set initial pageSize here as well
+            },
+          }}
+          pageSizeOptions={[5, 10, 20]}
           getRowId={(row) => row.id} // Ensure each row has a unique id
           sx={{
             '& .MuiDataGrid-columnHeaders': {

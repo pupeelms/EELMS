@@ -31,15 +31,15 @@ const BorrowReturnLogSchema = new mongoose.Schema({
   partialReturnReason: { type: String },
   notesComments: { type: String },
 
-  emailSent: {
+  reminderSent: {
     type: Boolean,
     default: false, // By default, no reminder has been sent
   },
 
-  // smsSent: {
-  //   type: Boolean,
-  //   default: false, // By default, no reminder has been sent
-  // }
+  overdueEmailSent: {
+    type: Boolean,
+    default: false, // By default, no reminder has been sent
+  }
 
 
 

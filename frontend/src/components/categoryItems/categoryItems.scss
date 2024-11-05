@@ -1,21 +1,23 @@
-// General styles for the CategoryItems component
 .category-items-grid {
-  // Ensure the grid takes full width and height
   height: 100%;
   width: 100%;
 
-  .MuiDataGrid-row {
-    &:hover {
-      background-color: #f5f5f5; // Highlight row on hover
+  .MuiDataGrid {
+    height: 100%; // Ensure DataGrid takes full height
+
+    &-row {
+      &:hover {
+        background-color: #f5f5f5; // Hover effect for rows
+      }
     }
-  }
 
-  .MuiDataGrid-cell {
-    padding: 8px; // Customize cell padding
-  }
+    &-cell {
+      padding: 8px; // Cell padding
+    }
 
-  .MuiDataGrid-columnHeaders {
-    background-color: #f0f0f0; // Light grey background for column headers
+    &-columnHeaders {
+      background-color: #f0f0f0; // Background color for headers
+    }
   }
 }
 
@@ -24,29 +26,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.8); // Light background to make overlay stand out
-  color: #888; // Light grey color for text
-  font-size: 16px;
-  font-weight: 500;
+  height: 100%; // Full height
+  width: 100%; // Full width
+  background-color: rgba(255, 255, 255, 0.8); // Background color
+  color: #888; // Text color
+  font-size: 16px; // Font size
+  font-weight: 500; // Font weight
 
-  // Responsive adjustments
   @media (max-width: 600px) {
-    font-size: 14px; // Smaller font size on smaller screens
+    font-size: 14px; // Smaller font size for mobile
   }
 }
 
 // Style for error messages
 .error-message {
-  text-align: center;
-  padding: 20px;
-  color: #841111; // Red color for errors
-  font-size: 16px;
-  font-weight: bold;
+  text-align: center; // Center the text
+  padding: 20px; // Padding around the message
+  color: #841111; // Error text color
+  font-size: 16px; // Font size
+  font-weight: bold; // Bold text
 
-  // Responsive adjustments
   @media (max-width: 600px) {
-    font-size: 14px; // Smaller font size on smaller screens
+    font-size: 14px; // Smaller font size for mobile
   }
 }

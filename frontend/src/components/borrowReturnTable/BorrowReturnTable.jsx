@@ -26,6 +26,7 @@ const BorrowReturnTable = () => {
   const [newDuration, setNewDuration] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +45,26 @@ const BorrowReturnTable = () => {
     const today = new Date();
     return today.toISOString().split('T')[0]; // Only the date part in YYYY-MM-DD format
   };
+
+  // Function to format the date
+  const formatDate = (dateString) => {
+    // Check if the dateString is provided and valid
+    if (!dateString || isNaN(Date.parse(dateString))) {
+        return ''; // Return an empty string if no date or invalid date
+    }
+    
+    const options = {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+    };
+    return new Date(dateString).toLocaleString('en-US', options);
+};
+
 
   const handleExtendClick = (log) => {
     setSelectedLog(log);
@@ -96,6 +117,22 @@ const BorrowReturnTable = () => {
     return rowDate === getTodayDate(); // Compare with today's date
   });
 
+  // Filter rows based on the search term
+  const filteredRows = todayRows.filter(row => {
+    return (
+      row.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      new Date(row.dateTime).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.borrowedDuration.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.transactionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.returnStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.professor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.roomNo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      row.courseSubject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (row.items && row.items.some(item => item.itemName.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+      (row.items && row.items.some(item => item.itemBarcode.toLowerCase().includes(searchTerm.toLowerCase()))) 
+    );
+  });
+
   const sortedRows = todayRows.slice().sort((a, b) => {
     const aValue = a[orderBy];
     const bValue = b[orderBy];
@@ -109,7 +146,14 @@ const BorrowReturnTable = () => {
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: 440 }} className="table">
+       <TextField
+        variant="outlined"
+        placeholder="Search..."
+        fullWidth
+        margin="normal"
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <TableContainer sx={{ maxHeight: 450 }} className="table">
         <Table stickyHeader aria-label="borrow-return logs table">
           <TableHead>
             <TableRow>
@@ -133,20 +177,20 @@ const BorrowReturnTable = () => {
               </TableCell>
               <TableCell className="column">
                 <TableSortLabel
-                  active={orderBy === "borrowedDuration"}
-                  direction={orderBy === "borrowedDuration" ? order : "asc"}
-                  onClick={() => handleSortRequest("borrowedDuration")}
-                >
-                  Borrowed Duration
-                </TableSortLabel>
-              </TableCell>
-              <TableCell className="column">
-                <TableSortLabel
                   active={orderBy === "transactionType"}
                   direction={orderBy === "transactionType" ? order : "asc"}
                   onClick={() => handleSortRequest("transactionType")}
                 >
                   Transaction Type
+                </TableSortLabel>
+              </TableCell>
+              <TableCell className="column">
+                <TableSortLabel
+                  active={orderBy === "borrowedDuration"}
+                  direction={orderBy === "borrowedDuration" ? order : "asc"}
+                  onClick={() => handleSortRequest("borrowedDuration")}
+                >
+                  Borrowed Duration
                 </TableSortLabel>
               </TableCell>
               <TableCell className="column">
@@ -162,8 +206,8 @@ const BorrowReturnTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedRows.length > 0 ? (
-              sortedRows
+            {filteredRows.length > 0 ? (
+              filteredRows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <React.Fragment key={row._id}>
@@ -172,6 +216,12 @@ const BorrowReturnTable = () => {
                         {new Date(row.dateTime).toLocaleString()}
                       </TableCell>
                       <TableCell className="tableCell">{row.userName}</TableCell>
+
+                      <TableCell className="tableCell">
+                        <span className={`type ${row.transactionType}`}>
+                          {row.transactionType}
+                        </span>
+                      </TableCell>
                       
                       <TableCell className="tableCell">
                         {row.borrowedDuration}
@@ -180,11 +230,6 @@ const BorrowReturnTable = () => {
                         )}
                       </TableCell>
 
-                      <TableCell className="tableCell">
-                        <span className={`type ${row.transactionType}`}>
-                          {row.transactionType}
-                        </span>
-                      </TableCell>
                       <TableCell className="tableCell">
                         <span
                           className={`status ${row.returnStatus}`}
@@ -234,11 +279,11 @@ const BorrowReturnTable = () => {
                                 <TableCell colSpan={7}><strong>Other Details:</strong></TableCell>
                               </TableRow>
                               <TableRow>
+                                <TableCell>Returned Date: {formatDate(row.returnDate)}</TableCell>
                                 <TableCell>Course: {row.courseSubject}</TableCell>
                                 <TableCell>Professor: {row.professor}</TableCell>
                                 <TableCell>Prof Present? {row.profAttendance}</TableCell>
-                                <TableCell>Room: {row.roomNo}</TableCell>
-                                                
+                                <TableCell>Room: {row.roomNo}</TableCell>                  
                               </TableRow>
 
                               <TableRow>
@@ -269,7 +314,7 @@ const BorrowReturnTable = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={sortedRows.length}
+        count={filteredRows.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

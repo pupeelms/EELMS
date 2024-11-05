@@ -11,7 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import IconButton from "@mui/material/IconButton";
 import Collapse from "@mui/material/Collapse";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { TableSortLabel } from "@mui/material";
+import { TableSortLabel, TextField } from "@mui/material";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
@@ -23,9 +23,10 @@ const SingleTransaction = () => {
   const [openRow, setOpenRow] = useState({});
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("dateTime");
+  const [searchTerm, setSearchTerm] = useState(""); // New state for search term
 
   useEffect(() => {
-    if (userId) { 
+    if (userId) {
       fetchUserTransactions();
     }
   }, [userId]);
@@ -37,7 +38,7 @@ const SingleTransaction = () => {
     } catch (error) {
       console.error('Error fetching user transactions:', error.response ? error.response.data : error.message);
     }
-  }; 
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -66,18 +67,33 @@ const SingleTransaction = () => {
     return uniqueItems.size;
   };
 
-  const sortedTransactions = transactions.slice().sort((a, b) => {
+  const sortedTransactions = transactions
+  .filter((transaction) =>
+    new Date(transaction.dateTime).toLocaleString('en-PH').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.transactionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.borrowedDuration.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.returnStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.items.some((item) => item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    transaction.courseSubject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.professor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.roomNo.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  .sort((a, b) => {
     const aValue = a[orderBy];
     const bValue = b[orderBy];
-    if (order === "asc") {
-      return aValue < bValue ? -1 : 1;
-    } else {
-      return aValue > bValue ? -1 : 1;
-    }
+    return order === "asc" ? (aValue < bValue ? -1 : 1) : (aValue > bValue ? -1 : 1);
   });
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <TextField
+        label="Search..."
+        variant="outlined"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
       <TableContainer sx={{ maxHeight: 440 }} className="table">
         <Table stickyHeader aria-label="user transactions table">
           <TableHead>
@@ -151,7 +167,6 @@ const SingleTransaction = () => {
                       </IconButton>
                     </TableCell>
                   </TableRow>
-
                   <TableRow>
                     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
                       <Collapse in={openRow[transaction._id]} timeout="auto" unmountOnExit>
@@ -178,14 +193,11 @@ const SingleTransaction = () => {
                               <TableCell>Prof Present? {transaction.profAttendance}</TableCell>
                               <TableCell>Room: {transaction.roomNo}</TableCell>
                             </TableRow>
-
                             <TableRow>
-                                <TableCell colSpan={7}><strong>Other Concerns:</strong></TableCell>
+                              <TableCell colSpan={7}><strong>Other Concerns:</strong></TableCell>
                             </TableRow>
-                              <TableCell>Partial Return Reason: {transaction.partialReturnReason}</TableCell> 
+                              <TableCell>Partial Return Reason: {transaction.partialReturnReason}</TableCell>
                               <TableCell>Feedback: {transaction.feedbackEmoji}</TableCell>
-
-
                           </TableBody>
                         </Table>
                       </Collapse>
@@ -197,9 +209,9 @@ const SingleTransaction = () => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 100]}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
-        count={transactions.length}
+        count={sortedTransactions.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

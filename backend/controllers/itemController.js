@@ -75,41 +75,61 @@ exports.createItem = async (req, res) => {
     }
 
     // Initialize maintenanceSchedule based on pmNeeded and pmFrequency
-    let maintenanceSchedule = [];
+let maintenanceSchedule = [];
 
-    if (pmNeeded === 'Yes') {
-      switch (pmFrequency) {
-        case 'Daily':
-          maintenanceSchedule = Array.from({ length: 365 }, (_, i) => ({
-            week: `Day ${i + 1}`,
-            status: 'Pending',
-          }));
-          break;
-        case 'Weekly':
-          maintenanceSchedule = Array.from({ length: 52 }, (_, i) => ({
-            week: `Week ${i + 1}`,
-            status: 'Pending',
-          }));
-          break;
-        case 'Monthly':
-          maintenanceSchedule = Array.from({ length: 12 }, (_, i) => ({
-            week: `Month ${i + 1}`,
-            status: 'Pending',
-          }));
-          break;
-        case 'Quarterly':
-          maintenanceSchedule = Array.from({ length: 4 }, (_, i) => ({
-            week: `Quarter ${i + 1}`,
-            status: 'Pending',
-          }));
-          break;
-        case 'Annually':
-          maintenanceSchedule = [{ week: `Year 1`, status: 'Pending' }];
-          break;
-        default:
-          maintenanceSchedule = []; // No maintenance if frequency is undefined or something else
-      }
-    }
+if (pmNeeded === 'Yes') {
+  switch (pmFrequency) {
+    case 'Daily':
+      // Assuming daily means every week
+      maintenanceSchedule = Array.from({ length: 52 }, (_, i) => ({
+        week: `Week ${i + 1}`,
+        status: 'Pending',
+      }));
+      break;
+    case 'Weekly':
+      // Weekly maintenance for every week of the year
+      maintenanceSchedule = Array.from({ length: 52 }, (_, i) => ({
+        week: `Week ${i + 1}`,
+        status: 'Pending',
+      }));
+      break;
+    case 'Monthly':
+      // Hardcoded specific weeks for monthly maintenance
+      maintenanceSchedule = [
+        { week: `Week 2`, status: 'Pending' },
+        { week: `Week 7`, status: 'Pending' },
+        { week: `Week 11`, status: 'Pending' },
+        { week: `Week 15`, status: 'Pending' },
+        { week: `Week 19`, status: 'Pending' },
+        { week: `Week 24`, status: 'Pending' },
+        { week: `Week 28`, status: 'Pending' },
+        { week: `Week 33`, status: 'Pending' },
+        { week: `Week 37`, status: 'Pending' },
+        { week: `Week 41`, status: 'Pending' },
+        { week: `Week 46`, status: 'Pending' },
+        { week: `Week 50`, status: 'Pending' },
+      ];
+      break;
+    case 'Quarterly':
+      // Hardcoded specific weeks for quarterly maintenance
+      maintenanceSchedule = [
+        { week: `Week 2`, status: 'Pending' },
+        { week: `Week 15`, status: 'Pending' },
+        { week: `Week 28`, status: 'Pending' },
+        { week: `Week 41`, status: 'Pending' },
+      ];
+      break;
+    case 'Annually':
+      // Hardcoded specific week for annual maintenance
+      maintenanceSchedule = [
+        { week: `Week 5`, status: 'Pending' },
+      ];
+      break;
+    default:
+      maintenanceSchedule = []; // No maintenance if frequency is undefined or something else
+  }
+}
+
 
     // Create new item with the initialized maintenanceSchedule
     const newItem = new Item({
@@ -149,36 +169,53 @@ const generateMaintenanceSchedule = (pmNeeded, pmFrequency) => {
   if (pmNeeded === 'Yes' && pmFrequency) {
     switch (pmFrequency) {
       case 'Daily':
-        return Array.from({ length: 365 }, (_, i) => ({
-          week: `Day ${i + 1}`,
+        // Assuming daily means every week
+        return Array.from({ length: 52 }, (_, i) => ({
+          week: `Week ${i + 1}`,
           status: 'Pending',
         }));
       case 'Weekly':
+        // Weekly maintenance for every week of the year
         return Array.from({ length: 52 }, (_, i) => ({
           week: `Week ${i + 1}`,
           status: 'Pending',
         }));
       case 'Monthly':
-        return Array.from({ length: 12 }, (_, i) => ({
-          week: `Month ${i + 1}`,
-          status: 'Pending',
-        }));
+        // Hardcoded specific weeks for monthly maintenance
+        return [
+          { week: `Week 2`, status: 'Pending' },
+          { week: `Week 7`, status: 'Pending' },
+          { week: `Week 11`, status: 'Pending' },
+          { week: `Week 15`, status: 'Pending' },
+          { week: `Week 19`, status: 'Pending' },
+          { week: `Week 24`, status: 'Pending' },
+          { week: `Week 28`, status: 'Pending' },
+          { week: `Week 33`, status: 'Pending' },
+          { week: `Week 37`, status: 'Pending' },
+          { week: `Week 41`, status: 'Pending' },
+          { week: `Week 46`, status: 'Pending' },
+          { week: `Week 50`, status: 'Pending' },
+        ];
       case 'Quarterly':
-        return Array.from({ length: 4 }, (_, i) => ({
-          week: `Quarter ${i + 1}`,
-          status: 'Pending',
-        }));
+        // Hardcoded specific weeks for quarterly maintenance
+        return [
+          { week: `Week 2`, status: 'Pending' },
+          { week: `Week 15`, status: 'Pending' },
+          { week: `Week 28`, status: 'Pending' },
+          { week: `Week 41`, status: 'Pending' },
+        ];
       case 'Annually':
-        return Array.from({ length: 1 }, (_, i) => ({
-          week: `Year ${i + 1}`,
-          status: 'Pending',
-        }));
+        // Hardcoded specific week for annual maintenance
+        return [
+          { week: `Week 5`, status: 'Pending' },
+        ];
       default:
         return []; // No maintenance if frequency is undefined or something else
     }
   }
   return []; // No maintenance if pmNeeded is not 'Yes'
 };
+
 
 /// Update item details
 exports.updateItem = async (req, res) => {
@@ -412,6 +449,12 @@ exports.updateMaintenanceStatus = async (req, res) => {
       return res.status(400).json({ error: 'Week number and status are required.' });
     }
 
+    // Ensure weekNumber is a valid number between 1 and 52
+    const weekNum = parseInt(weekNumber);
+    if (isNaN(weekNum) || weekNum < 1 || weekNum > 52) {
+      return res.status(400).json({ error: 'Week number must be a number between 1 and 52.' });
+    }
+
     // Find the item by its ID
     const item = await Item.findById(itemId);
     if (!item) {
@@ -425,19 +468,19 @@ exports.updateMaintenanceStatus = async (req, res) => {
     let formattedWeek;
     switch (pmFrequency) {
       case "Annually":
-        formattedWeek = `Year ${weekNumber}`; // Only one maintenance per year
+        formattedWeek = `Week ${weekNum}`; // Only one maintenance per year (assumed to be the first week)
         break;
       case "Quarterly":
-        formattedWeek = `Quarter ${weekNumber}`;
+        formattedWeek = `Week ${weekNum}`; // Convert week number to quarterly format
         break;
       case "Monthly":
-        formattedWeek = `Month ${weekNumber}`; // Format as 'Month X'
+        formattedWeek = `Week ${weekNum}`; // Format as 'Week X'
         break;
       case "Weekly":
-        formattedWeek = `Week ${weekNumber}`; // Format as 'Week X'
+        formattedWeek = `Week ${weekNum}`; // Format as 'Week X'
         break;
       case "Daily":
-        formattedWeek = `Day ${weekNumber}`; // Format as 'Day X'
+        formattedWeek = `Week ${weekNum}`; // Format as 'Day X' (optional, as typically this would not fit a weekly structure)
         break;  
       default:
         return res.status(400).json({ error: 'Invalid maintenance frequency.' });

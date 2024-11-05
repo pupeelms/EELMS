@@ -16,7 +16,7 @@ const User = () => {
         <CustomBreadcrumbs/>
             <SingleUser/>
           <div className="bottom">
-            <div className="userTitle">User Transactions</div>
+            <div className="userTitleTrans">User Transactions</div>
             <SingleTransaction/>
           </div> 
         

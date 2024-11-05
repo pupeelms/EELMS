@@ -119,6 +119,7 @@ export const ItemTable = () => {
     // Apply search term filter
     const matchesSearchTerm = searchTerm
       ? row.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.itemBarcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.condition.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (row.category && row.category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (row.location && row.location.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -202,7 +203,7 @@ export const ItemTable = () => {
     link.click();
   };
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   return (
     <Paper className="itemTable" sx={{ width: '100%', overflow: 'hidden', height: '100%' }}>
@@ -240,8 +241,12 @@ export const ItemTable = () => {
         <DataGrid
           rows={filteredRows}  // Use combined filtered rows here
           columns={columns}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10, 20]}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 10 }, // Set initial pageSize here as well
+            },
+          }}
+          pageSizeOptions={[10, 25, 50, 100]}
           checkboxSelection
           loading={loading}
           getRowId={(row) => row._id}  // Use _id as the unique identifier

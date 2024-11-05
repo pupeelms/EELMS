@@ -501,6 +501,11 @@ exports.extendBorrowingDuration = async (req, res) => {
     console.log(`Total Extended Duration: ${totalExtendedMinutes} minutes`);
     console.log(`New Due Date: ${extendedDueDate.toLocaleString()}`);
 
+    // Reset reminderSent to false
+    borrowReturnLog.reminderSent = false;
+
+    borrowReturnLog.overdueEmailSent = false;
+
     // Save the updated log
     await borrowReturnLog.save();
 
