@@ -67,6 +67,25 @@ const SingleTransaction = () => {
     return uniqueItems.size;
   };
 
+   // Function to format the date
+   const formatDate = (dateString) => {
+    // Check if the dateString is provided and valid
+    if (!dateString || isNaN(Date.parse(dateString))) {
+        return ''; // Return an empty string if no date or invalid date
+    }
+    
+    const options = {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+    };
+    return new Date(dateString).toLocaleString('en-US', options);
+};
+
   const sortedTransactions = transactions
   .filter((transaction) =>
     new Date(transaction.dateTime).toLocaleString('en-PH').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -188,6 +207,7 @@ const SingleTransaction = () => {
                               <TableCell colSpan={7}><strong>Other Details:</strong></TableCell>
                             </TableRow>
                             <TableRow>
+                              <TableCell>Returned Date: {formatDate(transaction.returnDate)}</TableCell>
                               <TableCell>Course: {transaction.courseSubject}</TableCell>
                               <TableCell>Professor: {transaction.professor}</TableCell>
                               <TableCell>Prof Present? {transaction.profAttendance}</TableCell>

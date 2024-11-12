@@ -30,29 +30,54 @@ const UserRegistration = () => {
 
   const navigate = useNavigate();
 
-  // Handle form input changes
+  // Handle form input changes with numeric validation for contact number
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    
+    // Restrict contactNumber to 10 numeric characters only
+    if (name === "contactNumber") {
+      // Only allow digits and restrict length to 10
+      const numericValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData({
+        ...formData,
+        [name]: numericValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);  // Start loading
-
+  
     try {
-      const response = await axios.post('/api/users/create', formData, {
+      // Validate that contactNumber is exactly 10 digits
+      if (formData.contactNumber.length !== 10) {
+        setErrors(['Contact number must be exactly 10 digits.']);
+        setIsLoading(false);
+        return; // Stop submission if invalid
+      }
+  
+      // Prepend "63" to contactNumber before submitting the form data
+      const updatedFormData = {
+        ...formData,
+        contactNumber: `63${formData.contactNumber}`
+      };
+  
+      const response = await axios.post('/api/users/create', updatedFormData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+  
       if (response.status === 201 || response.status === 200) {
         const data = response.data;
-
+  
         // Check if the user is authenticated or not
         if (data.isAuthenticated) {
           navigate('/users');
@@ -73,8 +98,8 @@ const UserRegistration = () => {
     } finally {
       setIsLoading(false);  // Stop loading
     }
-  };
-
+  };  
+  
   // Handle closing the dialog and navigating
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -180,16 +205,20 @@ const UserRegistration = () => {
         </div>
 
         {/* Contact Number */}
-        <div className="newUserItem">
+        <div className="newUserNumber">
           <label>Contact Number: </label>
-          <input
-            type="text"
-            name="contactNumber"
-            placeholder="639XXXXXXXXX"
-            value={formData.contactNumber}
-            onChange={handleChange}
-            required
-          />
+          <div className="contactInputWrapper">
+            <span className="prefix">+63</span>
+            <input
+              type="text"
+              name="contactNumber"
+              placeholder="XXXXXXXXXX"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              maxLength={10} // Limit input to 10 characters
+              required
+            />
+          </div>
         </div>
 
         {/* Registration Card */}

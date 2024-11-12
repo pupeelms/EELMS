@@ -111,11 +111,22 @@ const BorrowReturnTable = () => {
     setOrderBy(property);
   };
 
-  // Filter to get only today's transactions
+  // Helper function to get today's date in Philippine Time (UTC+8)
+  function getTodayDatePH() {
+    const today = new Date();
+    // Offset the date to UTC+8 by adding 8 hours in milliseconds
+    const offsetToday = new Date(today.getTime() + 8 * 60 * 60 * 1000);
+    return offsetToday.toISOString().split('T')[0];
+  }
+
+  // Filter to get only today's transactions in Philippine Time
   const todayRows = rows.filter(row => {
-    const rowDate = new Date(row.dateTime).toISOString().split('T')[0];
-    return rowDate === getTodayDate(); // Compare with today's date
+    const rowDate = new Date(new Date(row.dateTime).getTime() + 8 * 60 * 60 * 1000)
+                          .toISOString()
+                          .split('T')[0];
+    return rowDate === getTodayDatePH(); // Compare with today's date in PH Time
   });
+
 
   // Filter rows based on the search term
   const filteredRows = todayRows.filter(row => {
