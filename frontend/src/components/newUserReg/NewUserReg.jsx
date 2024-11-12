@@ -199,13 +199,13 @@ const NewUserReg = () => {
 
         {/* Contact Number */}
         <div className="newRegUserNumber">
-          <label>Contact Number: </label>
+          <label>Contact Number: (ex. 9306193624) </label>
           <div className="contactInputWrapper">
             <span className="prefix">+63</span>
             <input
               type="text"
               name="contactNumber"
-              placeholder="XXXXXXXXXX"
+              placeholder="9*********"
               value={formData.contactNumber}
               onChange={handleChange}
               maxLength={10} // Limit input to 10 characters
@@ -220,7 +220,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="registrationCard"
-            placeholder="Gdrive link to registration card"
+            placeholder="Gdrive link to registration card (optional)"
             value={formData.registrationCard}
             onChange={handleChange}
           />
@@ -232,7 +232,7 @@ const NewUserReg = () => {
           <input
             type="text"
             name="updatedClassSchedule"
-            placeholder="Gdrive link to class schedule"
+            placeholder="Gdrive link to class schedule (optional)"
             value={formData.updatedClassSchedule}
             onChange={handleChange}
           />
