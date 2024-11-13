@@ -27,7 +27,7 @@ const ItemScan = () => {
   const [availableQuantity, setAvailableQuantity] = useState(0);
   const [quantityExceededMessage, setQuantityExceededMessage] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // New state for loading
+  const [isLoading, setIsLoading] = useState(false);
 
   const barcodeInputRef = useRef(null);
 
@@ -54,22 +54,77 @@ const ItemScan = () => {
 
   const handleBarcodeScan = async (e) => {
     e.preventDefault();
-    resetItemDetails();
-
+    resetItemDetails(); // Clear any prior item details and messages
+  
     if (currentBarcode) {
+      // Check if the item is already in the scanned items list
+      const existingItem = scannedItems.find(item => item.itemBarcode === currentBarcode);
+  
       try {
         const response = await axios.get(`/api/items/barcode/${currentBarcode}`);
         if (response.status === 200) {
-          setItemDetails(response.data);
-          setAvailableQuantity(response.data.quantity);
+          const itemData = response.data;
+  
+          // If the item quantity is exactly 1 and not previously added, add it immediately
+          if (itemData.quantity === 1 && !existingItem) {
+            const newItem = {
+              itemBarcode: currentBarcode,
+              itemName: itemData.itemName,
+              quantity: 1,
+              image: itemData.image,
+            };
+            setScannedItems(prevItems => [...prevItems, newItem]);
+            resetFields();
+            return; // Exit after adding the item
+          }
+  
+          if (existingItem) {
+            // Calculate the total quantity already scanned for this item
+            const totalScannedQuantity = scannedItems
+              .filter(item => item.itemBarcode === currentBarcode)
+              .reduce((total, item) => total + item.quantity, 0);
+  
+            // Calculate remaining quantity that can still be scanned
+            const remainingQuantity = itemData.quantity - totalScannedQuantity;
+  
+            // If there's no remaining quantity, show an error message and do not display item details
+            if (remainingQuantity <= 0) {
+              setErrorMessage(`"${existingItem.itemName}" is fully scanned. Please scan another item.`);
+              setTimeout(() => {
+                setErrorMessage('');
+                resetFields();
+              }, 3000);
+              return; // Exit after showing the error
+            }
+  
+            // Display item details again since there is still available quantity
+            setItemDetails(itemData);
+            setAvailableQuantity(itemData.quantity);
+          } else {
+            // If the item is not scanned yet, display its details
+            setItemDetails(itemData);
+            setAvailableQuantity(itemData.quantity);
+          }
         } else {
           setErrorMessage('Item not found. Please scan a valid barcode.');
+          setTimeout(() => {
+            setErrorMessage('');
+            resetFields();
+          }, 2000); // Reset fields after showing this error
         }
       } catch (error) {
         setErrorMessage('Error checking barcode. Please try again.');
+        setTimeout(() => {
+          setErrorMessage('');
+          resetFields();
+        }, 2000); // Reset fields after showing this error
       }
     }
+     // Log the current state of scanned items at the end of the function
+  console.log('Current Scanned Items:', scannedItems);
   };
+  
+  
 
   const resetItemDetails = () => {
     setErrorMessage('');
@@ -78,21 +133,22 @@ const ItemScan = () => {
     setQuantityExceededMessage('');
   };
 
-  const handleAddItem = () => {
-    if (!currentBarcode || !quantity || !itemDetails) {
+  const handleAddItem = (autoQuantity = null) => {
+    const itemQuantity = autoQuantity ?? Number(quantity);
+
+    if (!currentBarcode || !itemQuantity || !itemDetails) {
       setErrorMessage('Please scan an item and enter quantity.');
       return;
     }
 
-    const requestedQuantity = Number(quantity);
-    if (requestedQuantity > availableQuantity) {
+    if (itemQuantity > availableQuantity) {
       setQuantityExceededMessage(`Cannot add item. Total quantity exceeds available stock. Available quantity: ${availableQuantity}`);
       return;
     }
 
     const existingItemIndex = scannedItems.findIndex(item => item.itemBarcode === currentBarcode);
     if (existingItemIndex >= 0) {
-      const totalQuantity = scannedItems[existingItemIndex].quantity + requestedQuantity;
+      const totalQuantity = scannedItems[existingItemIndex].quantity + itemQuantity;
       if (totalQuantity > availableQuantity) {
         setQuantityExceededMessage(`Cannot add item. Total quantity exceeds available stock. Available quantity: ${availableQuantity}`);
         return;
@@ -105,7 +161,7 @@ const ItemScan = () => {
       const newItem = {
         itemBarcode: currentBarcode,
         itemName: itemDetails.itemName,
-        quantity: requestedQuantity,
+        quantity: itemQuantity,
         image: itemDetails.image,
       };
       setScannedItems(prevItems => [...prevItems, newItem]);
@@ -134,46 +190,48 @@ const ItemScan = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading to true when submitting
+    setIsLoading(true);
 
     if (scannedItems.length === 0) {
-        setErrorMessage('No items to submit. Please add items before submitting.');
-        setIsLoading(false); // Set loading to false if no items
-        return;
+      setErrorMessage('No items to submit. Please add items before submitting.');
+      setIsLoading(false);
+      return;
     }
 
     const itemsToSubmit = scannedItems.map(item => ({
-        itemBarcode: item.itemBarcode,
-        itemName: item.itemName,
-        quantity: item.quantity,
+      itemBarcode: item.itemBarcode,
+      itemName: item.itemName,
+      quantity: item.quantity,
     }));
 
     const transactionDetails = {
-        userID,
-        userName,
-        contactNumber,
-        items: itemsToSubmit,
-        courseSubject,
-        professor,
-        profAttendance,
-        roomNo,
-        borrowedDuration,
-        transactionType,
-        dateTime: new Date().toISOString(),
+      userID,
+      userName,
+      contactNumber,
+      items: itemsToSubmit,
+      courseSubject,
+      professor,
+      profAttendance,
+      roomNo,
+      borrowedDuration,
+      transactionType,
+      dateTime: new Date().toISOString(),
     };
 
+    console.log('Scanned items before submitting:', scannedItems);
+
     try {
-        const response = await axios.post('/api/borrow-return/log', transactionDetails);
-        if (response.status === 201) {
-            navigate('/borrow-success', { state: transactionDetails });
-        } else {
-            setErrorMessage('Error processing the transaction. Please try again.');
-        }
+      const response = await axios.post('/api/borrow-return/log', transactionDetails);
+      if (response.status === 201) {
+        navigate('/borrow-success', { state: transactionDetails });
+      } else {
+        setErrorMessage('Error processing the transaction. Please try again.');
+      }
     } catch (error) {
-        setErrorMessage('Failed to log the transaction. Please check the console for details.');
-        console.error('Failed to log the transaction:', error);
+      setErrorMessage('Failed to log the transaction. Please check the console for details.');
+      console.error('Failed to log the transaction:', error);
     }
-    setIsLoading(false); // Set loading to false after submission
+    setIsLoading(false);
   };
 
   return (
@@ -200,21 +258,20 @@ const ItemScan = () => {
             <p>Item: {itemDetails.itemName}</p>
             {itemDetails.image && (
               <img
-                src={itemDetails.image}  // Use the full image URL directly from Cloudinary
+                src={itemDetails.image}
                 alt={itemDetails.itemName}
                 className="item-image"
-                style={{ width: '30%', height: 'auto', objectFit: 'cover' }} // Cover style
+                style={{ width: '30%', height: 'auto', objectFit: 'cover' }}
                 onError={(e) => {
-                  e.target.src = '/path/to/placeholder.png';  // Set fallback image if the requested image fails to load
-                  e.target.onError = null;  // Prevent infinite loop if the placeholder also fails
+                  e.target.src = '/path/to/placeholder.png';
+                  e.target.onError = null;
                 }}
               />
             )}
           </div>
         )}
 
-
-        {itemDetails && (
+        {itemDetails && availableQuantity > 1 && (
           <>
             <div className="input-group">
               <label>Quantity:</label>
@@ -229,7 +286,7 @@ const ItemScan = () => {
             </div>
 
             <div className="actions">
-              <button type="button" onClick={handleAddItem} disabled={!itemDetails || !quantity}>Add Item</button>
+              <button type="button" onClick={() => handleAddItem()} disabled={!itemDetails || !quantity}>Add Item</button>
               <button type="button" onClick={resetFields}>Cancel</button>
             </div>
           </>
