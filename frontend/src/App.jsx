@@ -37,6 +37,7 @@ import UserWelcome from './pages/userWelcome/UserWelcome';
 import AdminWelcome from './pages/adminWelcome/AdminWelcome';
 import ProtectedRoute from './components/ProtectedRoute'; // Importing ProtectedRoute
 import AboutUs from './pages/aboutUs/AboutUs';
+import BorrowingCheck from './pages/userPanel/borrowingCheck/BorrowingCheck';
 
 function App() {
   return (
@@ -57,9 +58,12 @@ function App() {
           <Route path="/new-user-registration" element={<NewUserRegistrationForm />} />
           <Route path="/scan-qr-id" element={<QRIDScan />} />
           <Route path="/borrow-return-selection" element={<BorrowReturnSelection />} />
+
           <Route path="/borrowing" element={<BorrowingProcess />} />
+          <Route path="/borrowing-check" element={<BorrowingCheck />} />
           <Route path="/item-scan" element={<ItemScan />} />
           <Route path="/borrow-success" element={<BorrowSuccess />} />
+
           <Route path="/returning" element={<ReturningProcess />} />
           <Route path="/item-return-scan/:transactionId" element={<ItemReturnScan />} />
           <Route path="/return-success" element={<ReturnSuccess />} />

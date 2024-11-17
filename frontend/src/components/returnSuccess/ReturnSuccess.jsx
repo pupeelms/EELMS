@@ -2,63 +2,76 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
-import './ReturnSuccess.scss'; // Import SCSS 
+import './ReturnSuccess.scss';
 
 const ReturnSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Get userID and pastTransactionID from location state
-  const { userID, selectedTransactionID, pastTransactionID } = location.state || {}; 
 
-  // Log location state for debugging
-  useEffect(() => {
-    console.log('Location State:', location.state);
-    console.log('Passed Transaction ID:', pastTransactionID); // Log the passed transaction ID
-  }, [location.state, pastTransactionID]);
+  const { userID, pastTransactionID } = location.state || {}; 
 
   const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [error, setError] = useState('');
 
-  const emojis = ['😡', '😕', '😐', '😊', '😍'];
- 
-  // Handle emoji selection
-  const handleEmojiClick = (emoji) => {
-    setSelectedEmoji(emoji);
-    console.log(`Selected emoji: ${emoji}`);
+  const fetchPendingTransactions = async () => {
+    try {
+      const response = await axios.get(`/api/users/${userID}/transactions`);
+      const pendingTransactions = response.data.filter(transaction => {
+        const hasPendingItems = transaction.items.some(
+          item => item.quantityBorrowed !== item.quantityReturned
+        );
+        return transaction.transactionType === 'Borrowed' && hasPendingItems;
+      });
+      setTransactions(pendingTransactions);
+    } catch (error) {
+      console.error('Error fetching pending transactions:', error);
+    }
   };
 
-  // Handle done click
   const handleDoneClick = async () => {
     try {
-      const transactionId = pastTransactionID;
-      const feedbackEmoji = selectedEmoji;
-
-      console.log('Submitting feedback for transaction:', transactionId);
-      console.log('Selected Emoji:', feedbackEmoji);
-
-      // Ensure transactionId and feedbackEmoji are defined
-      if (!transactionId) {
-        console.error('Transaction ID is undefined.');
+      if (!pastTransactionID || !selectedEmoji) {
+        console.error('Transaction ID or feedback emoji is undefined.');
         return;
       }
 
-      if (!feedbackEmoji) {
-        console.error('No emoji selected for feedback.');
-        return;
-      }
+      // Submit feedback to the backend
+      await axios.put(`/api/borrow-return/feedback/${pastTransactionID}`, {
+        feedbackEmoji: selectedEmoji,
+      });
 
-      // Make PUT request to submit feedback
-      await axios.put(`/api/borrow-return/feedback/${transactionId}`, { feedbackEmoji });
-      
-      console.log('Feedback successfully submitted!');
-      
-      // Navigate back to the main page or another relevant page
-      navigate('/');
+      // Check for pending transactions
+      await fetchPendingTransactions();
+
+      if (transactions.length > 0) {
+        setShowModal(true); // Show modal if pending transactions exist
+      } else {
+        navigate('/'); // Redirect if no pending transactions
+      }
     } catch (error) {
       console.error('Error submitting feedback:', error);
     }
   };
+
+  const handleReturnOther = () => {
+    navigate('/returning', { state: { userID } }); // Pass userID
+  };
   
+
+  const handleExit = () => {
+    navigate('/'); // Navigate to home page
+  };
+
+  const handleEmojiClick = (emoji) => {
+    setSelectedEmoji(emoji);
+  };
+
+  useEffect(() => {
+    fetchPendingTransactions();
+  }, []);
+
   return (
     <div className="return-container">
       <img src="/ceafinal.png" alt="Background" className="bg-only" />
@@ -73,7 +86,7 @@ const ReturnSuccess = () => {
       <div className="feedback-emoji">
         <p>How was your experience? Please select an emoji:</p>
         <div className="emoji-options">
-          {emojis.map((emoji) => (
+          {['😡', '😕', '😐', '😊', '😍'].map((emoji) => (
             <button
               key={emoji}
               className={`emoji-button ${selectedEmoji === emoji ? 'selected' : ''}`}
@@ -85,13 +98,30 @@ const ReturnSuccess = () => {
         </div>
       </div>
 
-      <button
-        className="return-success-button"
-        onClick={handleDoneClick}
-        disabled={!selectedEmoji} // Disable button if no emoji is selected
-      >
-        Done
-      </button>
+      {selectedEmoji && (
+        <button
+          className="return-success-button"
+          onClick={handleDoneClick}
+        >
+          Done
+        </button>
+      )}
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Would you like to return other transaction(s)?</h3>
+            <div className="modal-buttons">
+              <button onClick={handleReturnOther} className="return-other">
+                Return Other Items
+              </button>
+              <button onClick={handleExit} className="exit">
+                Return to User Portal 
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

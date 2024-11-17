@@ -17,6 +17,8 @@ const ItemScan = () => {
     profAttendance = '',
     roomNo = '',
     borrowedDuration = '',
+    items = [], 
+    transactionID = null, 
   } = location.state || {};
 
   const [scannedItems, setScannedItems] = useState([]);
@@ -35,6 +37,8 @@ const ItemScan = () => {
     if (barcodeInputRef.current) {
       barcodeInputRef.current.focus(); 
     }
+    console.log('Location States:', location.state);
+    console.log('Items Arrays:', items);
 
     const fetchUserDetails = async () => {
       try {
@@ -50,7 +54,7 @@ const ItemScan = () => {
     };
 
     fetchUserDetails();
-  }, [userID]);
+  }, [userID, location.state, items]);
 
   const handleBarcodeScan = async (e) => {
     e.preventDefault();
@@ -64,6 +68,17 @@ const ItemScan = () => {
         const response = await axios.get(`/api/items/barcode/${currentBarcode}`);
         if (response.status === 200) {
           const itemData = response.data;
+
+         // Check if the item quantity is available
+         if (itemData.quantity === 0) {
+          // If quantity is 0, show error and do not display item details
+          setErrorMessage(`"${itemData.itemName}" is out of stock. Please scan another item.`);
+          setTimeout(() => {
+            setErrorMessage(''); // Clear error message after 3 seconds
+            resetFields();
+          }, 3000);
+          return; // Exit and don't show item details
+        }
   
           // If the item quantity is exactly 1 and not previously added, add it immediately
           if (itemData.quantity === 1 && !existingItem) {
@@ -191,48 +206,93 @@ const ItemScan = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+  
+    console.log('Scanned items before submission:', scannedItems); // Log the scanned items array
+  
     if (scannedItems.length === 0) {
+      console.error('Error: No items to submit.'); // Log an error message for debugging
       setErrorMessage('No items to submit. Please add items before submitting.');
       setIsLoading(false);
       return;
     }
-
+  
     const itemsToSubmit = scannedItems.map(item => ({
       itemBarcode: item.itemBarcode,
       itemName: item.itemName,
       quantity: item.quantity,
     }));
-
+  
+    console.log('Items to submit:', itemsToSubmit); // Log the processed items array
+  
     const transactionDetails = {
-      userID,
-      userName,
-      contactNumber,
       items: itemsToSubmit,
-      courseSubject,
-      professor,
-      profAttendance,
-      roomNo,
-      borrowedDuration,
-      transactionType,
-      dateTime: new Date().toISOString(),
+      userID,
     };
-
-    console.log('Scanned items before submitting:', scannedItems);
-
+  
+    console.log('Transaction details to submit:', transactionDetails); // Log the final transaction object
+  
     try {
-      const response = await axios.post('/api/borrow-return/log', transactionDetails);
-      if (response.status === 201) {
-        navigate('/borrow-success', { state: transactionDetails });
+      if (transactionID) {
+        // Update existing transaction
+        console.log('Updating transaction with ID:', transactionID); // Log the transaction ID
+        const response = await axios.put(`/api/borrow-return/${transactionID}`, transactionDetails);
+  
+        console.log('Server response for update:', response.data); // Log the server response
+  
+        if (response.status === 200) {
+          console.log('Transaction updated successfully:', response.data);
+          console.log('Items returned from backend:', response.data.log.items); // Debugging line
+          navigate('/borrow-success', { state: { ...location.state, items: response.data.log.items } });
+        } else {
+          console.error('Error updating transaction:', response.status); // Log the error status
+          setErrorMessage('Error updating the transaction. Please try again.');
+        }
       } else {
-        setErrorMessage('Error processing the transaction. Please try again.');
+        // Create new transaction
+        const newTransactionDetails = {
+          ...transactionDetails,
+          userID,
+          userName,
+          contactNumber,
+          courseSubject,
+          professor,
+          profAttendance,
+          roomNo,
+          borrowedDuration,
+          transactionType,
+          dateTime: new Date().toISOString(),
+        };
+  
+        console.log('Creating new transaction:', newTransactionDetails); // Log the new transaction details
+        const response = await axios.post('/api/borrow-return/log', newTransactionDetails);
+  
+        console.log('Server response for create:', response.data); // Log the server response
+  
+        if (response.status === 201) {
+          console.log('Transaction created successfully:', response.data);
+          console.log('Items created from backend:', response.data.items); // Debugging line
+          navigate('/borrow-success', { 
+            state: { 
+              ...location.state, // If you want to keep previous state data
+              newTransactionDetails, 
+              items: response.data.borrowReturnLog.items
+            } 
+          });
+        } else {
+          console.error('Error creating transaction:', response.status); // Log the error status
+          setErrorMessage('Error processing the transaction. Please try again.');
+        }
       }
     } catch (error) {
+      console.error('Transaction error:', error); // Log the error
       setErrorMessage('Failed to log the transaction. Please check the console for details.');
-      console.error('Failed to log the transaction:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
+  
+  
+  
 
   return (
     <div className="item-scan">
@@ -302,7 +362,7 @@ const ItemScan = () => {
           {scannedItems.map((item, index) => (
             <li key={index} className="scanned-item">
               <span>{item.itemName}</span>
-              <span>x {item.quantity}</span>
+              <span> x {item.quantity}</span>
               <button onClick={() => handleDeleteItem(item.itemBarcode)}>Remove</button>
             </li>
           ))}

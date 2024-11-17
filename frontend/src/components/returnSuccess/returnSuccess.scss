@@ -1,98 +1,168 @@
- // Overall body style and background color
- .bg-only {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
-  }
-  
-  // Main container for the component
-  .return-container {
-    text-align: center;
-    background-color: #3d000bd6; // Red background with transparency
-    padding: 30px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    color: #fff; // White text color
-    max-width: 500px;
-    margin: 90px auto;
-    justify-content: center;
+// Background image styling
+.bg-only {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
 
-    h2{
-      color: #fff;
-      font-size: 1.8rem; 
-    }
+// Main container styling
+.return-container {
+  text-align: center;
+  background-color: rgba(61, 0, 11, 0.85); // Red background with enhanced transparency
+  padding: 30px 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  max-width: 500px;
+  margin: 90px auto;
+  justify-content: center;
 
-    p{
-      color: #fff; 
-    }
-  }
-  
-  // Button styling
-  .return-success-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #f5d029;
-    color: #000000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-  
-    &:hover {
-      background-color: #c7a200; // Hover effect
-    }
-  }
-  
-  // QR code and other content styling
-  .qr-code {
-    margin: 20px 0;
-  
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #fff; // Ensure text is readable on the red background
-    }
-  }
-  
   h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
+    color: #fff;
+    font-size: 2rem; // Increased font size for emphasis
+    margin-bottom: 10px;
   }
-  
+
   p {
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1.5; // Improved readability
+  }
+}
+
+// QR code section
+.qr-code {
+  margin: 20px 0;
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #fff; 
+  }
+}
+
+// Feedback emoji section
+.feedback-emoji {
+  text-align: center;
+  margin-top: 20px;
+
+  .emoji-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px; // Reduced gap for better alignment
+  }
+
+  .emoji-button {
+    font-size: 2.2rem; // Slightly larger emojis for visibility
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s, border 0.1s; // Smooth hover effect
+    border-radius: 50%; // Consistent shape for all emojis
+
+    &:hover {
+      transform: scale(1); // Emphasized scaling
+    }
+
+    &.selected {
+      border: 3px solid #f5d029; // Highlight the selected emoji
+      background-color: rgba(245, 208, 41, 0.2);
+    }
+  }
+}
+
+// Buttons styling
+.return-success-button,
+.return-other-button {
+  padding: 12px 25px; // Adjusted padding for larger buttons
+  font-size: 1rem;
+  background-color: #f5d029;
+  color: #000;
+  border: none;
+  border-radius: 8px; // Rounded edges
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s; // Smooth hover effect
+
+  &:hover {
+    background-color: #c7a200; // Slightly darker shade on hover
+  }
+}
+
+// Modal styling
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); // Darker overlay for better focus
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  color: #000;
+  padding: 25px;
+  border-radius: 12px; // Slightly rounder edges for modern design
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); // Added subtle shadow for depth
+
+  h3 {
+    margin-bottom: 20px;
     font-size: 1.2rem;
   }
 
-  .feedback-emoji {
-    text-align: center;
-    margin-top: 20px;
-  
-    .emoji-options {
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; // Improved spacing for smaller screens
+
+    .return-buttons-container {
       display: flex;
-      justify-content: center;
-      gap: 20px;
+      flex-direction: column; // Arrange buttons vertically
+      align-items: center; // Center horizontally
+      justify-content: center; // Center vertically
+      height: 100vh; // Full viewport height for vertical centering
     }
-  
-    .emoji-button {
-      font-size: 2rem;
-      background: none;
+    
+    button {
+      padding: 10px 20px; // Uniform padding for buttons
+      font-size: 1rem;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
-      transition: transform 0.2s;
-  
-      &:hover {
-        transform: scale(1.3);
+      transition: background-color 0.3s; // Smooth hover effect
+      margin: 10px 0; // Spacing between buttons
+    
+      &.return-other {
+        background-color: #f5d029;
+        color: #000;
+    
+        &:hover {
+          background-color: #c7a200; // Consistent hover color
+        }
       }
-  
-      &.selected {
-        border: 2px solid #000;
-        border-radius: 50%;
+    
+      &.exit {
+        background-color: #ccc;
+        color: #000;
+    
+        &:hover {
+          background-color: #999; // Slightly darker gray on hover
+        }
       }
     }
   }
-  
+}
+

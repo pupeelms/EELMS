@@ -85,7 +85,7 @@ exports.sendUserDeclineEmail = async (user, notesComments) => {
 exports.sendTransactionEmail = async (user, transactionDetails, dueDate) => {
     try {
         // Format the borrowed items into a readable list
-        const itemsList = transactionDetails.map(item => `${item.itemName} - ${item.quantityBorrowed} pcs`).join("\n");
+        const itemsList = transactionDetails.map(item => `${item.itemName} - ${item.quantityBorrowed} pc/s`).join("\n");
 
         // Construct the email content with a clearer format
         const mailOptions = {

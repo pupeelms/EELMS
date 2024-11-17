@@ -62,6 +62,9 @@ const ItemReturnScan = () => {
 
     if (logItem.quantityReturned >= logItem.quantityBorrowed) {
       setError('You have already returned all of this item.');
+       // Clear the input field
+      setBarcode(''); // Clear the barcode value
+
       return;
     }
 

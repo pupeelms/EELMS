@@ -26,6 +26,10 @@ const ArchiveBorrowReturn = () => {
   const [orderBy, setOrderBy] = useState("dateTime");
   const [openModal, setOpenModal] = useState(false);
   const [selectedFields, setSelectedFields] = useState([]); // Track selected fields
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows for deletion
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [isDeleteActive, setIsDeleteActive] = useState(false); // Track if delete action is active
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 
   // New state variables for date filtering
   const [startDate, setStartDate] = useState("");
@@ -112,6 +116,48 @@ const fields = [
       ? prev.filter(f => f !== field)
       : [...prev, field]
     );
+  };
+
+  const handleRowSelect = (id) => {
+    setSelectedRows((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((rowId) => rowId !== id) // Deselect the row
+        : [...prevSelected, id] // Select the row
+    );
+  };
+  
+  const handleSelectAllRows = (event) => {
+    if (event.target.checked) {
+      // Select all rows
+      const allRowIds = rows.map((row) => row._id);
+      setSelectedRows(allRowIds);
+    } else {
+      // Deselect all rows
+      setSelectedRows([]);
+    }
+  };
+  
+  const handleDeleteSelected = () => {
+    setOpenConfirmDelete(true); // Open confirmation modal
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await Promise.all(
+        selectedRows.map((id) => axios.delete(`/api/borrow-return/${id}`))
+      );
+      const response = await axios.get("/api/borrow-return");
+      setRows(response.data);
+      setSelectedRows([]);
+    } catch (error) {
+      console.error("Error deleting selected entries:", error);
+    } finally {
+      setOpenConfirmDelete(false); // Close confirmation modal
+    }
+  };
+
+  const cancelDelete = () => {
+    setOpenConfirmDelete(false); // Close confirmation modal without deleting
   };
 
   const filterAndGroupByDate = () => {
@@ -328,12 +374,54 @@ return (
           style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
       </Tooltip>
+
       <Button
         className="export-archive-button"
         onClick={handleExport}
         style={{ color: "black", backgroundColor: "#d9d9d9" }}>
         EXPORT
       </Button>
+    
+      <Button
+        className="delete-archive-button"
+        onClick={() => {
+          if (isDeleteActive) {
+            if (selectedRows.length === 0) {
+              alert("You do not have any selected entries to delete. Please select the checkbox.");
+            } else {
+              setOpenConfirmDelete(true); // Show confirmation dialog if there are selected rows
+            }
+          } else {
+            if (selectedRows.length > 0) {
+              setOpenConfirmDelete(true); // If there are selected rows, show the confirmation dialog
+            } else {
+              setShowCheckboxes((prev) => !prev);
+              setIsDeleteActive(true); // Set delete action state to active
+            }
+          }
+        }}
+        style={{
+          color: "white", // Font color
+          backgroundColor: "#59000f", // Background color
+        }}
+      >
+        {selectedRows.length > 0 ? "Delete Selected" : "DELETE"}
+      </Button>
+
+{isDeleteActive && (
+  <Button
+    className="cancel-delete-button"
+    onClick={() => {
+      setShowCheckboxes(false); // Hide checkboxes
+      setIsDeleteActive(false); // Reset delete action state
+      setSelectedRows([]); // Clear selected rows
+    }}
+    style={{ color: "black", backgroundColor: "#d9d9d9" }}
+  >
+    CANCEL
+  </Button>
+)}
+
     </div>
 
     <TextField
@@ -349,6 +437,15 @@ return (
       <Table stickyHeader aria-label="archive borrow-return logs table">
         <TableHead>
           <TableRow>
+          
+          {showCheckboxes && (
+          <TableCell>
+            <Checkbox
+              checked={selectedRows.length === rows.length} // Check if all rows are selected
+              onChange={handleSelectAllRows} // Handle select all
+            />
+          </TableCell>
+        )}
             <TableCell className="column">
               <TableSortLabel
                 active={orderBy === "dateTime"}
@@ -394,6 +491,14 @@ return (
                 {sortedRows[date].map((row) => (
                   <React.Fragment key={row._id}>
                     <TableRow hover>
+                    {showCheckboxes && (
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedRows.includes(row._id)} // Check if this row is selected
+                        onChange={() => handleRowSelect(row._id)} // Handle row selection
+                      />
+                    </TableCell>
+                  )}
                       <TableCell className="tableCell">
                         {new Date(row.dateTime).toLocaleString()}
                       </TableCell>
@@ -510,6 +615,22 @@ return (
             Export to Excel
           </Button>
           <Button onClick={handleModalClose}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+
+       {/* Confirmation Delete Modal */}
+      <Dialog open={openConfirmDelete} onClose={cancelDelete}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete the selected entries?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="secondary">
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
   

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './returningProcess.scss';
+import './borrowingCheck.scss';
 
-const ReturningProcess = () => {
+const BorrowingCheck = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userID, userName, transactionType } = location.state || {};
@@ -14,21 +14,14 @@ const ReturningProcess = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!userID) {
-      setError('User ID is missing. Please go back and try again.');
-      return;
-    }
-  
     const fetchPastTransactions = async () => {
       try {
         const response = await axios.get(`/api/users/${userID}/transactions`);
-        const borrowedTransactions = response.data.filter((transaction) => {
-          const hasPendingItems = transaction.items.some(
-            (item) => item.quantityBorrowed !== item.quantityReturned
-          );
+        const borrowedTransactions = response.data.filter(transaction => {
+          const hasPendingItems = transaction.items.some(item => item.quantityBorrowed !== item.quantityReturned);
           return transaction.transactionType === 'Borrowed' && hasPendingItems;
         });
-  
+
         if (borrowedTransactions.length > 0) {
           setTransactions(borrowedTransactions);
         } else {
@@ -39,10 +32,9 @@ const ReturningProcess = () => {
         setError('Error fetching past transactions.');
       }
     };
-  
+
     fetchPastTransactions();
   }, [userID]);
-  
 
   const handleSelectTransaction = (transaction) => {
     setSelectedTransaction(transaction); // Set the selected transaction
@@ -53,15 +45,57 @@ const ReturningProcess = () => {
     setShowModal(false); // Close modal
   };
 
-  const handleContinue = () => {
-    if (!selectedTransaction) {
-      setError('Please select a transaction to continue.');
-      return;
+  const handleAddItems = (transaction) => {
+    setSelectedTransaction(transaction); // Set the selected transaction in the state
+    console.log('Selected Transaction:', transaction); // Log the transaction to verify it's the correct one
+    
+    // Navigate to /item-scan with the necessary state for scanning additional items
+navigate('/item-scan', {
+    state: {
+      transactionID: transaction._id,
+      userID,
+      userName,
+      transactionType: transaction.transactionType,
+      borrowedDuration: transaction.borrowedDuration,
+      courseSubject: transaction.courseSubject,
+      professor: transaction.professor,
+      profAttendance: transaction.profAttendance,
+      roomNo: transaction.roomNo,
+      contactNumber: transaction.contactNumber,
+      dueDate: transaction.dueDate,
+      dateTime: transaction.dateTime,
+      returnStatus: transaction.returnStatus,
+      items: transaction.items,  // Array of items being borrowed or returned
+      overdueEmailSent: transaction.overdueEmailSent,
+      reminderSent: transaction.reminderSent
     }
-
-    navigate(`/item-return-scan/${selectedTransaction._id}`, {
-      state: { selectedTransaction, userID, userName, transactionType: 'Returned' },
+  });
+  
+  
+    // Log to verify the navigation state being passed
+    console.log('Navigating to /item-scan with the following state:', {
+        transactionID: transaction._id,
+        userID,
+        userName,
+        transactionType: transaction.transactionType,
+        borrowedDuration: transaction.borrowedDuration,
+        courseSubject: transaction.courseSubject,
+        professor: transaction.professor,
+        profAttendance: transaction.profAttendance,
+        roomNo: transaction.roomNo,
+        contactNumber: transaction.contactNumber,
+        dueDate: transaction.dueDate,
+        dateTime: transaction.dateTime,
+        returnStatus: transaction.returnStatus,
+        items: transaction.items,  // Array of items being borrowed or returned
+        overdueEmailSent: transaction.overdueEmailSent,
+        reminderSent: transaction.reminderSent
     });
+  };
+
+  const handleNewBorrow = () => {
+    // Navigate to the /borrowing page to create a new transaction for a different course/subject
+    navigate('/borrowing', { state: { userID, userName, transactionType: 'Borrowed' } });
   };
 
   const handleBackClick = () => {
@@ -71,14 +105,14 @@ const ReturningProcess = () => {
   return (
     <div className="returning-process">
       <img src="/ceaa.png" alt="Background" className="bg-only" />
-     
+
       <h2 className="transaction-title">USER'S TRANSACTION</h2>
 
       {error && <p className="error">{error}</p>}
 
       {transactions.length > 0 ? (
         <div className="transaction-list">
-          <h3>Select a transaction to continue:</h3>
+          <h3>Select a transaction to add items or submit a new one:</h3>
           <ul>
             {transactions.map((transaction) => (
               <li
@@ -89,18 +123,20 @@ const ReturningProcess = () => {
                 <p><strong>Transaction ID:</strong> {transaction._id}</p>
                 <p><strong>User:</strong> {transaction.userName}</p>
                 <p><strong>Course/Subject:</strong> {transaction.courseSubject}</p>
-                {/* Other details */}
               </li>
             ))}
           </ul>
-          
         </div>
       ) : (
         <p>Loading your past transactions...</p>
-        
       )}
 
-      <div> <button onClick={handleBackClick} className="back-button">Back</button> {/* Back button */}</div>
+      <div>
+       <button onClick={handleNewBorrow} className="new-item-button">Borrow Item(s) for Other Course/Subject</button>
+      </div>
+      <div>
+        <button onClick={handleBackClick} className="new-back-button">Back</button> {/* Back button */}
+      </div>
 
       {/* Modal */}
       {showModal && (
@@ -130,8 +166,9 @@ const ReturningProcess = () => {
                 <p><strong>Borrowed Duration:</strong> {selectedTransaction.borrowedDuration}</p>
                 <p><strong>Date and Time:</strong> {new Date(selectedTransaction.dateTime).toLocaleString()}</p>
 
-                <button onClick={handleContinue} className="continue-button">Continue</button>
-                {/* Close button */}
+                {/* New Buttons */}
+                <button onClick={() => handleAddItems(selectedTransaction)} className="add-items-button">Add Other Item(s)</button>
+
                 <p onClick={handleCloseModal} className="return-close-button">Close</p>
               </div>
             )}
@@ -142,4 +179,4 @@ const ReturningProcess = () => {
   );
 };
 
-export default ReturningProcess;
+export default BorrowingCheck;

@@ -107,8 +107,8 @@ const SelectAdmin = () => {
       </div> 
 
       {showModal && selectedProfile && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal-admin">
+          <div className="modal-content-admin">
             <span className="close-button" onClick={handleCloseModal}>
               &times;
             </span>

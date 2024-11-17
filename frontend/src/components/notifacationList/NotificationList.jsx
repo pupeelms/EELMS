@@ -211,7 +211,7 @@ const NotificationList = () => {
           <button onClick={() => handleFilterChange('All')}>All</button>
           <button onClick={handleMarkAllAsReadClick}>Mark all as read</button>
           <button onClick={() => setIsSelecting(!isSelecting)}>
-            {isSelecting ? 'Cancel Selection' : 'Select'}
+            {isSelecting ? 'Cancel' : 'Select'}
           </button>
           {isSelecting && (
             <>

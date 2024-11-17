@@ -401,16 +401,91 @@ exports.getLogById = async (req, res) => {
   }
 };
 
-// Update a log by ID
 exports.updateLog = async (req, res) => {
+  const { userID, items: newItems } = req.body; // Ensure userID and newItems are passed in the request body
+
+  // Find the user by ID
+  const user = await User.findById(userID);
+  if (!user) {
+    return res.status(404).json({ message: "User  not found" });
+  }
+
   try {
-    const log = await BorrowReturnLog.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!log) return res.status(404).json({ message: 'Log not found' });
-    res.status(200).json(log);
+    if (!newItems || !Array.isArray(newItems)) {
+      return res.status(400).json({ message: 'Invalid or missing items array' });
+    }
+
+    // Find the log by ID
+    const log = await BorrowReturnLog.findById(req.params.id);
+    if (!log) {
+      return res.status(404).json({ message: 'Log not found' });
+    }
+
+    // Loop through the new items
+    for (const newItem of newItems) {
+      const existingItem = log.items.find(item => item.itemBarcode === newItem.itemBarcode);
+      const foundItem = await Item.findOne({ itemBarcode: newItem.itemBarcode });
+
+      if (!foundItem) {
+        return res.status(404).json({ message: `Item not found in the database: ${newItem.itemBarcode}` });
+      }
+
+      const updatedQuantity = foundItem.quantity - newItem.quantity;
+      if (updatedQuantity < 0) {
+        return res.status(400).json({ message: `Not enough stock for item: ${newItem.itemBarcode}` });
+      }
+
+      if (existingItem) {
+        existingItem.quantityBorrowed += newItem.quantity;
+      } else {
+        log.items.push({
+          itemBarcode: newItem.itemBarcode,
+          itemName: newItem.itemName,
+          quantityBorrowed: newItem.quantity,
+          quantityReturned: 0,
+        });
+      }
+
+      await Item.findOneAndUpdate(
+        { itemBarcode: newItem.itemBarcode },
+        { quantity: updatedQuantity },
+        { new: true }
+      );
+    }
+
+    await log.save();
+
+    // Send admin notification about borrowing
+    await createNotification(
+      'New Borrowed Item Added',
+      `User  ${user.fullName} has updated borrowed items: ${newItems.map(item => item.itemName).join(", ")}. Please ensure they are returned by due date.`,
+      null // You can specify a user/admin if necessary
+    );
+
+   // Prepare email details
+    const itemDetails = newItems.map(item => `${item.itemName} (Quantity: ${item.quantity})`).join("\n"); // Create a list of item names and quantities
+    const emailSubject = "New Borrowed Items Added to Your Transaction";
+
+    // Create the email body
+    const emailBody = `Hi ${user.fullName},\n\nThe following items have been successfully added to your existing borrowing transaction:\n\n${itemDetails}\n\nPlease remember to return the items by the due date. If you have any questions or need further assistance, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
+
+    try {
+      // Send the email to the user about the new borrowed items
+      await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email, subject, and body
+      
+      console.log('New borrowed items email sent successfully');
+    } catch (error) {
+      console.error('Error sending new borrowed items email:', error);
+      return res.status(500).json({ message: "Error sending email about new borrowed items", error: error.message });
+    }
+
+    res.status(200).json({ message: 'Items updated successfully', log });
   } catch (error) {
+    console.error('Error updating log:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Delete a log by ID
 exports.deleteLog = async (req, res) => {
