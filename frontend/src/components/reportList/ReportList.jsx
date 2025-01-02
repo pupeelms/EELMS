@@ -250,7 +250,7 @@ const cancelDelete = () => {
   return (
     <div className="reportsTableContainer">
       {/* Title */}
-      <h3 className="reportTitlee">Submitted Report</h3>
+      <h3 className="reportTitlee">Submitted Item Reports/Issues</h3>
   
       {/* Search and Export Bar */}
       <div className="searchExportContainer">

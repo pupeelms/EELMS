@@ -1,0 +1,164 @@
+.feedback-emoji-chart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  width: 100%; /* Full width */
+  max-width: 700px; /* Maximum width to prevent stretching on large screens */
+  height: auto; /* Let the height adjust based on content */
+  padding: 10px;
+  box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  border-radius: 10px;
+  background-color: white;
+  margin: 0 auto; /* Center the component horizontally */
+  
+    .feedback-title {
+      font-size: 1.5rem;
+      color: #59000f;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .feedback-message-title {
+      font-size: 20px;
+      margin-top: 10px;
+      text-align: center;
+      color: #59000f;
+      
+
+    }
+
+    .feedback-description {
+      font-size: 1rem;
+      line-height: 1.5;
+      text-align: justify;
+      margin-top: 10px;
+      padding: 0 20px;
+      color: #6a6a6a;
+      margin-bottom: 12px;
+      
+    }
+  
+    .recharts-wrapper {
+      margin-top: -8px;
+      width: 100% !important; // Ensure chart takes full width
+    }
+  
+    .recharts-tooltip-wrapper {
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .recharts-legend-wrapper {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+      
+    }
+  
+    .recharts-cartesian-axis-label {
+      font-size: 14px;
+      color: #666;
+      font-weight: bold;
+    }
+  
+    .recharts-yAxis .recharts-cartesian-axis-tick {
+      font-size: 12px;
+      color: #888;
+    }
+  
+    .recharts-xAxis .recharts-cartesian-axis-tick {
+      font-size: 12px;
+      color: #888;
+    }
+  }
+  
+/* Responsive styles */
+@media (max-width: 768px) {
+  .feedback-emoji-chart {
+    padding: 5px;
+    height: auto; /* Adjust height based on content */
+  }
+
+  .feedback-title {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .feedback-message-title {
+    font-size: 18px;
+  }
+
+  .feedback-description {
+    font-size: 0.9rem;
+    padding: 0 10px;
+  }
+
+  .recharts-wrapper {
+    width: 100% !important;
+    margin-top: 20px;
+  }
+
+  .recharts-tooltip-wrapper {
+    padding: 8px;
+  }
+
+  .recharts-legend-wrapper {
+    font-size: 12px;
+  }
+
+  .recharts-cartesian-axis-label {
+    font-size: 12px;
+  }
+
+  .recharts-yAxis .recharts-cartesian-axis-tick,
+  .recharts-xAxis .recharts-cartesian-axis-tick {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedback-emoji-chart {
+    padding: 5px;
+    height: auto;
+  }
+
+  .feedback-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+
+  .feedback-message-title {
+    font-size: 16px;
+  }
+
+  .feedback-description {
+    font-size: 0.8rem;
+    padding: 0 5px;
+  }
+
+  .recharts-wrapper {
+    margin-top: 20px;
+  }
+
+  .recharts-tooltip-wrapper {
+    padding: 5px;
+  }
+
+  .recharts-legend-wrapper {
+    font-size: 10px;
+  }
+
+  .recharts-cartesian-axis-label {
+    font-size: 10px;
+  }
+
+  .recharts-yAxis .recharts-cartesian-axis-tick,
+  .recharts-xAxis .recharts-cartesian-axis-tick {
+    font-size: 8px;
+  }
+}

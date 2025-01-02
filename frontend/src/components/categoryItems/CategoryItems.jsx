@@ -7,6 +7,12 @@ import Typography from '@mui/material/Typography';
 import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button'; // Import Button for the View action
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import { Checkbox, FormControlLabel } from '@mui/material';
+import * as XLSX from 'xlsx';
 
 const MessageRow = () => (
   <div className="no-data-message">
@@ -23,6 +29,8 @@ const CategoryItems = () => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredRows, setFilteredRows] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState(""); // State for category name
+  const [openModal, setOpenModal] = React.useState(false);
+  const [selectedFields, setSelectedFields] = React.useState([]);
 
   // Define table columns
   const columns = [
@@ -48,6 +56,17 @@ const CategoryItems = () => {
         </Button>
       ),
     },
+  ];
+
+  // Available fields for export
+  const fields = [
+    { label: 'Barcode', field: 'itemBarcode' },
+    { label: 'Item Name', field: 'itemName' },
+    { label: 'Brand', field: 'brand' },
+    { label: 'Model', field: 'model' },
+    { label: 'Quantity', field: 'quantity' },
+    { label: 'Condition', field: 'condition' },
+    { label: 'Location', field: 'location' },
   ];
 
   // Fetch item data from API
@@ -99,24 +118,66 @@ const CategoryItems = () => {
     );
   }, [searchQuery, rows]);
 
+  const handleExport = () => setOpenModal(true);
+
+  const handleModalClose = () => setOpenModal(false);
+
+  const handleFieldChange = (fieldName) => {
+    setSelectedFields(prev =>
+      prev.includes(fieldName)
+        ? prev.filter(f => f !== fieldName)
+        : [...prev, fieldName]
+    );
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredRows.map((row) => {
+        const data = {};
+        selectedFields.forEach((field) => {
+          data[field] = row[field] || 'N/A';
+        });
+        return data;
+      })
+    );
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "CategoryItems");
+    XLSX.writeFile(workbook, "CategoryItemsExport.xlsx");
+  };
+
+
   const paginationModel = { page: 0, pageSize: 10 };
 
   return (
+    
     <Paper sx={{ width: '100%', height: '600px', overflow: 'hidden' }}>
       {categoryName && ( // Display category name if available
         <Typography component="h2" sx={{ marginBottom: 'none', color: 'black', fontWeight: 'bold' }}>
           {categoryName}
         </Typography>
       )}
+
+      <div className="cat-item-container">
       <TextField
         variant="outlined"
         placeholder="Search..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        fullWidth
         margin="normal"
+        className="search-category"
       />
-      <div style={{ height: 'calc(100% - 100px)', width: '100%' }}> {/* Adjust the height */}
+
+      <Button
+        className="export-cat-Item-button"
+        onClick={handleExport}
+        style={{ marginBottom: '10px', color:'black', backgroundColor: '#b4b3b3' }}
+      >
+        Export
+      </Button>
+      </div>
+
+      <div style={{ height: 'calc(100% - 115px)', width: '100%' }}> {/* Adjust the height */}
         <DataGrid
           rows={filteredRows}
           columns={columns}
@@ -139,6 +200,52 @@ const CategoryItems = () => {
         />
       </div>
       {error && <div className="error-message">{error}</div>}
+
+         <Dialog open={openModal} onClose={handleModalClose}>
+  <DialogTitle>Select Fields to Export</DialogTitle>
+  <DialogContent>
+    <FormControlLabel
+      control={
+        <Checkbox
+          checked={selectedFields.length === fields.length}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setSelectedFields(fields.map((field) => field.field)); // Select all fields
+            } else {
+              setSelectedFields([]); // Deselect all fields
+            }
+          }}
+        />
+      }
+      label="Select All"
+    />
+    {fields.map((field) => (
+      <FormControlLabel
+        key={field.field}
+        control={
+          <Checkbox
+            checked={selectedFields.includes(field.field)}
+            onChange={() => handleFieldChange(field.field)}
+          />
+        }
+        label={field.label}
+      />
+    ))}
+  </DialogContent>
+  <DialogActions>
+    <Button
+      onClick={() => {
+        exportToExcel();
+        handleModalClose();
+      }}
+      color="primary"
+    >
+      Export to Excel
+    </Button>
+    <Button onClick={handleModalClose}>Cancel</Button>
+  </DialogActions>
+</Dialog>
+
     </Paper>
   );
 };

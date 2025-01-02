@@ -11,6 +11,7 @@ router.post('/create', upload.single('image'), authMiddleware, itemController.cr
 router.put('/:id', upload.single('image'), authMiddleware, itemController.updateItem);
 router.delete('/:id', authMiddleware, itemController.deleteItem);
 router.put('/:itemId/schedule/update', authMiddleware, itemController.updateMaintenanceStatus);
+router.get('/item-conditions', itemController.getItemConditionCounts);
 
 // Public routes
 router.get('/', itemController.getAllItems);

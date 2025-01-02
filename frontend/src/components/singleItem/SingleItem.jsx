@@ -215,8 +215,8 @@ console.log(updatedItem.image);  // Should log the file object
           PaperProps={{ sx: { width: { xs: "100%", sm: "400px" } } }}
         >
           <div className="drawerContent">
-            <div className="drawerHeader">
-              <h2>Edit Item</h2>
+            <div className="drawerHeaderItem">
+              <h2 className="editItemm">Edit Item</h2>
               <Button className="closeButton" onClick={handleEditClick}>
                 ✖
               </Button>

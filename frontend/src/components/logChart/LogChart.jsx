@@ -33,7 +33,7 @@ const LogChart = () => {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={transactionData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 20 }} // Increase bottom margin to push legend lower
+          margin={{ top: 0, right: 30, left: 20, bottom: 20 }} // Increase bottom margin to push legend lower
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date">

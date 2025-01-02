@@ -510,3 +510,27 @@ exports.updateMaintenanceStatus = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getItemConditionCounts = async (req, res) => {
+  try {
+    // Aggregate the items by condition and count the total number of items for each condition
+    const conditionCounts = await Item.aggregate([
+      {
+        $group: {
+          _id: '$condition', // Group by condition field
+          count: { $sum: 1 } // Count the number of items in each condition
+        }
+      }
+    ]);
+
+    // Format the response to include the condition and its count
+    const formattedCounts = conditionCounts.map(item => ({
+      condition: item._id || 'No Status', // Handle null or undefined condition
+      count: item.count
+    }));
+
+    res.status(200).json(formattedCounts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

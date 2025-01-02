@@ -18,9 +18,34 @@
     &-columnHeaders {
       background-color: #f0f0f0; // Background color for headers
     }
+   
   }
 }
 
+.cat-item-container {
+  display: flex; /* Enable flexbox for alignment */
+  justify-content: space-between; /* Align elements to opposite ends */
+  align-items: center; /* Vertically center items */
+  margin-bottom: 10px; /* Add some spacing below the container */
+
+  .search-category {
+    flex: 1; /* Allow the search field to take up available space */
+    margin-right: 10px; /* Add some spacing between the search field and button */
+  }
+
+  .export-cat-Item-button {
+    flex-shrink: 0; /* Prevent the button from shrinking */
+    width: auto; /* Adjust width automatically */
+    width: 100px;  // Ensure the button matches the select menu size
+    padding: 16px;
+    margin-top: 18px;
+    
+    
+  &:hover {
+    background-color: #868686; // Darker blue on hover
+  }
+}
+}
 // Style for the custom NoRowsOverlay component
 .no-data-message {
   display: flex;

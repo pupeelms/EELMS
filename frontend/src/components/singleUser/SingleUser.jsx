@@ -152,10 +152,10 @@ const SingleUser = () => {
           }}>
           <div className="drawerContent">
             <div className="drawerHeader">
-              <h2>Edit User</h2>
+              <h2 className="editUserTitlee">Edit User</h2>
               <Button className="closeButton" onClick={handleEditClick}>✖</Button>
             </div>
-            <form className="editForm">
+            <form className="editFormUser">
             <TextField
                 label="Full Name"
                 name="fullName"

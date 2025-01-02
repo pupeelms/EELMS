@@ -10,11 +10,17 @@ router.post('/log', borrowReturnController.logTransaction);
 // Get all transaction logs
 router.get('/', borrowReturnController.getTransactionLogs);
 
+// API endpoint for autocomplete suggestions
+router.get('/suggestions', borrowReturnController.getSuggestions);
+
 // Get a single transaction log by ID
 router.get('/:id', borrowReturnController.getLogById);
 
 // Get aggregated transaction data
 router.get('/br/aggregated-transactions', borrowReturnController.getAggregatedTransactionData);
+
+// PUT request to update a transaction
+router.put('/update/:id', borrowReturnController.updateTransaction);
 
 // Update a log by ID
 router.put('/:id', borrowReturnController.updateLog);
@@ -34,6 +40,7 @@ router.get('/feedback/logs', borrowReturnController.getAllFeedbackLogs);
 // Update feedback emoji for a transaction by transactionID
 router.put('/feedback/:transactionID', borrowReturnController.updateFeedbackEmoji);
 
+router.put('/transfer/:id', borrowReturnController.transferItems);
 
 // Complete a return process
 router.post('/complete-return', borrowReturnController.completeReturn);

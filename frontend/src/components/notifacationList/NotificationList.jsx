@@ -22,9 +22,11 @@ const NotificationList = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedNotifications, setSelectedNotifications] = useState([]);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false); // For dialog box
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNotifications = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await axios.get('/api/notifications');
         setNotifications(response.data);
@@ -34,6 +36,8 @@ const NotificationList = () => {
         setUnreadCount(unreadResponse.data.length);
       } catch (error) {
         console.error('Error fetching notifications:', error);
+      } finally {
+        setLoading(false); // End loading
       }
     };
     fetchNotifications();
@@ -71,7 +75,7 @@ const NotificationList = () => {
       return `/items`;
     } else if (type.includes('user')) {
       return `/users`;
-    } else if (type.includes('overdue') || type.includes('extended') || type.includes('returned') || type.includes('borrow')) {
+    } else if (type.includes('overdue') || type.includes('extended') || type.includes('returned') || type.includes('borrow') || type.includes('updated')) {
       return `/EELMS`;
     } else if (type.includes('stock')) {
       return `/items/stocks`;
@@ -147,12 +151,15 @@ const NotificationList = () => {
   };
 
   const handleCheckboxChange = (id) => {
-    if (selectedNotifications.includes(id)) {
-      setSelectedNotifications(selectedNotifications.filter(notificationId => notificationId !== id));
-    } else {
-      setSelectedNotifications([...selectedNotifications, id]);
-    }
+    setSelectedNotifications(prevSelectedNotifications => {
+      if (prevSelectedNotifications.includes(id)) {
+        return prevSelectedNotifications.filter(notificationId => notificationId !== id);
+      } else {
+        return [...prevSelectedNotifications, id];
+      }
+    });
   };
+  
 
   const handleDelete = async (id) => {
     try {
@@ -239,34 +246,51 @@ const NotificationList = () => {
       </div>
 
       <div className="notification-list__body">
-        {Object.entries(groupedNotifications).map(([date, notifications]) => (
-          <div key={date} className="notification-list__group">
-            <div className="notification-list__date">
-              {getGroupDateLabel(date)}
-            </div>
-            {notifications.map(notification => (
-              <div key={notification._id} className={`notification-list__item ${notification.isRead ? '' : 'unread'}`}>
-                {isSelecting && (
-                  <Checkbox
-                    checked={selectedNotifications.includes(notification._id)}
-                    onChange={() => handleCheckboxChange(notification._id)}
-                  />
-                )}
-                <Link
-                  to={generateNotificationLink(notification)}
-                  className="notification-list__message"
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  {notification.message}
-                </Link>
-                <button onClick={() => handleDelete(notification._id)} className="notification-list__delete-button">
-                  <DeleteOutlineRoundedIcon fontSize="small" className="deleteButton" />
-                </button>
-              </div>
-            ))}
+  {loading ? (
+    <div className="notification-list__loading">Loading notifications...</div>
+  ) : (
+    Object.entries(groupedNotifications).map(([date, notifications]) => (
+      <div key={date} className="notification-list__group">
+        {/* Group Date Label */}
+        <div className="notification-list__date">{getGroupDateLabel(date)}</div>
+
+        {/* Notifications within the group */}
+        {notifications.map(notification => (
+          <div
+            key={notification._id}
+            className={`notification-list__item ${notification.isRead ? '' : 'unread'}`}
+          >
+            {/* Optional Checkbox for Selecting Notifications */}
+            {isSelecting && (
+              <Checkbox
+                checked={selectedNotifications.includes(notification._id)}
+                onChange={() => handleCheckboxChange(notification._id)}
+              />
+            )}
+
+            {/* Notification Message with Link */}
+            <Link
+              to={generateNotificationLink(notification)}
+              className="notification-list__message"
+              onClick={() => handleNotificationClick(notification)}
+            >
+              {notification.message}
+            </Link>
+
+            {/* Delete Button */}
+            <button
+              onClick={() => handleDelete(notification._id)}
+              className="notification-list__delete-button"
+            >
+              <DeleteOutlineRoundedIcon fontSize="small" className="deleteButton" />
+            </button>
           </div>
         ))}
       </div>
+    ))
+  )}
+</div>
+
 
       {/* Confirmation Dialog */}
       <Dialog

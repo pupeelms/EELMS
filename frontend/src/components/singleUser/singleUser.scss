@@ -183,8 +183,8 @@
     align-items: center;
     margin-bottom: 20px;
 
-    h2 {
-      margin: 0;
+    .editUserTitlee {
+      font-size: 25px;
     }
 
     .closeButton {
@@ -212,10 +212,9 @@
     }
   }
 
-  .editForm {
+  .editFormUser {
     display: flex;
     flex-direction: column;
-    gap: 15px;
 
     label {
       display: flex;

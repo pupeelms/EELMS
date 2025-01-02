@@ -1,14 +1,55 @@
-.feedback{
+.feedback {
     display: flex;
-
-    .feedbackContainer{
-        flex: 6;
-        flex-grow: 1; /* The content takes up remaining space */
-        overflow-x: hidden; /* To prevent unwanted horizontal scroll */
-
-        .Content {
-            overflow-y: auto;
-            height: calc(100vh - 60px); // Full height minus navbar height
+  
+    .feedbackContainer {
+      flex: 6;
+      flex-grow: 1; /* The content takes up remaining space */
+      overflow-x: hidden; /* To prevent unwanted horizontal scroll */
+  
+      .content {
+        overflow-y: auto;
+        height: calc(100vh - 60px); // Full height minus navbar height
+        
+        .feedbackContent {
+          display: flex;
+          gap: 10px; /* Optional spacing between chart and form */
+          justify-content: space-between; /* Space out items horizontally */
+          align-items: center; /* Align items to the top */
+          margin-left: 20px;
+          
         }
+  
+        .feedbackChartWrapper {
+          flex: 1; /* Adjust this value to control the width */
+          min-width: 40%; /* Ensure minimum width for responsiveness */
+        }
+  
+        .feedbackFormWrapper {
+          flex: 1; /* Adjust this value to control the width */
+          min-width: 40%; /* Ensure minimum width for responsiveness */
+        }
+      }
     }
-}
+  }
+  
+  @media (max-width: 768px) {
+    .feedback {
+      .feedbackContainer {
+        .content {
+          margin-left: 0;
+        }
+  
+        .feedbackContent {
+          gap: 10px; /* Decrease spacing on smaller screens */
+          flex-direction: column; /* Stack chart and form vertically on smaller screens */
+          align-items: center; /* Center align the items */
+        }
+  
+        .feedbackChartWrapper,
+        .feedbackFormWrapper {
+          min-width: 100%; /* Ensure chart and form take full width */
+          margin-bottom: 10px;
+        }
+      }
+    }
+  }

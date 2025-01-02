@@ -80,4 +80,9 @@ app.use('/api/adminProfile', require('./routes/adminProfileRoutes'));
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// KeepAlive endpoint
+app.get('/api/keepAlive', (req, res) => {
+  res.status(200).json({ message: "I'm alive!" });
+});
+
 module.exports = app; // Export the app instance

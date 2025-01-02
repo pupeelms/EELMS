@@ -9,6 +9,34 @@
     max-height: 80vh;
     overflow-y: auto;
     font-family: Arial, sans-serif;
+
+    .bulk-input-container{
+      background-color: #59000fc9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        color: white;
+
+        .input-quantity{
+          margin-top: 5px;
+          margin-right: 10px;
+          width: 55px; /* Increase the width */
+          height: 25px; /* Increase the height */
+          font-size: 16px; /* Increase the font size */
+          padding: 5px; /* Add some padding inside the input */
+          border-radius: 4px; /* Optionally, add rounded corners */
+          border: 1px solid #ccc; /* Style the border */
+        }
+
+        .input-quantity-button{
+          height: 38px;
+          margin-top: 4px;
+          font-size: 13px;
+          padding: 6.9px;
+          padding-top: 8px;
+          border-radius: 4px;
+        }
+    }
   
     .bg-only { 
         position: fixed;
@@ -119,13 +147,40 @@
         margin-top: 5px;
       }
     }
+
+    .conditionReturn{
+      padding: 1.5px;
+      border-radius: 4px;
+    }
   
     .complete-return-btn {
       background-color: #5cb85c;
       margin-top: 20px;
+      width: 150px; /* Set a width for the button */
+      margin-left: auto;
+      margin-right: auto;
+      padding: 10px 20px; /* Optional: Add padding for a better button appearance */
+      display: flex;
+      justify-content: center;    
   
       &:hover {
-        background-color: #4cae4c;
+        background-color: #3c903c;
+      }
+    }
+
+    .returnScanBackButton {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 14px;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
       }
     }
   }

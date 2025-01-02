@@ -1,30 +1,51 @@
 .table {
   // height: 334px;
   
-    .status {
-      padding: 5px;
-      border-radius: 5px;
+  .status {
+    padding: 5px;
+    border-radius: 5px;
   
-      &.Pending {
-        color: goldenrod;
-        background-color: rgba(189, 189, 3, 0.103);
-      }
-
-      &.Completed {
-        color: green;
-        background-color: rgba(0, 128, 0, 0.151);
-      }
-
-      &.Overdue {
-        color: red;
-        background-color: rgba(169, 0, 0, 0.149);
-      }
-
-      .button {
-        color: red;
-        
-      }
+    &.Pending {
+      color: goldenrod;
+      background-color: rgba(189, 189, 3, 0.103);
     }
+  
+    &.Completed {
+      color: green;
+      background-color: rgba(0, 128, 0, 0.151);
+    }
+  
+    &.Overdue {
+      color: red;
+      background-color: rgba(169, 0, 0, 0.149);
+    }
+  
+    &.Transferred {
+      color: blue;
+      background-color: rgba(0, 0, 255, 0.1); // Light blue background for Transferred status
+    }
+  
+    &.PartiallyReturned {
+      color: orange;
+      background-color: rgba(255, 165, 0, 0.15); // Light orange background for Partially Returned
+    }
+  
+    &.Extended {
+      color: purple;
+      background-color: rgba(128, 0, 128, 0.1); // Light purple background for Extended
+    }
+  
+    .extendButton {
+      color: red;
+      margin-bottom: 3px;
+      margin-right: none;
+    
+      &:hover {
+        font-weight: bold;
+        border-color: #6f6e6e;  
+      }
+    } 
+  }  
 
     .type {
         padding: 5px;
@@ -63,4 +84,100 @@
     ;
   } 
 
+  .buttonTransactions {
+    display: flex; /* Aligns children in a row by default */
+    align-items: center; /* Vertically aligns the buttons */
+    padding: 2px;
+    margin-right: -50px;
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        justify-content: center; /* Center buttons on smaller screens */
+        margin-right: 0; /* Remove extra margin for centered alignment */
+    }
+}
+
+.transferButton,
+.submitTransferButton {
+    padding: 3px;
+    margin-left: 5px;
+
+    &:hover {
+        background-color: transparent; 
+        font-weight: bold;     
+    }
+
+    /* Adjust button size for smaller screens */
+    @media (max-width: 768px) {
+        font-size: 0.9rem; /* Smaller font for buttons */
+        padding: 5px; /* Adjust padding */
+        //margin-left: 3px; /* Reduce space between buttons */
+    }
+}
+
+.submitTransferButton {
+    margin-left: -5px;
+
+    /* Adjust margin for smaller screens */
+    @media (max-width: 768px) {
+        margin-left: 0; /* Align buttons properly on smaller screens */
+    }
+}
+
+  .editTransaction {
+    padding: 3px;
+    color: #494949;
+    border-color: #9b9b9b;
+    margin-left: 3px;
+  
+    &:hover {
+      background-color: transparent; 
+      font-weight: bold;     
+    }
+  }
+  
+
+  .checkboxTransfer {
+    /* Hide the default checkbox */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #a1a1a1;
+    border-radius: 4px;
+    background-color: #fff;
+    margin-bottom:-5px;
+    cursor: pointer;
+    
+    /* Add checkmark when checked */
+    &:checked {
+      background-color: #4caf50;  /* Green background when checked */
+      border-color: #4caf50;
+    }
+  
+    &:checked::before {
+      content: '\2713'; /* Heavy ballot X */
+
+      position: absolute;
+      left: 2px;
+      top: -3px;
+      font-size: 16px;
+      color: white;
+
+      /* Add transition */
+    transition: all 0.3s ease;
+    }
+  
+    /* Add hover effect */
+    &:hover {
+      border-color: #6f6e6e;
+    }
+  
+    
+  }
+  
+  
 }

@@ -108,7 +108,7 @@ const Navbar = () => {
       return `/items`;
     } else if (type.includes('user')) {
       return `/users`;
-    } else if (type.includes('overdue') || type.includes('extended') || type.includes('returned') || type.includes('borrow')) {
+    } else if (type.includes('overdue') || type.includes('extended') || type.includes('returned') || type.includes('borrow') || type.includes('updated')) {
       return `/EELMS`;
     } else if (type.includes('stock')) {
       return `/items/stocks`;

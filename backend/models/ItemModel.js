@@ -72,7 +72,7 @@ const ItemSchema = new mongoose.Schema({
   },
   condition: {
     type: String,
-    enum: ['Functional', 'Defective', 'For Disposal', 'No Status'], // Updated Condition options
+    enum: ['Functional', 'Defective', 'For Disposal', 'No Status', 'Good'], // Updated Condition options
     default: '',
   },
   location: { 

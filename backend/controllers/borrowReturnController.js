@@ -560,6 +560,10 @@ exports.extendBorrowingDuration = async (req, res) => {
     // Log current extended duration before updating
     console.log(`Current Extended Duration: ${borrowReturnLog.extendedDuration} milliseconds`);
 
+    // Update the borrowedDuration directly
+    borrowReturnLog.borrowedDuration = borrowedDuration; // Set the new borrowed duration
+
+
     // Update the extended duration by adding the new extension (in milliseconds)
     const updatedDuration = borrowReturnLog.extendedDuration + newExtensionMillis;
     borrowReturnLog.extendedDuration = updatedDuration;
@@ -593,16 +597,18 @@ exports.extendBorrowingDuration = async (req, res) => {
       return res.status(404).json({ message: "User not found or email not available." });
     }
 
-    // Create email subject and body
-    const emailSubject = "Borrowing Duration Extended";
-    const emailBody = `Hi ${user.fullName},\n\nYour borrowing duration has been successfully extended until ${extendedDueDate.toLocaleString()}.\n\nPlease note that you can only extend the borrowing duration once. We kindly ask you to return the item(s) after this extension.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
-
-    try {
-      await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email
-    } catch (error) {
-      console.error("Error sending extension email:", error);
-      return res.status(500).json({ message: "Error sending extension email", error: error.message });
-    }
+     // Create email subject and body
+     const emailSubject = "Borrowing Duration Extended";
+     const emailBody = `Hi ${user.fullName},\n\nYour borrowing duration has been successfully extended until ${extendedDueDate.toLocaleString()}.\n\nPlease note that you can only extend the borrowing duration once. We kindly ask you to return the item(s) after this extension.\n\nIf you have any questions, feel free to reach out.\n\nThank you,\nPUP EE LAB`;
+ 
+     try {
+       // Send the email
+       await sendEmail(user.email, emailSubject, emailBody); // Pass the user's email
+       console.log(`Extension email successfully sent to ${user.email}`);
+     } catch (error) {
+       console.error("Error sending extension email:", error);
+       return res.status(500).json({ message: "Error sending extension email", error: error.message });
+     }
 
      
     // Notify user about the extension via SMS (via Server B)
@@ -739,10 +745,12 @@ exports.getAllFeedbackLogs = async (req, res) => {
   try {
     const feedbackLogs = await BorrowReturnLog.find().select('feedbackEmoji');
     
-    // Count occurrences of each emoji
+    // Count occurrences of each emoji, ignoring undefined or blank values
     const emojiCounts = feedbackLogs.reduce((acc, log) => {
       const emoji = log.feedbackEmoji;
-      acc[emoji] = (acc[emoji] || 0) + 1; // Increment count for the emoji
+      if (emoji && emoji.trim() !== '') { // Check if the emoji is not undefined or blank
+        acc[emoji] = (acc[emoji] || 0) + 1; // Increment count for the emoji
+      }
       return acc;
     }, {});
 
@@ -758,3 +766,309 @@ exports.getAllFeedbackLogs = async (req, res) => {
   }
 };
 
+
+
+exports.transferItems = async (req, res) => {
+  try {
+    const { transactionId, items, notes } = req.body; // Destructure from request body
+
+    // Find the transaction by ID
+    const transaction = await BorrowReturnLog.findById(transactionId);
+    if (!transaction) {
+      return res.status(404).json({ success: false, message: 'Transaction not found' });
+    }
+
+    // Retrieve the user information
+    const user = await User.findById(transaction.userID);
+    if (!user || !user.email) {
+      console.error("User not found or email not available.");
+      return res.status(404).json({ success: false, message: "User not found or email not available." });
+    }
+
+    // Prepare an array to hold notes for the transaction
+    let transactionNotes = [];
+
+    // Loop through the selected items and process each one
+    for (const { itemBarcode, itemName, quantityBorrowed } of items) {
+      // Find the item in the database by barcode
+      const item = await Item.findOne({ itemBarcode });
+      if (!item) {
+        return res.status(404).json({ success: false, message: `Item with barcode ${itemBarcode} not found` });
+      }
+
+      // Increase the stock based on quantity transferred
+      const previousQuantity = item.quantity;
+      item.quantity += quantityBorrowed;
+      await item.save();
+
+      console.log(`Item: ${itemName} | Barcode: ${itemBarcode} | Previous Quantity: ${previousQuantity} | Updated Quantity: ${item.quantity}`);
+
+      // Find and update the transaction with the item details
+      const itemIndex = transaction.items.findIndex(i => i.itemBarcode === itemBarcode);
+      if (itemIndex !== -1) {
+        // Increase the quantityReturned
+        transaction.items[itemIndex].quantityReturned += quantityBorrowed;
+        transaction.items[itemIndex].condition = 'Good';
+
+        // Add notes for the item transfer
+        transactionNotes.push(`(${itemName}) transferred, Quantity: ${quantityBorrowed}`);
+      }
+    }
+
+    // Update the transaction-level notesComments
+    transaction.notesComments = transactionNotes.join('; ');
+
+    // Check if all items in the transaction have been returned or transferred
+    const allItemsTransferred = transaction.items.every(i => i.quantityReturned === i.quantityBorrowed);
+    if (allItemsTransferred) {
+      transaction.transactionType = 'Returned';
+      transaction.returnStatus = 'Transferred';
+      transaction.feedbackEmoji = '😍';
+    }
+
+    // Save the updated transaction
+    await transaction.save();
+
+    // Compose the email
+    const emailSubject = allItemsTransferred ? "Items Transfer Completed" : "Items Partially Transferred";
+    const emailBody = allItemsTransferred
+      ? `Dear ${transaction.userName},\n\nAll items have been successfully transferred. Thank you for completing the transfer of the following item(s):\n\n${items.map(item => `- ${item.itemName} (Quantity Transferred: ${item.quantityBorrowed})`).join("\n")}\n\nThank you,\nPUP EE LAB`
+      : `Dear ${transaction.userName},\n\nSome items have been successfully transferred. Here are the details of the transferred item(s):\n\n${items.map(item => `- ${item.itemName} (Quantity Transferred: ${item.quantityBorrowed})`).join("\n")}\n\nPlease complete the transfer of remaining items soon.\n\nThank you,\nPUP EE LAB`;
+
+    try {
+      await sendEmail(user.email, emailSubject, emailBody);
+      console.log("Email sent successfully to", user.email);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      return res.status(500).json({ success: false, message: "Error sending email", error: error.message });
+    }
+
+    // Return success message
+    return res.json({ success: true, message: 'Items transferred successfully, and email notification sent.' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server error occurred.' });
+  }
+};
+ 
+
+exports.getSuggestions = async (req, res) => {
+  try {
+    const { field, query } = req.query;
+
+    // Validate inputs
+    if (!field || !query) {
+      return res.status(400).json({ error: 'Field and query are required' });
+    }
+
+    // Define allowed fields for autocomplete
+    const allowedFields = ['courseSubject', 'professor', 'roomNo'];
+    if (!allowedFields.includes(field)) {
+      return res.status(400).json({ error: 'Invalid field for suggestions' });
+    }
+
+    // Build the dynamic field query (i.e., field name is dynamic)
+    const matchCondition = {};
+    matchCondition[field] = { $regex: query, $options: 'i' }; // case-insensitive partial match
+
+    // Query the database for unique, matching values
+    const suggestions = await BorrowReturnLog.aggregate([
+      { 
+        $match: matchCondition // Match the dynamically set field
+      },
+      { 
+        $group: { 
+          _id: `$${field}` // Group by the dynamic field value (e.g., courseSubject, professor, roomNo)
+        }
+      },
+      { 
+        $project: { 
+          value: '$_id', // Rename the field to 'value' and return it as the result
+          _id: 0 // Exclude the _id field
+        }
+      },
+      { 
+        $limit: 10 // Limit the number of suggestions returned
+      }
+    ]);
+
+    res.status(200).json(suggestions); // Send suggestions in response
+  } catch (error) {
+    console.error('Error fetching suggestions:', error.message);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+
+exports.updateTransaction = async (req, res) => {
+  const { id } = req.params; // Get the transaction ID from the URL
+  const updatedData = req.body; // Get the updated data from the request body
+
+  // Log the updated data for debugging
+  console.log('Updated data received:', updatedData);
+
+  try {
+    // Find the transaction by ID
+    const transaction = await BorrowReturnLog.findById(id);
+    if (!transaction) {
+      console.log(`Transaction with ID ${id} not found.`);
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Condition to update borrowing duration
+if (updatedData.borrowedDuration && updatedData.borrowedDuration !== transaction.borrowedDuration) {
+  const newDurationMillis = convertDurationToMillis(updatedData.borrowedDuration);
+  const currentDate = new Date();
+  const newDueDate = new Date(currentDate.getTime() + newDurationMillis);
+
+  // Update the borrowing duration and due date
+  transaction.borrowedDuration = updatedData.borrowedDuration;
+  transaction.dueDate = newDueDate;
+
+  // Update the return status to "Extended" if necessary
+  if (transaction.returnStatus === "Overdue") {
+    transaction.returnStatus = "Extended";
+    transaction.markModified("returnStatus");
+  }
+
+  // Reset reminder and overdue email flags
+  transaction.reminderSent = false;
+  transaction.overdueEmailSent = false;
+
+  console.log(`Borrowing duration updated to ${updatedData.borrowedDuration} and due date set to ${newDueDate.toLocaleString()}.`);
+} else {
+  console.log("No change in borrowed duration, skipping update.");
+}
+
+    
+    // Compare items to find new and removed items
+    const existingItems = transaction.items.map(item => item.itemBarcode);
+    const updatedItems = updatedData.items.map(item => item.itemBarcode);
+
+    // Find new items
+    const newItems = updatedData.items.filter(
+      item => !existingItems.includes(item.itemBarcode)
+    );
+
+    // Find removed items
+    const removedItems = transaction.items.filter(
+      item => !updatedItems.includes(item.itemBarcode)
+    );
+
+    // Handle new items
+    for (const newItem of newItems) {
+      const item = await Item.findOne({ itemBarcode: newItem.itemBarcode });
+      if (!item) {
+        console.log(`Item not found in the inventory: ${newItem.itemBarcode}`);
+        return res.status(404).json({ message: 'You\'re adding item/s with incomplete or invalid details. Please provide valid information to proceed.' });
+
+      }
+
+      if (item.quantity < newItem.quantityBorrowed) {
+        console.log(`Not enough stock for new item: ${newItem.itemBarcode}`);
+        return res.status(400).json({ message: 'Not enough stock for new item' });
+      }
+
+      item.quantity -= newItem.quantityBorrowed;
+      transaction.items.push(newItem);
+      await item.save();
+      console.log(`New item added and stock updated: ${newItem.itemBarcode}`);
+    }
+
+    // Handle removed items
+for (const removedItem of removedItems) {
+  const item = await Item.findOne({ itemBarcode: removedItem.itemBarcode });
+  
+  if (!item) {
+    console.log(`Item not found in the inventory: ${removedItem.itemBarcode}`);
+    return res.status(404).json({ message: 'Associated item not found' });
+  }
+
+  // Increment the item quantity based on borrowed quantity
+  item.quantity += removedItem.quantityBorrowed;
+
+  // Filter out the removed item from the transaction
+  transaction.items = transaction.items.filter(item => item.itemBarcode !== removedItem.itemBarcode);
+
+  // Save the updated item quantity to the database
+  await item.save();
+
+  // Log a confirmation message
+  console.log(`Item removed and stock updated: ${removedItem.itemBarcode}, New Quantity: ${item.quantity}`);
+}
+
+    // Update existing items (quantityBorrowed/quantityReturned logic)
+    for (const updatedItem of updatedData.items) {
+      const itemData = transaction.items.find(
+        item => item.itemBarcode === updatedItem.itemBarcode
+      );
+
+      if (itemData) {
+        const item = await Item.findOne({ itemBarcode: updatedItem.itemBarcode });
+        if (!item) {
+          console.log(`Item not found in the inventory: ${updatedItem.itemBarcode}`);
+          return res.status(404).json({ message: 'Associated item not found' });
+        }
+
+        // Handle quantityBorrowed updates
+        if (
+          updatedItem.quantityBorrowed !== undefined &&
+          updatedItem.quantityBorrowed !== itemData.quantityBorrowed
+        ) {
+          const currentQuantityBorrowed = itemData.quantityBorrowed;
+          const newQuantityBorrowed = updatedItem.quantityBorrowed;
+          const difference = newQuantityBorrowed - currentQuantityBorrowed;
+
+          if (difference > 0) {
+            if (item.quantity < difference) {
+              console.log(`Not enough stock to increase quantity for item ${updatedItem.itemBarcode}.`);
+              return res.status(400).json({ message: 'Not enough stock to increase quantity' });
+            }
+            item.quantity -= difference;
+          } else {
+            item.quantity += Math.abs(difference);
+          }
+
+          itemData.quantityBorrowed = newQuantityBorrowed;
+          await item.save();
+        }
+
+        // Handle quantityReturned updates
+        if (
+          updatedItem.quantityReturned !== undefined &&
+          updatedItem.quantityReturned !== itemData.quantityReturned
+        ) {
+          const currentQuantityReturned = itemData.quantityReturned;
+          const newQuantityReturned = updatedItem.quantityReturned;
+          const difference = newQuantityReturned - currentQuantityReturned;
+
+          if (difference > 0) {
+            item.quantity += difference;
+          } else {
+            item.quantity -= Math.abs(difference);
+          }
+
+          itemData.quantityReturned = newQuantityReturned;
+          await item.save();
+        }
+      }
+    }
+
+    // Update the transaction with new data
+    Object.assign(transaction, updatedData);
+    await transaction.save();
+
+    console.log('Transaction updated successfully:', transaction);
+
+    // Create notification after updating transaction
+    await createNotification(
+      'Transaction Updated',
+      `Transaction for ${transaction.userName} has been successfully updated.`,
+      transaction._id // Optionally include a target ID or user ID if applicable
+    );
+
+    res.status(200).json({ message: 'Transaction updated successfully', transaction });
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    res.status(500).json({ message: 'Error updating transaction', error: error.message });
+  }
+};

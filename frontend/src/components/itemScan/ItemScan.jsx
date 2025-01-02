@@ -343,7 +343,7 @@ const ItemScan = () => {
                 min="1"
                 required
               />
-            </div>
+            </div> 
 
             <div className="actions">
               <button type="button" onClick={() => handleAddItem()} disabled={!itemDetails || !quantity}>Add Item</button>
@@ -376,6 +376,9 @@ const ItemScan = () => {
           </div>
         )}
       </div>
+        <button type="button" className="scanItemsBackButton" onClick={() => navigate(-1)}>
+          Back
+        </button>
     </div>
   );
 };

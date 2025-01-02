@@ -43,7 +43,17 @@ const TopBorrowedChart = () => {
           >
             
           </XAxis>
-          <YAxis label={{ value: "Borrow Count", angle: -90, position: "outside"}} />
+          <YAxis 
+            label={{
+              value: "Count",
+              angle: -90,
+              position: "outside",
+              offset: 0,
+              dx: -20, // Moves the label to the left
+              dy: -10, // Optional: Use this if you still want to adjust vertical positioning
+            }} 
+          />
+
           <Tooltip />
           <Legend
             verticalAlign="bottom"

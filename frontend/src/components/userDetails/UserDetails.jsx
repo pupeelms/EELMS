@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import './userDetails.scss';
 
@@ -12,6 +12,70 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
   const [borrowedDurationNumber, setBorrowedDurationNumber] = useState(1); // default to 1
   const [borrowedDurationUnit, setBorrowedDurationUnit] = useState('minutes'); // default to 'minutes'
   const [errorMessage, setErrorMessage] = useState(''); // Error message state
+  const [courseSubjectSuggestions, setCourseSubjectSuggestions] = useState([]);
+  const [professorSuggestions, setProfessorSuggestions] = useState([]);
+  const [roomNoSuggestions, setRoomNoSuggestions] = useState([]);
+
+  // Function to fetch suggestions based on the field and query
+  const fetchSuggestions = async (field, query) => {
+    if (query.length < 2) return; // Prevent searching with less than 2 characters
+  
+    try {
+      const encodedQuery = encodeURIComponent(query); // URL encode the query string
+      const response = await fetch(`/api/borrow-return/suggestions?field=${field}&query=${encodedQuery}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch suggestions');
+      }
+  
+      const data = await response.json();
+  
+      if (Array.isArray(data)) {
+        switch (field) {
+          case 'courseSubject':
+            setCourseSubjectSuggestions(data);
+            break;
+          case 'professor':
+            setProfessorSuggestions(data);
+            break;
+          case 'roomNo':
+            setRoomNoSuggestions(data);
+            break;
+          default:
+            break;
+        }
+      } else {
+        console.error('Invalid data format received:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+  
+  const handleCourseSubjectChange = (e) => {
+    const value = e.target.value;
+    setCourseSubject(value);
+    if (value) fetchSuggestions('courseSubject', value);
+  };
+
+  const handleProfessorChange = (e) => {
+    const value = e.target.value;
+    setProfessor(value);
+    if (value) fetchSuggestions('professor', value);
+  };
+
+  const handleRoomNoChange = (e) => {
+    const value = e.target.value;
+    setRoomNo(value);
+    if (value) fetchSuggestions('roomNo', value);
+  };
+
+  useEffect(() => {
+    return () => {
+      setCourseSubjectSuggestions([]);
+      setProfessorSuggestions([]);
+      setRoomNoSuggestions([]);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +83,11 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
     // Ensure borrowedDurationNumber is a valid number
     if (!borrowedDurationNumber || borrowedDurationNumber <= 0) {
       setErrorMessage('Please select a valid duration number.');
+      return;
+    }
+
+    if (!courseSubject || !professor || !roomNo) {
+      setErrorMessage('Please fill in all required fields.');
       return;
     }
 
@@ -57,20 +126,31 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
           <input
             type="text"
             value={courseSubject}
-            onChange={(e) => setCourseSubject(e.target.value)}
+            onChange={handleCourseSubjectChange}
             required
+            list="courseSubject-suggestions"
           />
+          <datalist id="courseSubject-suggestions">
+            {courseSubjectSuggestions.map((suggestion) => (
+              <option key={suggestion.value} value={suggestion.value} />
+            ))}
+          </datalist>
         </div>
-        
+
         <div className="userDetailsItem">
           <label>Professor:</label>
           <input
             type="text"
-            placeholder="Sir/Ma'am"
             value={professor}
-            onChange={(e) => setProfessor(e.target.value)}
+            onChange={handleProfessorChange}
             required
+            list="professor-suggestions"
           />
+          <datalist id="professor-suggestions">
+            {professorSuggestions.map((suggestion) => (
+              <option key={suggestion.value} value={suggestion.value} />
+            ))}
+          </datalist>
         </div>
 
         <div className="userDetailsItem">
@@ -90,9 +170,15 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
           <input
             type="text"
             value={roomNo}
-            onChange={(e) => setRoomNo(e.target.value)}
+            onChange={handleRoomNoChange}
             required
+            list="roomNo-suggestions"
           />
+          <datalist id="roomNo-suggestions">
+            {roomNoSuggestions.map((suggestion) => (
+              <option key={suggestion.value} value={suggestion.value} />
+            ))}
+          </datalist>
         </div>
 
         <div className="userDetailsItem">

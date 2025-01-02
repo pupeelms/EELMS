@@ -198,14 +198,15 @@
 .drawerContent {
   padding: 20px;
 
-  .drawerHeader {
+  .drawerHeaderItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 
-    h2 {
-      margin: 0;
+    .editItemm{
+      font-size: 25px;
+      margin-bottom: 5px;
     }
 
     .closeButton {

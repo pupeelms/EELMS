@@ -8,7 +8,7 @@ const ItemReturnScan = () => {
   const navigate = useNavigate();
   const inputRef = useRef(null); // Create a ref for the input element
 
-  const { selectedTransaction, userID, userName, transactionType } = location.state || {};
+  const { selectedTransaction, userID, userName } = location.state || {};
 
   if (!selectedTransaction) {
     return (
@@ -26,6 +26,9 @@ const ItemReturnScan = () => {
     customCondition: '', // Add custom condition field for 'Others'
   }))]);
   const [barcode, setBarcode] = useState('');
+  const [bulkQuantity, setBulkQuantity] = useState(1); // State for bulk quantity input
+  const [isBulkInput, setIsBulkInput] = useState(false); // Flag to show bulk input UI
+  const [selectedItemIndex, setSelectedItemIndex] = useState(null); // Track the selected item for bulk input
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isReturnComplete, setIsReturnComplete] = useState(false);
@@ -62,9 +65,7 @@ const ItemReturnScan = () => {
 
     if (logItem.quantityReturned >= logItem.quantityBorrowed) {
       setError('You have already returned all of this item.');
-       // Clear the input field
-      setBarcode(''); // Clear the barcode value
-
+      setBarcode('');
       return;
     }
 
@@ -76,11 +77,18 @@ const ItemReturnScan = () => {
         return;
       }
 
-      const updatedItems = [...scannedItems];
-      updatedItems[logItemIndex].quantityReturned++;
+      if (logItem.quantityBorrowed > 1) {
+        // Trigger bulk input if quantityBorrowed is greater than 1
+        setIsBulkInput(true);
+        setSelectedItemIndex(logItemIndex);
+      } else {
+        // Increment quantityReturned for single quantity
+        const updatedItems = [...scannedItems];
+        updatedItems[logItemIndex].quantityReturned++;
+        setScannedItems(updatedItems);
+        setSuccess(`Successfully logged "${scannedItems[logItemIndex]?.itemName}"!`);
+      }
 
-      setScannedItems(updatedItems);
-      setSuccess(`Item ${barcode} logged successfully!`);
       setError('');
     } catch (err) {
       setError('Error processing the return.');
@@ -91,19 +99,20 @@ const ItemReturnScan = () => {
     inputRef.current.focus(); // Refocus the input after scanning
   };
 
-  const handleConditionChange = (index, condition) => {
-    const updatedItems = [...scannedItems];
-    updatedItems[index].condition = condition;
-    if (condition !== 'Others') {
-      updatedItems[index].customCondition = ''; // Reset custom condition if it's not 'Others'
+  const handleBulkInput = () => {
+    if (bulkQuantity < 1 || bulkQuantity > (scannedItems[selectedItemIndex].quantityBorrowed - scannedItems[selectedItemIndex].quantityReturned)) {
+      setError('Invalid quantity. Please enter a valid no. of quantity to be returned.');
+      return;
     }
-    setScannedItems(updatedItems);
-  };
 
-  const handleCustomConditionChange = (index, value) => {
     const updatedItems = [...scannedItems];
-    updatedItems[index].customCondition = value;
+    updatedItems[selectedItemIndex].quantityReturned += bulkQuantity;
     setScannedItems(updatedItems);
+    setIsBulkInput(false);
+    setBulkQuantity(1);
+    setSelectedItemIndex(null);
+    setSuccess(`Successfully logged "${scannedItems[selectedItemIndex]?.itemName}"!`);
+    setError('');
   };
 
   const handleCompleteReturn = async () => {
@@ -169,41 +178,59 @@ const ItemReturnScan = () => {
             <p><strong>Item Barcode:</strong> {item.itemBarcode}</p>
             <p><strong>Quantity Borrowed:</strong> {item.quantityBorrowed}</p>
             <p><strong>Quantity Returned:</strong> {item.quantityReturned}/{item.quantityBorrowed}</p>
-            
-            {/* Condition dropdown */}
-            <label htmlFor={`condition-${item.itemBarcode}`}>Condition:</label>
-            <select
-              id={`condition-${item.itemBarcode}`}
-              value={item.condition || ''}
-              onChange={(e) => handleConditionChange(index, e.target.value)}
-              disabled={isReturnComplete}
-              className="return-condition"
-            >
-              <option value="">Select Condition</option>
-              <option value="Good">Good</option>
-              <option value="Damaged">Damaged</option>
-              <option value="Broken">Broken</option>
-              <option value="Others">Others</option>
-            </select>
+          
+            <div>
+      <label>Condition: </label>
+      <select
+      className='conditionReturnconditionReturn'
+        value={item.condition}
+        onChange={(e) => {
+          const updatedItems = [...scannedItems];
+          updatedItems[index].condition = e.target.value;
+          setScannedItems(updatedItems);
+        }}
+      >
+        <option value="">Select Condition</option>
+        <option value="Good">Good</option>
+        <option value="Damaged">Damaged</option>
+        <option value="Others">Others</option>
+      </select>
+      {item.condition === 'Others' && (
+        <input
+        style={{
+          marginTop: 5,
+          width: '100%',
+        }}
+          type="text"
+          placeholder="Specify the condition"
+          value={item.customCondition}
+          onChange={(e) => {
+            const updatedItems = [...scannedItems];
+            updatedItems[index].customCondition = e.target.value;
+            setScannedItems(updatedItems);
+          }}
+        />
+      )}
+    </div>
 
-            {/* Show text input and "OK" button when "Others" is selected */}
-            {item.condition === 'Others' && (
-              <div className="custom-condition-container">
-                <input
-                  type="text"
-                  placeholder="Enter custom condition"
-                  value={item.customCondition}
-                  onChange={(e) => handleCustomConditionChange(index, e.target.value)}
-                />
-              </div>
-            )}
           </li>
         ))}
       </ul>
 
-      <p><strong>Status:</strong> {selectedTransaction.returnStatus}</p>
-      <p><strong>Borrowed Duration:</strong> {selectedTransaction.borrowedDuration} </p>
-      <p><strong>Date and Time:</strong> {new Date(selectedTransaction.dateTime).toLocaleString()}</p>
+      {isBulkInput && (
+        <div className="bulk-input-container">
+         <h4>Enter Quantity to Return: {scannedItems[selectedItemIndex]?.itemName}</h4>
+          <input
+           className='input-quantity'
+            type="number"
+            value={bulkQuantity}
+            onChange={(e) => setBulkQuantity(Number(e.target.value))}
+            min="1"
+            max={scannedItems[selectedItemIndex]?.quantityBorrowed - scannedItems[selectedItemIndex]?.quantityReturned}
+          />
+          <button className='input-quantity-button' onClick={handleBulkInput}>Submit Quantity</button>
+        </div>
+      )}
 
       {!isReturnComplete && (
         <div>
@@ -226,17 +253,20 @@ const ItemReturnScan = () => {
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
 
-      {/* Display "Complete Return" button only when there are returned items and the return is not complete */}
       {scannedItems.some(item => item.quantityReturned > 0 && item.condition) && !isReturnComplete && !isLoading && (
         <button className="complete-return-btn" onClick={handleCompleteReturn}>
           Submit Return
         </button>
       )}
 
-      {/* Show loading message when the return process is ongoing */}
       {isLoading && <p>Loading...</p>}
 
       {isReturnComplete && <p>Return process completed. Redirecting...</p>}
+
+          <p type="button" className="returnScanBackButton" onClick={() => navigate(-1)}>
+          Back
+          </p>
+
     </div>
   );
 };

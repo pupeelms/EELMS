@@ -4,7 +4,7 @@
   justify-content: center; // Center vertically
   align-items: center; // Center horizontally
   width: auto; // Ensure it takes full width
-  height: auto; // Ensure it takes full height
+  height: 91%; // Ensure it takes full height
   padding: 10px;
   box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
   border-radius: 10px;
@@ -13,6 +13,7 @@
 .log-chart-title {
   font-size: 18px;
   color: #59000f;
+  margin-top: 10px;
   margin-bottom: 20px;
   text-align: center;
 }
