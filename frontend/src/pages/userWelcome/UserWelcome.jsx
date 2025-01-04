@@ -31,7 +31,7 @@ const UserWelcome = () => {
             User
           </button>
           <button className="user-welcome-button" onClick={handleReportClick}>
-            Report an Issue 
+            Report an Item Issue 
           </button>
 
           <div className="user-welcome-about-us" onClick={handleAboutUsClick}>

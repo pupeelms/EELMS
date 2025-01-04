@@ -30,6 +30,13 @@ const NewUserInstruction = () => {
         <li>Submit the form and await confirmation via email.</li>
       </ol>
 
+      {/* Data Privacy Notice */}
+      <div className="privacy-notice">
+        <p className="privacy-notice-p">
+          <strong className='privacy-title'>Data Privacy Notice:</strong> <br /> By registering, you authorize the collection, storage, and processing of your personal information in accordance with the  R.A 10173 (Data Privacy Act of 2012). Your information will be used solely for purposes related to the inventory management system, such as user identification, transaction logging, and notifications. We are committed to ensuring the confidentiality and security of your data.
+        </p>
+      </div>
+
       {/* QR Code for accessing the form */}
       <div className="qr-code">
         <QRCode value={localNetworkLink} size={256} /> {/* Adjust size as needed */}

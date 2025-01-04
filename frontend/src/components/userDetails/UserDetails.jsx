@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import './userDetails.scss';
+import axios from 'axios';
 
 const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType }) => {
   const navigate = useNavigate();
@@ -15,19 +16,19 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
   const [courseSubjectSuggestions, setCourseSubjectSuggestions] = useState([]);
   const [professorSuggestions, setProfessorSuggestions] = useState([]);
   const [roomNoSuggestions, setRoomNoSuggestions] = useState([]);
+  const [borrowedDurationHours, setBorrowedDurationHours] = useState(0);
+  const [borrowedDurationMinutes, setBorrowedDurationMinutes] = useState(0);
 
   // Function to fetch suggestions based on the field and query
   const fetchSuggestions = async (field, query) => {
     if (query.length < 2) return; // Prevent searching with less than 2 characters
   
     try {
-      const encodedQuery = encodeURIComponent(query); // URL encode the query string
-      const response = await fetch(`/api/borrow-return/suggestions?field=${field}&query=${encodedQuery}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch suggestions');
-      }
+      const response = await axios.get(`/api/borrow-return/suggestions`, {
+        params: { field, query },
+      });
   
-      const data = await response.json();
+      const data = response.data;
   
       if (Array.isArray(data)) {
         switch (field) {
@@ -79,20 +80,42 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Ensure borrowedDurationNumber is a valid number
-    if (!borrowedDurationNumber || borrowedDurationNumber <= 0) {
-      setErrorMessage('Please select a valid duration number.');
+  
+    // Ensure both hours and minutes are valid numbers
+    if (borrowedDurationHours < 0 || borrowedDurationMinutes < 0 || borrowedDurationMinutes > 59) {
+      setErrorMessage('Please enter valid hours (0 or more) and minutes (0-59).');
       return;
     }
-
+  
+    // Optional: Ensure duration is not zero
+    if (borrowedDurationHours === 0 && borrowedDurationMinutes === 0) {
+      setErrorMessage('Please enter a valid duration (at least 1 minute).');
+      return;
+    }
+  
     if (!courseSubject || !professor || !roomNo) {
       setErrorMessage('Please fill in all required fields.');
       return;
     }
-
-    const borrowedDuration = `${borrowedDurationNumber} ${borrowedDurationUnit}`;
-
+  
+    // Calculate total duration in milliseconds
+    const totalMilliseconds =
+      borrowedDurationHours * 60 * 60 * 1000 + // Convert hours to milliseconds
+      borrowedDurationMinutes * 60 * 1000; // Convert minutes to milliseconds
+  
+    // Format the borrowed duration string based on hours and minutes
+  let borrowedDuration;
+  if (borrowedDurationHours === 0) {
+    // Display only minutes if hours is 0
+    borrowedDuration = `${borrowedDurationMinutes} minute${borrowedDurationMinutes !== 1 ? 's' : ''}`;
+  } else if (borrowedDurationMinutes === 0) {
+    // Display only hours if minutes is 0
+    borrowedDuration = `${borrowedDurationHours} hour${borrowedDurationHours !== 1 ? 's' : ''}`;
+  } else {
+    // Display both hours and minutes
+    borrowedDuration = `${borrowedDurationHours} hour${borrowedDurationHours !== 1 ? 's' : ''} and ${borrowedDurationMinutes} minute${borrowedDurationMinutes !== 1 ? 's' : ''}`;
+  }
+  
     const userDetails = {
       userID,
       userName,
@@ -101,15 +124,16 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
       professor,
       profAttendance,
       roomNo,
-      borrowedDuration, // combine the two dropdown values
+      borrowedDuration, // formatted string for display
+      borrowedDurationMillis: totalMilliseconds, // total duration in milliseconds
     };
-
+  
     // Log userDetails to see if values are saved correctly
-    console.log('User Details Submitted:', userDetails);
-
+    console.log('User  Details Submitted:', userDetails);
+  
     // Pass user details to the parent component 
     onUserDetailsSubmit(userDetails);
-
+  
     navigate('/item-scan', { state: userDetails });
   };
 
@@ -182,31 +206,40 @@ const UserDetails = ({ onUserDetailsSubmit, userID, userName, transactionType })
         </div>
 
         <div className="userDetailsItem">
-          <label>Borrow Duration:</label>
-          <div className="borrowedDuration">
-            <select
-              value={borrowedDurationNumber}
-              onChange={(e) => setBorrowedDurationNumber(Number(e.target.value))} // Ensure it's a number
-              required
-            >
-              {/* Number options */}
-              {Array.from({ length: 60 }, (_, i) => i + 1).map((number) => (
-                <option key={number} value={number}>{number}</option>
-              ))}
-            </select>
-
-            <select
-              value={borrowedDurationUnit}
-              onChange={(e) => setBorrowedDurationUnit(e.target.value)}
-              required
-            >
-              <option value="minute/s">minute/s</option>
-              <option value="hour/s">hour/s</option>
-              <option value="day/s">day/s</option>
-            </select>
-          </div>
-        </div>
-
+  <label>Borrow Duration:</label>
+  <div className="borrowedDuration">
+    <div className="durationInput">
+      <select
+        id="hours"
+        value={borrowedDurationHours}
+        onChange={(e) => setBorrowedDurationHours(Number(e.target.value))}
+        required
+      >
+        {Array.from({ length: 25 }, (_, i) => (
+          <option key={i} value={i}>
+            {i} 
+          </option>
+        ))}
+      </select>
+      <label htmlFor="hours">hour/s</label>
+    </div>
+    <div className="durationInput">
+      <select
+        id="minutes"
+        value={borrowedDurationMinutes}
+        onChange={(e) => setBorrowedDurationMinutes(Number(e.target.value))}
+        required
+      >
+        {Array.from({ length: 60 }, (_, i) => (
+          <option key={i} value={i}>
+            {i} 
+          </option>
+        ))}
+      </select>
+      <label htmlFor="minutes">minute/s</label>
+    </div>
+  </div>
+</div>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
         <button type="submit" className="userDetailSubmitButton">Continue</button>

@@ -17,6 +17,7 @@ exports.logTransaction = async (req, res) => {
       profAttendance,
       roomNo,
       borrowedDuration,
+      borrowedDurationMillis,
       transactionType,
       notesComments,
     } = req.body;
@@ -40,10 +41,11 @@ exports.logTransaction = async (req, res) => {
         profAttendance,
         roomNo,
         borrowedDuration,
+        borrowedDurationMillis,
         transactionType: 'Borrowed',
         returnStatus: 'Pending',
         notesComments,
-        dueDate: new Date(Date.now() + convertDurationToMillis(borrowedDuration)) // Calculate due date
+        dueDate: new Date(Date.now() + borrowedDurationMillis) // Calculate due date
       });
 
       // Prepare the log items array and update item quantities
@@ -915,20 +917,21 @@ exports.updateTransaction = async (req, res) => {
     }
 
     // Condition to update borrowing duration
-if (updatedData.borrowedDuration && updatedData.borrowedDuration !== transaction.borrowedDuration) {
-  const newDurationMillis = convertDurationToMillis(updatedData.borrowedDuration);
-  const currentDate = new Date();
-  const newDueDate = new Date(currentDate.getTime() + newDurationMillis);
-
-  // Update the borrowing duration and due date
-  transaction.borrowedDuration = updatedData.borrowedDuration;
-  transaction.dueDate = newDueDate;
+    if (updatedData.borrowedDurationMillis && updatedData.borrowedDurationMillis !== transaction.borrowedDurationMillis) {
+      const currentDate = new Date();
+      const newDueDate = new Date(currentDate.getTime() + updatedData.borrowedDurationMillis);
+    
+      // Update the borrowing duration and due date
+      transaction.borrowedDuration = `${updatedData.borrowedDurationHours} hour${updatedData.borrowedDurationHours !== 1 ? 's' : ''} and ${updatedData.borrowedDurationMinutes} minute${updatedData.borrowedDurationMinutes !== 1 ? 's' : ''}`;
+      transaction.borrowedDurationMillis = updatedData.borrowedDurationMillis;
+      transaction.dueDate = newDueDate;
 
   // Update the return status to "Extended" if necessary
-  if (transaction.returnStatus === "Overdue") {
-    transaction.returnStatus = "Extended";
-    transaction.markModified("returnStatus");
-  }
+if (transaction.returnStatus === "Overdue") {
+  transaction.returnStatus = "Extended";
+  transaction.markModified("returnStatus");
+  await transaction.save();
+}
 
   // Reset reminder and overdue email flags
   transaction.reminderSent = false;

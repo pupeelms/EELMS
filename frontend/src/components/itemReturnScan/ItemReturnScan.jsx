@@ -218,19 +218,41 @@ const ItemReturnScan = () => {
       </ul>
 
       {isBulkInput && (
-        <div className="bulk-input-container">
-         <h4>Enter Quantity to Return: {scannedItems[selectedItemIndex]?.itemName}</h4>
-          <input
-           className='input-quantity'
-            type="number"
-            value={bulkQuantity}
-            onChange={(e) => setBulkQuantity(Number(e.target.value))}
-            min="1"
-            max={scannedItems[selectedItemIndex]?.quantityBorrowed - scannedItems[selectedItemIndex]?.quantityReturned}
-          />
-          <button className='input-quantity-button' onClick={handleBulkInput}>Submit Quantity</button>
-        </div>
-      )}
+  <div className="bulk-input-container">
+    <h4>Enter Quantity to Return: {scannedItems[selectedItemIndex]?.itemName}</h4>
+    <div className="quantity-input">
+      <button
+        className="decrement-btn"
+        onClick={() => {
+          setBulkQuantity(prev => Math.max(1, prev - 1)); // Ensure quantity doesn't go below 1
+        }}
+      >
+        -
+      </button>
+      <input
+        className="input-quantity"
+        type="number"
+        value={bulkQuantity}
+        onChange={(e) => setBulkQuantity(Number(e.target.value))}
+        min="1"
+        max={scannedItems[selectedItemIndex]?.quantityBorrowed - scannedItems[selectedItemIndex]?.quantityReturned}
+      />
+      <button
+        className="increment-btn"
+        onClick={() => {
+          setBulkQuantity(prev => Math.min(
+            prev + 1,
+            scannedItems[selectedItemIndex]?.quantityBorrowed - scannedItems[selectedItemIndex]?.quantityReturned
+          )); // Ensure quantity doesn't exceed max limit
+        }}
+      >
+        +
+      </button>
+    </div>
+    <button className="input-quantity-button" onClick={handleBulkInput}>Submit Quantity</button>
+  </div>
+)}
+
 
       {!isReturnComplete && (
         <div>

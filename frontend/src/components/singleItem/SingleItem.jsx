@@ -125,6 +125,14 @@ console.log(updatedItem.image);  // Should log the file object
     }
   };
 
+  const handleQuantityChange = (delta) => {
+    setUpdatedItem((prevItem) => ({
+      ...prevItem,
+      quantity: Math.max(0, (prevItem.quantity || 0) + delta), // Prevent negative values
+    }));
+  };
+  
+
   const handleDeleteClick = () => {
     setShowDeleteConfirmation(true);
   };
@@ -346,15 +354,22 @@ console.log(updatedItem.image);  // Should log the file object
                 fullWidth
                 margin="normal"
               />
-              <TextField
-                label="Quantity"
-                name="quantity"
-                type="number"
-                value={updatedItem.quantity || ""}
-                onChange={handleInputChange}
-                fullWidth
-                margin="normal"
-              />
+              <div className="quantity-input-group-single-item">
+                <label>Quantity:</label>
+                <div className="quantity-input-single-item">
+                  <button type="button" onClick={() => handleQuantityChange(-1)}>-</button>
+                  <TextField
+                    name="quantity"
+                    type="number"
+                    value={updatedItem.quantity || ""}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                    inputProps={{ min: 0 }}
+                  />
+                  <button type="button" onClick={() => handleQuantityChange(1)}>+</button>
+                </div>
+              </div>
               <TextField
                 label="Description"
                 name="description"

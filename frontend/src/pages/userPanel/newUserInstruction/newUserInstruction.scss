@@ -31,7 +31,7 @@
 
   h2 {
     font-size: 32px;
-    margin-top: 30px;
+    margin-top: 10px;
     color: #59000F;
 
     @media (max-width: 768px) {
@@ -51,8 +51,25 @@
   }
 
   ol {
-    text-align: left;
+    text-align: justify;
     padding-left: 1.5rem;
+  }
+
+  /* Data Privacy Notice styling */
+  .privacy-notice-p {
+    font-size: 15px; /* Smaller font size */
+    color: #000000;
+    margin-top: -5px;
+    max-width: 500px;
+    text-align: justify;
+    border: #59000F 1px solid;
+    padding: 10px;
+
+    .privacy-title{
+      font-size: 18px;
+      margin-left: 30%;
+      color: #59000F;
+    }
   }
 
   /* Link to the registration form */

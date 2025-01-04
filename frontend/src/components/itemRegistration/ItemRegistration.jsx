@@ -127,6 +127,13 @@ const ItemRegistration = () => {
     }
   }, [openDialog, navigate]);
 
+  const handleQuantityChange = (delta) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      quantity: Math.max(0, (prevData.quantity || 0) + delta), // Prevent negative values
+    }));
+  };
+  
 
   return (
     <div className="itemRegistration">
@@ -245,13 +252,17 @@ const ItemRegistration = () => {
         </div>
         <div className="newItemField">
           <label>Quantity: </label>
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-          />
+          <div className="quantity-input-new-item">
+            <button type="button" onClick={() => handleQuantityChange(-1)}>-</button>
+            <input
+              type="number"
+              name="quantity"
+              placeholder="Quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+            />
+            <button type="button" onClick={() => handleQuantityChange(1)}>+</button>
+          </div>
         </div>
         <div className="newItemField">
           <label>Description: </label>

@@ -17,6 +17,7 @@ const ItemScan = () => {
     profAttendance = '',
     roomNo = '',
     borrowedDuration = '',
+    borrowedDurationMillis ='',
     items = [], 
     transactionID = null, 
   } = location.state || {};
@@ -259,6 +260,7 @@ const ItemScan = () => {
           profAttendance,
           roomNo,
           borrowedDuration,
+          borrowedDurationMillis,
           transactionType,
           dateTime: new Date().toISOString(),
         };
@@ -333,17 +335,43 @@ const ItemScan = () => {
 
         {itemDetails && availableQuantity > 1 && (
           <>
-            <div className="input-group">
-              <label>Quantity:</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                placeholder="Enter quantity"
-                min="1"
-                required
-              />
-            </div> 
+            <div className="quantity-input-group">
+  <label>Enter Quantity:</label>
+  <div className="quantity-controls">
+    <button
+      type="button"
+      onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+      disabled={quantity <= 1}
+    >
+      -
+    </button>
+    <input
+      type="number"
+      min="1"
+      max={availableQuantity}
+      value={quantity}
+      onChange={(e) => {
+        const newValue = Number(e.target.value);
+        if (newValue <= availableQuantity) {
+          setQuantity(newValue);
+        }
+      }}
+    />
+    <button
+      type="button"
+      onClick={() =>
+        setQuantity((prev) => Math.min(availableQuantity, prev + 1))
+      }
+      disabled={quantity >= availableQuantity}
+    >
+      +
+    </button>
+  </div>
+  <span className="available-quantity">
+    Available: {availableQuantity}
+  </span>
+</div>
+ 
 
             <div className="actions">
               <button type="button" onClick={() => handleAddItem()} disabled={!itemDetails || !quantity}>Add Item</button>

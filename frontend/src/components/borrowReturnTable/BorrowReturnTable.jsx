@@ -249,7 +249,7 @@ const BorrowReturnTable = () => {
 
   const handleConfirmTransfer = async () => {
     setIsLoading(true); 
-
+  
     // Prepare the data to be sent to the backend
     const transferData = {
       items: selectedItems,
@@ -262,35 +262,38 @@ const BorrowReturnTable = () => {
     console.log("Transaction ID:", selectedItems[0].transactionId);
   
     try {
-      // Update to use PUT and send the transactionId in the URL
-      const response = await fetch(`/api/borrow-return/transfer/${transferData.transactionId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(transferData),
-      });
+      // Use Axios to send a PUT request
+      const response = await axios.put(
+        `/api/borrow-return/transfer/${transferData.transactionId}`,
+        transferData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
   
-      const result = await response.json();
+      if (response.status === 200) {
+        console.log('Transfer successful:', response.data);
+        alert('The item has been successfully transferred and is now available for borrowing.'); 
   
-      if (response.ok) {
-        console.log('Transfer successful:', result);
-        alert('Transfer successful!'); 
-        
         setOpenDialog(false); // Close dialog on success
         setSelectedItems([]); // Clear selected items after submission
       } else {
-        console.error('Error submitting transfer:', result);
+        console.error('Error submitting transfer:', response.data);
       }
     } catch (error) {
-      console.error('Error:', error);
+      if (error.response) {
+        console.error('Error submitting transfer:', error.response.data);
+      } else {
+        console.error('Error:', error.message);
+      }
     } finally {
-      setIsLoading(false);  // Reset loading state after the request completes
+      setIsLoading(false); // Reset loading state after the request completes
     }
   };
   
 
-  
   const handleTransferClickInternal = () => {
     // Toggle the transfer mode
     setTransferMode((prevTransferMode) => {
@@ -436,6 +439,7 @@ const BorrowReturnTable = () => {
                                     color="primary"
                                     className="editTransaction"
                                     onClick={() => handleEdit(row)}
+                                    //style={{ marginLeft: '5px' }}
                                   >
                                     Edit
                                   </Button>
@@ -447,9 +451,9 @@ const BorrowReturnTable = () => {
                                         color="primary"
                                         onClick={handleTransferClickInternal} // Use the function to handle both toggle and reset
                                         className="transferButton"
-                                        style={{ marginRight: '10px' }}
+                                        style={{ marginRight: '8px' }}
                                       >
-                                        {transferMode ? 'Cancel Transfer' : 'Transfer'}
+                                        {transferMode ? 'Cancel' : 'Transfer'}
                                       </Button>
                                       {selectedItems.length > 0 && (
                                         <Button
@@ -599,7 +603,6 @@ const BorrowReturnTable = () => {
               >
                 <MenuItem value="minute/s">minute/s</MenuItem>
                 <MenuItem value="hour/s">hour/s</MenuItem>
-                <MenuItem value="day/s">day/s</MenuItem>
               </Select>
             </FormControl>
           </Box>

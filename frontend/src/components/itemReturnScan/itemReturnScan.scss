@@ -30,9 +30,9 @@
 
         .input-quantity-button{
           height: 38px;
-          margin-top: 4px;
+          margin-top: 10px;
           font-size: 13px;
-          padding: 6.9px;
+          padding: 6px 28px;
           padding-top: 8px;
           border-radius: 4px;
         }
@@ -183,5 +183,39 @@
         text-decoration: underline;
       }
     }
+
+    .quantity-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    
+      .input-quantity {
+        width: 50px;
+        text-align: center;
+      }
+    
+      .decrement-btn,
+      .increment-btn {
+        background-color: #5cb85c;
+        color: #000000;
+        border: none;
+        border-radius: 4px;
+        padding: 7px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 5px;
+      }
+
+      .increment-btn{
+        margin-left: -10px;
+      }
+    
+      .decrement-btn:disabled,
+      .increment-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    }
+    
   }
   

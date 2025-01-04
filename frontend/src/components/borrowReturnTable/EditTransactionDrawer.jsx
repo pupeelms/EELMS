@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Drawer, Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import "./editTransactionDrawer.scss";
+import axios from 'axios';
 
 const EditTransactionDrawer = ({ open, onClose, transaction, onUpdate }) => {
   const [formValues, setFormValues] = React.useState({
@@ -25,6 +26,8 @@ const EditTransactionDrawer = ({ open, onClose, transaction, onUpdate }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [items, setItems] = useState([]);  // Initialize with an empty array or fetch it from an API
   const [loading, setLoading] = useState(false);
+  const [borrowedDurationHours, setBorrowedDurationHours] = useState(0);
+  const [borrowedDurationMinutes, setBorrowedDurationMinutes] = useState(0);
 
 
  // Populate the form with the transaction data when the Drawer opens
@@ -32,11 +35,17 @@ useEffect(() => {
   if (transaction) {
     console.log("Transaction details received by drawer:", transaction);
 
-    const [value, unit] = transaction.borrowedDuration?.split(" ") || ["", ""];
-    console.log("Parsed Borrowed Duration - Value:", value, "Unit:", unit); // Log parsed duration
-
-    setDurationValue(value);
-    setDurationUnit(unit);
+     // Parse borrowedDuration into hours and minutes
+     const durationString = transaction.borrowedDuration || "";
+     const hoursMatch = durationString.match(/(\d+)\s*hour/);
+     const minutesMatch = durationString.match(/(\d+)\s*minute/);
+ 
+     const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+     const minutes = minutesMatch ? parseInt(minutesMatch[1], 10) : 0;
+ 
+     setBorrowedDurationHours(hours);
+     setBorrowedDurationMinutes(minutes);
+ 
 
     setFormValues((prev) => ({
       ...prev,
@@ -62,9 +71,17 @@ useEffect(() => {
 const handleItemChange = (e, index) => {
   const { name, value } = e.target;
   console.log(`Changing ${name} to ${value} for item at index ${index}`);
+  
   setFormValues((prev) => {
     const updatedItems = [...prev.items];
-    updatedItems[index][name.split('_')[0]] = value;
+    
+    // Directly update the condition (no need to check for 'others' anymore)
+    if (name.startsWith('condition_')) {
+      updatedItems[index].condition = value;
+    } else {
+      updatedItems[index][name.split('_')[0]] = value;
+    }
+    
     return { ...prev, items: updatedItems };
   });
 };
@@ -140,9 +157,22 @@ const handleChange = (e) => {
 
 const handleSubmit = async () => {
   // Prepare the updated values for submission
+  let borrowedDuration;
+  if (borrowedDurationHours === 0) {
+    // Display only minutes if hours is 0
+    borrowedDuration = `${borrowedDurationMinutes} minute${borrowedDurationMinutes !== 1 ? 's' : ''}`;
+  } else if (borrowedDurationMinutes === 0) {
+    // Display only hours if minutes is 0
+    borrowedDuration = `${borrowedDurationHours} hour${borrowedDurationHours !== 1 ? 's' : ''}`;
+  } else {
+    // Display both hours and minutes
+    borrowedDuration = `${borrowedDurationHours} hour${borrowedDurationHours !== 1 ? 's' : ''} and ${borrowedDurationMinutes} minute${borrowedDurationMinutes !== 1 ? 's' : ''}`;
+  }
+
   const updatedValues = {
     ...formValues,
-    borrowedDuration: `${durationValue} ${durationUnit}`,
+    borrowedDuration,
+    borrowedDurationMillis: borrowedDurationHours * 60 * 60 * 1000 + borrowedDurationMinutes * 60 * 1000,
     items: await Promise.all(
       formValues.items.map(async (item) => {
         // Ensure quantityReturned is initialized to 0 for all items
@@ -175,7 +205,7 @@ const handleSubmit = async () => {
     // Call the onUpdate function, passing the updated values
     const response = await onUpdate(transaction._id, updatedValues);
 
-    if (response.success) {
+    if (response && response.success) {
       console.log("Transaction updated successfully:", response.transaction);
       onClose();
     } else {
@@ -189,32 +219,48 @@ const handleSubmit = async () => {
 
 const handleIncrement = async (index, field) => {
   const updatedItems = [...formValues.items];
-  
-  // Get the item barcode to fetch the item details
   const itemBarcode = updatedItems[index].itemBarcode;
 
   try {
-    // Fetch the item details using the barcode
-    const itemDetails = await fetchItemByBarcode(itemBarcode); // Assuming this function returns the full item details
+    const itemDetails = await fetchItemByBarcode(itemBarcode);
 
     if (itemDetails) {
-      const availableQuantity = itemDetails.quantity; // Get the available quantity from the fetched item details
-      const currentQuantity = updatedItems[index][field] || 0; // Get the current quantity for the field
+      let availableQuantity = updatedItems[index].availableQuantity ?? itemDetails.availableQuantity; // Available quantity from the database
+      const currentQuantity = updatedItems[index][field] || 0; // Current quantity in the form
 
-      // Log the available quantity and current quantity
-      console.log(`Available Quantity for Item ${index}:`, availableQuantity);
-      console.log(`Current ${field} for Item ${index}:`, currentQuantity);
+      console.log("Current quantityBorrowed:", currentQuantity);
 
-      // Check if the current quantity is less than the available quantity
-      if (currentQuantity < availableQuantity) {
-        updatedItems[index][field] = currentQuantity + 1; // Increment the quantity
-        setFormValues((prev) => ({
-          ...prev,
-          items: updatedItems,
-        }));
-      } else {
-        alert("Cannot increment. Not enough available quantity."); // Show alert if not enough quantity
+      if (field === 'quantityBorrowed') {
+        // Increment logic
+        if (availableQuantity > 0) {
+          // Increment by 1
+          updatedItems[index][field] = currentQuantity + 1;
+          // Decrease available quantity by 1
+          availableQuantity -= 1;
+          updatedItems[index].availableQuantity = availableQuantity;
+
+          console.log(`Quantity incremented. New quantityBorrowed: ${updatedItems[index][field]}`);
+          console.log(`Available quantity decreased. Remaining: ${availableQuantity}`);
+        } else {
+          alert("Cannot increment. Not enough available quantity.");
+        }
+ 
+    
+      } else if (field === 'quantityReturned') {
+        // For quantityReturned, increment based on quantityBorrowed
+        const maxReturnable = updatedItems[index].quantityBorrowed - currentQuantity;
+        if (maxReturnable > 0) {
+          updatedItems[index][field] = currentQuantity + 1;
+        } else {
+          alert("Cannot increment. Quantity returned cannot exceed quantity borrowed.");
+        }
       }
+
+      // Update the form state with the new values
+      setFormValues((prev) => ({
+        ...prev,
+        items: updatedItems,
+      }));
     } else {
       console.error("Item details not found for barcode:", itemBarcode);
     }
@@ -226,47 +272,74 @@ const handleIncrement = async (index, field) => {
 // Function to fetch item data from the backend by barcode
 const fetchItemByBarcode = async (barcode) => {
   try {
-    const response = await fetch(`/api/items/barcode/${barcode}`);
-    if (!response.ok) {
-      throw new Error('Item not found');
-    }
+    const response = await axios.get(`/api/items/barcode/${barcode}`);
+    const item = response.data;
 
-    const item = await response.json(); // Assuming the API returns item details including quantity
-    return item;  // Return the full item details
+    // Calculate available quantity
+    const availableQuantity = item.quantity - (item.borrowedQuantity || 0);
+
+    // Log the calculated available quantity
+    console.log("Available quantity:", availableQuantity);
+
+    return {
+      ...item,
+      availableQuantity, // Add availableQuantity to the response
+    };
   } catch (error) {
-    console.error('Error fetching item data:', error);
-    return null;  // Return null or a default value if the item is not found
+    if (error.response && error.response.status === 404) {
+      console.error('Item not found');
+    } else {
+      console.error('Error fetching item data:', error.message);
+    }
+    return null;
   }
 };
 
 const handleDecrement = async (index, field) => {
   const updatedItems = [...formValues.items];
-
-  // Get the item barcode to fetch the item details
   const itemBarcode = updatedItems[index].itemBarcode;
 
   try {
-    // Fetch the item details using the barcode
-    const itemDetails = await fetchItemByBarcode(itemBarcode); // Assuming this function returns the full item details
+    const itemDetails = await fetchItemByBarcode(itemBarcode);
 
     if (itemDetails) {
-      const availableQuantity = itemDetails.quantity; // Get the available quantity from the fetched item details
-      const currentQuantity = updatedItems[index][field] || 0; // Get the current quantity for the field
+      let availableQuantity = updatedItems[index].availableQuantity ?? itemDetails.availableQuantity; // Available quantity from the database
+      const currentQuantity = updatedItems[index][field] || 0; // Current quantity in the form
 
-      // Log the quantities for debugging
-      console.log(`Available Quantity for Item ${index}:`, availableQuantity);
-      console.log(`Current Quantity for Item ${index}:`, currentQuantity);
+      console.log(`Current ${field}:`, currentQuantity);
 
-      // Decrement currentQuantity as long as it is greater than zero
-      if (currentQuantity > 0) {
-        updatedItems[index][field] = currentQuantity - 1; // Decrement the quantity
-        setFormValues((prev) => ({
-          ...prev,
-          items: updatedItems,
-        }));
-      } else {
-        alert("Cannot decrement. Current quantity is zero."); // Show alert if current quantity is zero
+      if (field === 'quantityBorrowed') {
+        // Decrement logic for quantityBorrowed
+        if (currentQuantity > 0) {
+          // Decrement quantityBorrowed by 1
+          updatedItems[index][field] = currentQuantity - 1;
+          // Increase available quantity by 1
+          availableQuantity += 1;
+          updatedItems[index].availableQuantity = availableQuantity;
+
+          console.log(`Quantity decremented. New quantityBorrowed: ${updatedItems[index][field]}`);
+          console.log(`Available quantity increased. Remaining: ${availableQuantity}`);
+        } else {
+          alert("Cannot decrement. Current quantityBorrowed is zero.");
+        }
+      } else if (field === 'quantityReturned') {
+        // Decrement logic for quantityReturned
+        const maxReturnable = updatedItems[index].quantityBorrowed; // Max returnable quantity
+        if (currentQuantity > 0) {
+          // Decrement quantityReturned by 1
+          updatedItems[index][field] = currentQuantity - 1;
+
+          console.log(`Quantity decremented. New quantityReturned: ${updatedItems[index][field]}`);
+        } else {
+          alert("Cannot decrement. Current quantityReturned is zero.");
+        }
       }
+
+      // Update the form state with the new values
+      setFormValues((prev) => ({
+        ...prev,
+        items: updatedItems,
+      }));
     } else {
       console.error("Item details not found for barcode:", itemBarcode);
     }
@@ -274,9 +347,6 @@ const handleDecrement = async (index, field) => {
     console.error("Error fetching item details:", error);
   }
 };
-
-
-
 
 
 
@@ -362,6 +432,8 @@ const handleDecrement = async (index, field) => {
             value={formValues.transactionType}
             onChange={handleChange}
             fullWidth
+            disabled
+            //disabled={formValues.transactionType === "Returned"}
           >
             <MenuItem value="Borrowed">Borrowed</MenuItem>
             <MenuItem value="Returned">Returned</MenuItem>
@@ -369,20 +441,41 @@ const handleDecrement = async (index, field) => {
         </FormControl>
 
         <Box sx={{ display: "flex", gap: 1 }}>
-          <TextField
-            label="Borrowed Duration"
-            type="number"
-            value={durationValue}
-            onChange={(e) => setDurationValue(e.target.value)}
-          />
+          {/* Hours Dropdown */}
           <FormControl fullWidth>
+            <InputLabel id="hours-label">Hours</InputLabel>
             <Select
-              value={durationUnit}
-              onChange={(e) => setDurationUnit(e.target.value)}
+              labelId="hours-label"
+              id="hours"
+              value={borrowedDurationHours}
+              onChange={(e) => setBorrowedDurationHours(Number(e.target.value))}
+              label="Hours"
+              disabled={formValues.returnStatus === "Overdue"}
             >
-              <MenuItem value="minute/s">minute/s</MenuItem>
-              <MenuItem value="hour/s">hour/s</MenuItem>
-              <MenuItem value="day/s">day/s</MenuItem>
+              {Array.from({ length: 25 }, (_, i) => (
+                <MenuItem key={i} value={i}>
+                  {i} hour{i !== 1 ? 's' : ''}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* Minutes Dropdown */}
+          <FormControl fullWidth>
+            <InputLabel id="minutes-label">Minutes</InputLabel>
+            <Select
+              labelId="minutes-label"
+              id="minutes"
+              value={borrowedDurationMinutes}
+              onChange={(e) => setBorrowedDurationMinutes(Number(e.target.value))}
+              label="Minutes"
+              disabled={formValues.returnStatus === "Overdue"}
+            >
+              {Array.from({ length: 60 }, (_, i) => (
+                <MenuItem key={i} value={i}>
+                  {i} minute{i !== 1 ? 's' : ''}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
@@ -395,6 +488,8 @@ const handleDecrement = async (index, field) => {
             value={formValues.returnStatus}
             onChange={handleChange}
             fullWidth
+            disabled
+            //disabled={formValues.returnStatus === "Completed"}
           >
             <MenuItem value="Pending">Pending</MenuItem>
             <MenuItem value="Completed">Completed</MenuItem>
@@ -468,7 +563,7 @@ const handleDecrement = async (index, field) => {
                     onChange={(e) => handleItemChange(e, index)}
                     sx={{ marginBottom: 2 }}
                     fullWidth
-                    disabled={item.quantityBorrowed === item.quantityReturned}
+                    //disabled={item.quantityBorrowed === item.quantityReturned}
                   />
                   <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
                     <TextField
@@ -479,14 +574,14 @@ const handleDecrement = async (index, field) => {
                       sx={{ marginRight: 1, flexGrow: 1 }}
                       onChange={(e) => handleItemChange(e, index)}
                       fullWidth
-                      disabled={item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed === item.quantityReturned}
                     />
                     <Button
                       className='quantityTrans'
                       variant="outlined"
                       onClick={() => handleIncrement(index, 'quantityBorrowed')}
                       sx={{ marginRight: 1 }}
-                      disabled={item.quantityBorrowed >= item.quantity || item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed >= item.quantity || item.quantityBorrowed === item.quantityReturned}
 
                     >
                       +
@@ -496,7 +591,7 @@ const handleDecrement = async (index, field) => {
                       variant="outlined"
                       onClick={() => handleDecrement(index, 'quantityBorrowed')}
                       sx={{ marginRight: 1 }}
-                      disabled={item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed === item.quantityReturned}
                     >
                       -
                     </Button>
@@ -511,14 +606,14 @@ const handleDecrement = async (index, field) => {
                       sx={{ marginRight: 1, flexGrow: 1 }}
                       onChange={(e) => handleItemChange(e, index)}
                       fullWidth
-                      disabled={item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed === item.quantityReturned}
                     />
                     <Button
                       className='quantityTrans'
                       variant="outlined"
                       onClick={() => handleIncrement(index, 'quantityReturned')}
                       sx={{ marginRight: 1 }}
-                      disabled={item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed === item.quantityReturned}
                     >
                       +
                     </Button>
@@ -527,21 +622,27 @@ const handleDecrement = async (index, field) => {
                       variant="outlined"
                       onClick={() => handleDecrement(index, 'quantityReturned')}
                       sx={{ marginRight: 1 }}
-                      disabled={item.quantityBorrowed === item.quantityReturned}
+                      //disabled={item.quantityBorrowed === item.quantityReturned}
                     >
                       -
                     </Button>
                   </Box>
                   
-                  <TextField
-                    label="Condition"
-                    name={`condition_${index}`}
-                    value={item.condition || ''}
-                    onChange={(e) => handleItemChange(e, index)}
-                    sx={{ marginBottom: 2 }}
-                    fullWidth
-                  />
-                  
+                  <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                    <InputLabel id="condition-label">Condition</InputLabel>
+                    <Select
+                      labelId="condition-label"
+                      label="Condition"
+                      name={`condition_${index}`}
+                      value={item.condition || ''}  
+                      onChange={(e) => handleItemChange(e, index)} // Handling changes on select
+                    >
+                      <MenuItem value="">None</MenuItem>  
+                      <MenuItem value="Good">Good</MenuItem>
+                      <MenuItem value="Damaged">Damaged</MenuItem>
+                    </Select>
+                  </FormControl>
+  
                 </>
               )}
 
@@ -576,13 +677,25 @@ const handleDecrement = async (index, field) => {
           onChange={handleChange}
           fullWidth
         />
-         <TextField
-          label="Feedback"
-          name="feedbackEmoji"
-          value={formValues.feedbackEmoji || ''}
-          onChange={handleChange}
-          fullWidth
-        />
+        <FormControl fullWidth>
+          <InputLabel id="feedback-emoji-label">Feedback</InputLabel>
+          <Select
+            labelId="feedback-emoji-label"
+            label="Feedback"
+            id="feedback-emoji"
+            name="feedbackEmoji"
+            value={formValues.feedbackEmoji || ''}
+            onChange={handleChange}
+            
+          >
+            <MenuItem value="😍">😍 Loved it</MenuItem>
+            <MenuItem value="😊">😊 Happy</MenuItem>
+            <MenuItem value="😐">😐 Neutral</MenuItem>
+            <MenuItem value="😕">😕 Confused</MenuItem>
+            <MenuItem value="😡">😡 Angry</MenuItem>
+          </Select>
+        </FormControl>
+
         <TextField
           label="Notes"
           name="notesComments"

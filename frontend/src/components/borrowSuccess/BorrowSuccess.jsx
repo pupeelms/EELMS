@@ -41,7 +41,7 @@ const BorrowSuccess = () => {
         <li><strong>Room No:</strong> {roomNo}</li>
         <li><strong>Borrowed Duration:</strong> {borrowedDuration}</li>
         <li>
-  <strong>Date & Time:</strong> 
+  <strong>Date & Time: </strong> 
   {newTransactionDetails?.dateTime 
     ? new Date(newTransactionDetails.dateTime).toLocaleString() 
     : (dateTime ? new Date(dateTime).toLocaleString() : 'Invalid Date')

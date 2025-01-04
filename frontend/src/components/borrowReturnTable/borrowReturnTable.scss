@@ -88,7 +88,7 @@
     display: flex; /* Aligns children in a row by default */
     align-items: center; /* Vertically aligns the buttons */
     padding: 2px;
-    margin-right: -50px;
+    margin-right: -30px;
     flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
 
     /* Responsive adjustments */
@@ -117,7 +117,7 @@
 }
 
 .submitTransferButton {
-    margin-left: -5px;
+    margin-left: -3px;
 
     /* Adjust margin for smaller screens */
     @media (max-width: 768px) {
@@ -129,7 +129,7 @@
     padding: 3px;
     color: #494949;
     border-color: #9b9b9b;
-    margin-left: 3px;
+    margin-left: 10px;
   
     &:hover {
       background-color: transparent; 

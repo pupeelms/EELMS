@@ -233,4 +233,49 @@
       }
     }
   }
+
+  .quantity-input-group-single-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  
+    label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+  
+    .quantity-input-single-item {
+      display: flex;
+      align-items: center;
+  
+      button {
+        padding: 14px 20px;
+        background-color: #f4f4f4;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 0 0.5rem;
+        margin-top: 8px;
+  
+        &:hover {
+          background-color: #e0e0e0;
+        }
+  
+        &:disabled {
+          background-color: #f9f9f9;
+          cursor: not-allowed;
+        }
+      }
+  
+      .MuiTextField-root {
+        flex: 1;
+        input {
+          text-align: center;
+        }
+      }
+    }
+  }
+  
 }

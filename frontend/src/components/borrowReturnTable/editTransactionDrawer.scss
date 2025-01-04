@@ -104,9 +104,12 @@ width: 100%; /* Use full width for buttons */
     
     
     &:hover {
+      border: black 1px solid;
+      color: black;
       font-weight: bold;
       background-color: transparent;
     }   
 }
 
 }
+
