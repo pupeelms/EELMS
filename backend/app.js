@@ -82,7 +82,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // KeepAlive endpoint
 app.get('/api/keepAlive', (req, res) => {
-  res.status(200).json({ message: "I'm alive!" });
+  try {
+    const currentTime = new Date().toISOString();
+    console.log(`[${currentTime}] Request received at /api/keepAlive`);
+
+    res.status(200).json({ message: "I'm alive!" });
+    console.log("Response sent successfully with status 200");
+  } catch (error) {
+    console.error("Error occurred at /api/keepAlive:", error);
+
+    // Send a 500 error response
+    res.status(500).json({ message: "Something went wrong." });
+
+    // Log additional error details for debugging
+    console.error("Error stack:", error.stack);
+  }
 });
 
 module.exports = app; // Export the app instance
