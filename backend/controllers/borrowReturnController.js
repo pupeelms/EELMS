@@ -835,7 +835,7 @@ exports.transferItems = async (req, res) => {
     const emailSubject = allItemsTransferred ? "Items Transfer Completed" : "Items Partially Transferred";
     const emailBody = allItemsTransferred
       ? `Dear ${transaction.userName},\n\nAll items have been successfully transferred. Thank you for completing the transfer of the following item(s):\n\n${items.map(item => `- ${item.itemName} (Quantity Transferred: ${item.quantityBorrowed})`).join("\n")}\n\nThank you,\nPUP EE LAB`
-      : `Dear ${transaction.userName},\n\nSome items have been successfully transferred. Here are the details of the transferred item(s):\n\n${items.map(item => `- ${item.itemName} (Quantity Transferred: ${item.quantityBorrowed})`).join("\n")}\n\nPlease complete the transfer of remaining items soon.\n\nThank you,\nPUP EE LAB`;
+      : `Dear ${transaction.userName},\n\nSome items have been successfully transferred. Here are the details of the transferred item(s):\n\n${items.map(item => `- ${item.itemName} (Quantity Transferred: ${item.quantityBorrowed})`).join("\n")}\n\nPlease don't forget to return the remaining items soon.\n\nThank you,\nPUP EE LAB`;
 
     try {
       await sendEmail(user.email, emailSubject, emailBody);
