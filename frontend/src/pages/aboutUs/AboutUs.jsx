@@ -138,6 +138,12 @@ const AboutUs = () => {
               </a>
             </div>
           </div>
+
+        {/* Copyright Reserve */}
+        <div className="copyright">
+          <p>&copy; 2025 EELMS. All rights reserved.</p>
+        </div>
+
         </div>
   
       </div>

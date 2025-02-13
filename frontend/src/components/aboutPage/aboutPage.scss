@@ -163,7 +163,6 @@
     // Section 6: Footer
     .footer {
       padding: 20px;
-      background-color: #f8f8f8;
       text-align: center;
   
       .contact-info {
@@ -191,8 +190,14 @@
   
           .text {
             font-size: 1.2rem;
-          }
+          }          
         }
+      }
+      .copyright {
+        font-size: 12px;
+        color: #333;
+        text-align: center;
+        margin-top: 10px;
       }
     }
   
