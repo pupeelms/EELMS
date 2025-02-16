@@ -163,9 +163,8 @@ Then, commit and sync the changes to trigger redeployment.
 ### **For Production Deployment:**  
 1️⃣ **Modify settings for production (`secure: true`, `sameSite: "none"`)**  
 2️⃣ **Ensure production axios settings are enabled**  
-3️⃣ **Commit & Sync Changes to GitHub**  
-4️⃣ **Render will automatically redeploy**  
-5️⃣ **Run `npm run build` if frontend is changed**  
-
+3️⃣ **Run `npm run build` if frontend is changed** 
+4️⃣ **Commit & Sync Changes to GitHub**  
+5️⃣ **Render will automatically redeploy**  
+  
 Now you can **switch between development and production easily**! 🚀  
-```
