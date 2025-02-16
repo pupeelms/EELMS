@@ -1,3 +1,6 @@
+/* This JavaScript code snippet sets up a maintenance scheduler using Node.js and the `node-cron`
+library. Here's a breakdown of what the code does: */
+
 const cron = require("node-cron");
 const { createNotification } = require('./notificationService'); // Adjust as needed
 const Item = require('../models/ItemModel');

@@ -1,3 +1,7 @@
+/* This JavaScript code defines a set of functions that handle CRUD (Create, Read, Update, Delete)
+operations for a "Category" model in a Node.js application. Here's a breakdown of what each part of
+the code does: */
+
 const Category = require('../models/CategoryModel');
 
 // Create a new category

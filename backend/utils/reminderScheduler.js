@@ -1,3 +1,6 @@
+/* This JavaScript code defines a module that sets up a cron job using `node-cron` to send reminders
+for pending and extended transactions. Here's a breakdown of what the code does: */
+
 const cron = require('node-cron');
 const moment = require('moment');
 const BorrowReturnLog = require('../models/BorrowReturnLogModel');

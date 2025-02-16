@@ -1,3 +1,6 @@
+/* This JavaScript code snippet defines a function named `sendFeedback` that uses the Nodemailer
+library to send an email with feedback information. Here's a breakdown of what the code does: */
+
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 require('dotenv').config();

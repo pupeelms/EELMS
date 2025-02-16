@@ -1,3 +1,6 @@
+/* This code snippet is setting up a Node.js server using Express framework to handle file uploads to
+Cloudinary. Here's a breakdown of what the code is doing: */
+
 const express = require('express');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;

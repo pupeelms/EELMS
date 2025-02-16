@@ -1,3 +1,6 @@
+/* The above code is a Node.js module that defines functions for sending various types of emails using
+Nodemailer. Here is a summary of the functions: */
+
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');

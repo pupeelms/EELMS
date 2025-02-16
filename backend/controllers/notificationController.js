@@ -1,3 +1,6 @@
+/* This JavaScript code defines a set of functions that handle CRUD (Create, Read, Update, Delete)
+operations for notifications using a Node.js/Express backend with MongoDB database. */
+
 const Notification = require('../models/NotificationModel');
 const mongoose = require('mongoose');
 // Create a new notification

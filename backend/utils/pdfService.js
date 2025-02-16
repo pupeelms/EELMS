@@ -1,4 +1,4 @@
-// utils/pdfUtils.js
+
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib'); // Include StandardFonts for text width measurement
 const fs = require('fs');
 const path = require('path');

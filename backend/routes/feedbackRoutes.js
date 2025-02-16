@@ -3,7 +3,6 @@ const router = express.Router();
 const upload = require('../utils/upload');
 const feedbackController = require('../controllers/feedbackController');
 
-// Apply authMiddleware if needed
 router.post('/feedback', upload.single('attachment'), (req, res) => {
 
     feedbackController.sendFeedback({

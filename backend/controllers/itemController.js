@@ -1,3 +1,6 @@
+/* The above code is a Node.js application that handles CRUD operations for managing items in an
+inventory system. Here is a summary of what the code does: */
+
 const Item = require('../models/ItemModel');
 const Category = require('../models/CategoryModel');
 const { createNotification } = require('../utils/notificationService');

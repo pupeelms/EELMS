@@ -4,7 +4,6 @@ const Notification = require('../models/NotificationModel');
 const notificationController = require('../controllers/notificationController');
 const authMiddleware = require('../middleware/authMiddleware'); // Importing auth middleware
 
-// Apply authMiddleware to protected routes
 router.use(authMiddleware);  // Protect all routes below
 
 // Routes

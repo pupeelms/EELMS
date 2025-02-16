@@ -1,3 +1,6 @@
+/* The above code is a Node.js application that defines several controller functions for managing user
+registration and approval processes. Here is a summary of what each function does: */
+
 const User = require('../models/UserModel');
 const mongoose = require('mongoose');
 const { sendAdminNotification, sendUserConfirmation, sendUserDeclineEmail } = require('../utils/emailService');

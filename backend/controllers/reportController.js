@@ -1,3 +1,7 @@
+/* This JavaScript code defines a set of functions that handle operations related to creating,
+retrieving, updating, and deleting reports in a system. Here is a breakdown of what each function
+does: */
+
 const Report = require('../models/ReportModel');
 const Item = require('../models/ItemModel');
 const User = require('../models/UserModel');

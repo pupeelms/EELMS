@@ -1,3 +1,6 @@
+/* This JavaScript code snippet is defining a function called `connectDB` that is responsible for
+connecting to a MongoDB database using Mongoose. Here's a breakdown of what the code is doing: */
+
 const mongoose = require('mongoose');
 
 // Function to connect to MongoDB

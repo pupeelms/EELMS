@@ -1,3 +1,6 @@
+/* This code snippet is a Node.js module that handles user authentication for an admin user. Here's a
+breakdown of what it does: */
+
 const Admin = require('../models/AdminModel');
 
 // Handle login

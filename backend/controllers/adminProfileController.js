@@ -1,3 +1,6 @@
+/* The above code is a Node.js controller file that handles various operations related to admin
+profiles. Here is a summary of what each function does: */
+
 const AdminProfile = require('../models/AdminProfileModel'); // Path to your AdminProfile model
 const fs = require('fs'); // Required for file system operations if needed
 const path = require('path'); // Required for file path operations

@@ -1,3 +1,7 @@
+/* This JavaScript code defines an asynchronous function `checkOverdueItems` that is responsible for
+checking and processing overdue items in a borrowing and returning system. Here's a breakdown of
+what the code does: */
+
 const BorrowReturnLog = require('../models/BorrowReturnLogModel');
 const User = require('../models/UserModel'); 
 const { createNotification } = require('../utils/notificationService');

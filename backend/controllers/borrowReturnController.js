@@ -1,3 +1,7 @@
+/* The above code is a Node.js application that handles various operations related to logging borrowing
+and returning transactions for items. Here is a summary of the main functionalities implemented in
+the code: */
+
 const BorrowReturnLog = require('../models/BorrowReturnLogModel');
 const User = require('../models/UserModel');
 const Item = require('../models/ItemModel');
